@@ -1,9 +1,19 @@
 import { Database } from 'arangojs';
 import { Transaction } from 'arangojs/transaction';
 import { Express } from 'express';
+import session from 'express-session';
+import passport from 'passport';
 import { COLLECTION_USER } from '../constants';
 
 export function serviceUser(app: Express, db: Database) {
+  app.use(session({
+    secret: 'randevu',
+    resave: false,
+    saveUninitialized: false,
+  }));
+  app.use(passport.initialize());
+  app.use(passport.session());
+
   app.post('/join', async (req, res) => {
     const { user } = req;
     if (user) {
