@@ -1,6 +1,10 @@
 import { Config } from "./types";
 
 export const config: Config = {
+  api: {
+    host: 'localhost',
+    port: 3699,
+  },
   db: {
     host: 'localhost',
     port: 8529,
