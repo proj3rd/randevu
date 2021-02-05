@@ -6,6 +6,7 @@
     "passport-local": "^1.0.0"
   },
   "devDependencies": {
-    "@types/express": "^4.17.11"
+    "@types/express": "^4.17.11",
+    "@types/passport": "^1.0.5"
   }
 }
