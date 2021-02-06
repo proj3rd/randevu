@@ -3,7 +3,9 @@ import { Transaction } from 'arangojs/transaction';
 import { Express } from 'express';
 import session from 'express-session';
 import passport from 'passport';
+import passportLocal from 'passport-local';
 import { COLLECTION_USER } from '../constants';
+import { User } from '../types';
 
 export function serviceUser(app: Express, db: Database) {
   app.use(session({
@@ -13,6 +15,70 @@ export function serviceUser(app: Express, db: Database) {
   }));
   app.use(passport.initialize());
   app.use(passport.session());
+
+  passport.serializeUser((user, done) => {
+    const username = (user as User).username;
+    done(null, username);
+  });
+
+  passport.deserializeUser(async (username: string, done) => {
+    const collectionUser = db.collection(COLLECTION_USER);
+    let trx: Transaction | undefined;
+    try {
+      trx = await db.beginTransaction({
+        read: collectionUser,
+      });
+      const userFound = await findUserByName(db, trx, username);
+      await trx.commit();
+      done(null, userFound);
+    } catch (e) {
+      if (trx) {
+        await trx.abort();
+      }
+      console.error(e);
+      done(e);
+    }
+  });
+
+  passport.use(new passportLocal.Strategy(
+    async function (username, password, done) {
+      if (typeof username !== 'string' || !username
+          || typeof password !== 'string' || !password
+      ) {
+        return done(null, false);
+      }
+      const collectionUser = db.collection(COLLECTION_USER);
+      let trx: Transaction | undefined;
+      try {
+        trx = await db.beginTransaction({
+          read: collectionUser,
+        });
+        const cursorUserFound = await trx.step(() => db.query({
+          query: `
+            FOR user IN @@collectionUser
+              FILTER user.username == @username
+                 AND user.password == @password
+               LIMIT 1
+              RETURN { username: user.username, role: user.role }
+          `,
+          bindVars: { '@collectionUser': COLLECTION_USER, username, password },
+        }));
+        const userFound = await cursorUserFound.all();
+        if (!userFound.length) {
+          await trx.abort();
+          return done(null, false);
+        }
+        await trx.commit();
+        return done(null, userFound[0]);
+      } catch (e) {
+        if (trx) {
+          await trx.abort();
+        }
+        console.error(e);
+        return done(e);
+      }
+    }
+  ));
 
   app.post('/join', async (req, res) => {
     const { user } = req;
@@ -30,17 +96,9 @@ export function serviceUser(app: Express, db: Database) {
       trx = await db.beginTransaction({
         write: collectionUser,
       });
-      const cursorExistingUser = await trx.step(() => db.query({
-        query: `
-          FOR user IN @@collectionUser
-            FILTER user.username == @username
-            LIMIT 1
-            RETURN true
-        `,
-        bindVars: { '@collectionUser': COLLECTION_USER, username },
-      }));
-      const existingUser = await cursorExistingUser.all();
-      if (existingUser.length) {
+      const existingUser = await findUserByName(db, trx, username);
+      if (existingUser) {
+        await trx.abort();
         return res.status(400).json({ reason: 'Duplicate user name' });
       }
       await trx.step(() => collectionUser.save({ username, password }));
@@ -54,4 +112,22 @@ export function serviceUser(app: Express, db: Database) {
       return res.status(500).end();
     }
   });
+
+  app.post('/login', passport.authenticate('local'), (req, res) => {
+    return res.status(200).end();
+  });
+}
+
+async function findUserByName(db: Database, trx: Transaction, username: string) {
+  const cursorUserFound = await trx.step(() => db.query({
+    query: `
+      FOR user IN @@collectionUser
+        FILTER user.username == @username
+        LIMIT 1
+        RETURN user.username
+    `,
+    bindVars: { '@collectionUser': COLLECTION_USER, username },
+  }));
+  const userFound = await cursorUserFound.all();
+  return userFound[0];
 }

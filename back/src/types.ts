@@ -15,3 +15,8 @@ type DbConfig = {
   password: string,
   database: string,
 };
+
+export type User = {
+  username: string;
+  role: string;
+};
