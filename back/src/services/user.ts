@@ -116,6 +116,11 @@ export function serviceUser(app: Express, db: Database) {
   app.post('/login', passport.authenticate('local'), (req, res) => {
     return res.status(200).end();
   });
+
+  app.get('/logout', (req, res) => {
+    req.logout();
+    return res.status(200).end();
+  });
 }
 
 async function findUserByName(db: Database, trx: Transaction, username: string) {
