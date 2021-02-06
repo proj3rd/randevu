@@ -1,7 +1,7 @@
 import { Database } from "arangojs";
 import { Transaction } from "arangojs/transaction";
 import { Express } from 'express';
-import { COLLECTION_FEATURE, COLLECTION_USER, EDGE_COLLECTION_OWNS } from "../constants";
+import { COLLECTION_FEATURE, COLLECTION_FEATURE_VERSION, COLLECTION_USER, EDGE_COLLECTION_IMPLEMENTS, EDGE_COLLECTION_OWNS } from "../constants";
 import { User } from "../types";
 import { validateString } from "../utils";
 
@@ -19,10 +19,12 @@ export function serviceFeature(app: Express, db: Database) {
     try {
       const collectionUser = db.collection(COLLECTION_USER);
       const collectionFeature = db.collection(COLLECTION_FEATURE);
+      const collectionFeatureVersion = db.collection(COLLECTION_FEATURE_VERSION);
+      const collectionImplements = db.collection(EDGE_COLLECTION_IMPLEMENTS);
       const collectionOwns = db.collection(EDGE_COLLECTION_OWNS);
       trx = await db.beginTransaction({
-        read: [COLLECTION_USER],
-        write: [COLLECTION_FEATURE, EDGE_COLLECTION_OWNS],
+        read: collectionUser,
+        write: [collectionFeature, collectionFeatureVersion, collectionImplements, collectionOwns],
       });
       const existsUser = await trx.step(() => collectionUser.documentExists(ownerId));
       if (!existsUser) {
@@ -48,6 +50,14 @@ export function serviceFeature(app: Express, db: Database) {
       const feature = await trx.step(() => collectionFeature.save({ featureId, featureName }));
       await trx.step(() => collectionOwns.save({
         _from: ownerId,
+        _to: feature._id,
+      }));
+      const featureVersion = await trx.step(() => collectionFeatureVersion.save({
+        version: 1,
+        revision: 0,
+      }));
+      await trx.step(() => collectionImplements.save({
+        _from: featureVersion._id,
         _to: feature._id,
       }));
       await trx.commit();
