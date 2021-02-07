@@ -29,7 +29,8 @@ class Router extends Component<RouteComponentProps, State> {
 
   componentDidMount() {
     axios.get('/authenticate').then((value) => {
-      this.setState({ authenticated: true });
+      const { role } = value.data;
+      this.setState({ authenticated: true, role });
     }).catch((reason) => {
       console.error(reason);
     });
