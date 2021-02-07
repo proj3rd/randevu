@@ -9,7 +9,9 @@ type FeatureInfo = {
   owner: string,
 };
 
-type Props = {};
+type Props = {
+  updateAuthenticationResult: (authenticated: boolean) => void;
+};
 type State = {
   featureInfoList: FeatureInfo[],
 };
@@ -22,13 +24,18 @@ class Feature extends Component<Props, State> {
     };
     const { api } = config;
     axios.defaults.baseURL = `http://${api.host}:${api.port}`;
+    axios.defaults.withCredentials = true;
   }
 
   componentDidMount() {
-    axios.get('/authenticate', { withCredentials: true }).then((value) => {
-      // TODO
+    const { updateAuthenticationResult } = this.props;
+    axios.get('/authenticate').then(() => {
+      axios.get('/features').then((value) => {
+        const featureInfoList = value.data;
+        this.setState({ featureInfoList });
+      }).catch((reason) => {});
     }).catch((reason) => {
-      // TODO
+      updateAuthenticationResult(false);
     });
   }
 

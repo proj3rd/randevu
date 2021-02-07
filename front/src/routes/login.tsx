@@ -6,6 +6,7 @@ import { config } from 'randevu-shared/dist/config';
 type Props = {
   updateAuthenticationResult: (authenticated: boolean) => void;
 };
+
 type State = {
   username: string,
   password: string,
