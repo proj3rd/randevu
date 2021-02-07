@@ -7,6 +7,7 @@ import Join from "./routes/join";
 import Login from "./routes/login";
 import Landing from "./routes/landing";
 import Feature from "./routes/feature";
+import Admin from "./routes/admin";
 
 type State = {
   authenticated: boolean,
@@ -63,7 +64,7 @@ class Router extends Component<RouteComponentProps, State> {
           <Menu.Menu position='right'>
             {
               authenticated && role === 'admin' ? (
-                <Menu.Item>Admin</Menu.Item>
+                <Menu.Item onClick={() => history.push('/admin')}>Admin</Menu.Item>
               ) : <></>
             }
             {
@@ -83,6 +84,7 @@ class Router extends Component<RouteComponentProps, State> {
           <Route path='/features'>
             <Feature updateAuthenticationResult={this.onUpdateAuthenticationResult} />
           </Route>
+          <Route path='/admin'><Admin /></Route>
           <Route path='/join'><Join /></Route>
           <Route path='/login'>
             <Login updateAuthenticationResult={this.onUpdateAuthenticationResult} />

@@ -43,6 +43,7 @@ class Feature extends Component<Props, State> {
     const { featureInfoList } = this.state;
     return (
       <Container>
+        <Header as='h1'>Features</Header>
         <Table celled compact selectable striped>
           <Table.Header>
             <Table.Row>

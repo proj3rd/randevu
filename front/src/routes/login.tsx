@@ -1,6 +1,6 @@
 import axios from "axios";
 import { Component } from "react";
-import { Container, Form, Message } from "semantic-ui-react";
+import { Container, Form, Header, Message } from "semantic-ui-react";
 import { config } from 'randevu-shared/dist/config';
 
 type Props = {
@@ -54,6 +54,7 @@ class Login extends Component<Props, State> {
     const disabled = !username || !password;
     return (
       <Container>
+        <Header as='h1'>Login</Header>
         <Form>
           <Form.Field error={!username}>
             <label>Username</label>

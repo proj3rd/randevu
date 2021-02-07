@@ -1,6 +1,6 @@
 import axios from "axios";
 import { Component } from "react";
-import { Container, Form, Message } from "semantic-ui-react";
+import { Container, Form, Header, Message } from "semantic-ui-react";
 
 type Props = {};
 type State = {
@@ -55,6 +55,7 @@ class Join extends Component<Props, State> {
     const disabled = !username || !password || !retype || password !== retype;
     return (
       <Container>
+        <Header as='h1'>Join RANdevU</Header>
         <Form>
           <Form.Field error={!username}>
             <label>Username</label>
