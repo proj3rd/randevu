@@ -16,16 +16,23 @@ class Router extends Component<RouteComponentProps, State> {
     this.state = {
       authenticated: false,
     };
+    const { api } = config;
+    axios.defaults.baseURL = `http://${api.host}:${api.port}`;
+    this.onUpdateAuthenticationResult = this.onUpdateAuthenticationResult.bind(this);
   }
 
   componentDidMount() {
-    const { api } = config;
-    axios.defaults.baseURL = `http://${api.host}:${api.port}`;
     axios.get('/authenticate').then((value) => {
       this.setState({ authenticated: true });
     }).catch((reason) => {
       console.error(reason);
     });
+  }
+
+  onUpdateAuthenticationResult(authenticated: boolean) {
+    this.setState({ authenticated });
+    const { history } = this.props;
+    history.push('/');
   }
 
   render() {
@@ -53,7 +60,9 @@ class Router extends Component<RouteComponentProps, State> {
           <Route exact path='/'>randevu</Route>
           <Route path='/features'>features</Route>
           <Route path='/join'><Join /></Route>
-          <Route path='/login'><Login /></Route>
+          <Route path='/login'>
+            <Login updateAuthenticationResult={this.onUpdateAuthenticationResult} />
+          </Route>
           <Route path='*'>Not found</Route>
         </Switch>
       </>

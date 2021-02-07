@@ -1,7 +1,11 @@
+import axios from "axios";
 import { Component } from "react";
 import { Container, Form } from "semantic-ui-react";
+import { config } from 'randevu-shared/dist/config';
 
-type Props = {};
+type Props = {
+  updateAuthenticationResult: (authenticated: boolean) => void;
+};
 type State = {
   username: string,
   password: string,
@@ -14,6 +18,9 @@ class Login extends Component<Props, State> {
       username: '',
       password: '',
     };
+    const { api } = config;
+    axios.defaults.baseURL = `http://${api.host}:${api.port}`;
+    this.onClickLogin = this.onClickLogin.bind(this);
   }
 
   onChangePassword(e: React.ChangeEvent<HTMLInputElement>) {
@@ -24,6 +31,16 @@ class Login extends Component<Props, State> {
   onChangeUsername(e: React.ChangeEvent<HTMLInputElement>) {
     const { value: username } = e.target;
     this.setState({ username });
+  }
+
+  onClickLogin() {
+    const { updateAuthenticationResult } = this.props;
+    const { username, password } = this.state;
+    axios.post('/login', { username, password }).then((value) => {
+      updateAuthenticationResult(true);
+    }).catch((reason) => {
+      console.error(reason);
+    });
   }
 
   render() {
@@ -40,7 +57,7 @@ class Login extends Component<Props, State> {
             <label>Password</label>
             <input type='password' value={password} onChange={(e) => this.onChangePassword(e)} />
           </Form.Field>
-          <Form.Button disabled={disabled}>Login</Form.Button>
+          <Form.Button disabled={disabled} onClick={this.onClickLogin}>Login</Form.Button>
         </Form>
       </Container>
     );
