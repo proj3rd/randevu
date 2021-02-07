@@ -1,5 +1,6 @@
 import { Route, Switch, useHistory } from "react-router-dom";
 import { Menu } from "semantic-ui-react";
+import Join from "./routes/join";
 
 export function Router() {
   const history = useHistory();
@@ -17,6 +18,7 @@ export function Router() {
       <Switch>
         <Route exact path='/'>randevu</Route>
         <Route path='/features'>features</Route>
+        <Route path='/join'><Join /></Route>
         <Route path='*'>Not found</Route>
       </Switch>
     </>
