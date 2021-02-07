@@ -1,6 +1,6 @@
 import axios from "axios";
 import { Component } from "react";
-import { Container, Form } from "semantic-ui-react";
+import { Container, Form, Message } from "semantic-ui-react";
 import { config } from 'randevu-shared/dist/config';
 
 type Props = {
@@ -9,6 +9,7 @@ type Props = {
 type State = {
   username: string,
   password: string,
+  messageVisible: boolean,
 }
 
 class Login extends Component<Props, State> {
@@ -17,6 +18,7 @@ class Login extends Component<Props, State> {
     this.state = {
       username: '',
       password: '',
+      messageVisible: false,
     };
     const { api } = config;
     axios.defaults.baseURL = `http://${api.host}:${api.port}`;
@@ -40,11 +42,12 @@ class Login extends Component<Props, State> {
       updateAuthenticationResult(true);
     }).catch((reason) => {
       console.error(reason);
+      this.setState({ messageVisible: true });
     });
   }
 
   render() {
-    const { username, password } = this.state;
+    const { username, password, messageVisible } = this.state;
     const disabled = !username || !password;
     return (
       <Container>
@@ -59,6 +62,14 @@ class Login extends Component<Props, State> {
           </Form.Field>
           <Form.Button disabled={disabled} onClick={this.onClickLogin}>Login</Form.Button>
         </Form>
+        {
+          messageVisible ? (
+            <Message negative>
+              <Message.Header>Login failed</Message.Header>
+              Myabe due to incorrect user information or internal server error
+            </Message>
+          ) : <></>
+        }
       </Container>
     );
   }
