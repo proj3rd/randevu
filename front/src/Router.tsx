@@ -18,12 +18,23 @@ class Router extends Component<RouteComponentProps, State> {
     };
     const { api } = config;
     axios.defaults.baseURL = `http://${api.host}:${api.port}`;
+    this.onClickLogout = this.onClickLogout.bind(this);
     this.onUpdateAuthenticationResult = this.onUpdateAuthenticationResult.bind(this);
   }
 
   componentDidMount() {
     axios.get('/authenticate').then((value) => {
       this.setState({ authenticated: true });
+    }).catch((reason) => {
+      console.error(reason);
+    });
+  }
+
+  onClickLogout() {
+    axios.get('/logout').then((value) => {
+      this.setState({ authenticated: false });
+      const { history } = this.props;
+      history.push('/');
     }).catch((reason) => {
       console.error(reason);
     });
@@ -46,7 +57,7 @@ class Router extends Component<RouteComponentProps, State> {
           <Menu.Menu position='right'>
             {
               authenticated ? (
-                <Menu.Item>Logout</Menu.Item>
+                <Menu.Item onClick={this.onClickLogout}>Logout</Menu.Item>
               ) : (
                 <>
                   <Menu.Item onClick={() => history.push('/join')}>Join</Menu.Item>
