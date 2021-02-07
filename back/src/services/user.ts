@@ -80,6 +80,14 @@ export function serviceUser(app: Express, db: Database) {
     }
   ));
 
+  app.get('/authenticate', (req, res) => {
+    const { user } = req;
+    if (!user) {
+      return res.status(400).end();
+    }
+    return res.status(200).end();
+  });
+
   app.post('/join', async (req, res) => {
     const { user } = req;
     if (user) {
