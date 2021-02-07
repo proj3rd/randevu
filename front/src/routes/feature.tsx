@@ -1,5 +1,7 @@
+import axios from "axios";
 import { Component } from "react";
 import { Container, Table } from "semantic-ui-react";
+import { config } from 'randevu-shared/dist/config';
 
 type FeatureInfo = {
   featureId: string,
@@ -18,6 +20,16 @@ class Feature extends Component<Props, State> {
     this.state ={
       featureInfoList: [],
     };
+    const { api } = config;
+    axios.defaults.baseURL = `http://${api.host}:${api.port}`;
+  }
+
+  componentDidMount() {
+    axios.get('/authenticate', { withCredentials: true }).then((value) => {
+      // TODO
+    }).catch((reason) => {
+      // TODO
+    });
   }
 
   render() {

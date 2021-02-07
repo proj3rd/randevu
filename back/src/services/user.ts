@@ -121,8 +121,21 @@ export function serviceUser(app: Express, db: Database) {
     }
   });
 
-  app.post('/login', passport.authenticate('local'), (req, res) => {
-    return res.status(200).end();
+  app.post('/login', (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
+      if (err) {
+        return next(err);
+      }
+      if (!user) {
+        return res.status(401).end();
+      }
+      req.login(user, (err) => {
+        if (err) {
+          return next(err);
+        }
+        return res.status(200).end();
+      });
+    })(req, res, next);
   });
 
   app.get('/logout', (req, res) => {

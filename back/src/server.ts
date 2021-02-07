@@ -16,7 +16,10 @@ if (require.main === module) {
   const allowedCrossOriginList = [
     'http://localhost:3000',
   ];
-  app.use(cors({ origin: allowedCrossOriginList }));
+  app.use(cors({
+    origin: allowedCrossOriginList,
+    credentials: true,
+  }));
   app.use(express.json());
   serviceUser(app, db);
   serviceFeature(app, db);

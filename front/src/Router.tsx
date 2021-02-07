@@ -25,7 +25,7 @@ class Router extends Component<RouteComponentProps, State> {
   }
 
   componentDidMount() {
-    axios.get('/authenticate').then((value) => {
+    axios.get('/authenticate', { withCredentials: true }).then((value) => {
       this.setState({ authenticated: true });
     }).catch((reason) => {
       console.error(reason);

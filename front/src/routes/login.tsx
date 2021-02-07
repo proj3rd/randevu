@@ -38,7 +38,7 @@ class Login extends Component<Props, State> {
   onClickLogin() {
     const { updateAuthenticationResult } = this.props;
     const { username, password } = this.state;
-    axios.post('/login', { username, password }).then((value) => {
+    axios.post('/login', { username, password }, { withCredentials: true }).then((value) => {
       updateAuthenticationResult(true);
     }).catch((reason) => {
       console.error(reason);
