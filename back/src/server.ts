@@ -1,6 +1,6 @@
 import { Database } from 'arangojs';
 import express from 'express';
-import { config } from './config';
+import { config } from 'randevu-shared/dist/config';
 import { serviceFeature } from './services/feature';
 import { serviceUser } from './services/user';
 

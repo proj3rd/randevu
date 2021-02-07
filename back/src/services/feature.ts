@@ -2,7 +2,7 @@ import { Database } from "arangojs";
 import { Transaction } from "arangojs/transaction";
 import { Express } from 'express';
 import { COLLECTION_FEATURE, COLLECTION_FEATURE_VERSION, COLLECTION_USER, EDGE_COLLECTION_IMPLEMENTS, EDGE_COLLECTION_OWNS } from "../constants";
-import { User } from "../types";
+import { User } from "randevu-shared/dist/types";
 import { validateString } from "../utils";
 
 export function serviceFeature(app: Express, db: Database) {

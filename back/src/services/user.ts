@@ -5,7 +5,7 @@ import session from 'express-session';
 import passport from 'passport';
 import passportLocal from 'passport-local';
 import { COLLECTION_USER } from '../constants';
-import { User } from '../types';
+import { User } from 'randevu-shared/dist/types';
 
 export function serviceUser(app: Express, db: Database) {
   app.use(session({
