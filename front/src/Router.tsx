@@ -6,6 +6,7 @@ import { config } from 'randevu-shared/dist/config';
 import Join from "./routes/join";
 import Login from "./routes/login";
 import Landing from "./routes/landing";
+import Feature from "./routes/feature";
 
 type State = {
   authenticated: boolean,
@@ -70,7 +71,9 @@ class Router extends Component<RouteComponentProps, State> {
         </Menu>
         <Switch>
           <Route exact path='/'><Landing /></Route>
-          <Route path='/features'>features</Route>
+          <Route path='/features'>
+            <Feature />
+          </Route>
           <Route path='/join'><Join /></Route>
           <Route path='/login'>
             <Login updateAuthenticationResult={this.onUpdateAuthenticationResult} />
