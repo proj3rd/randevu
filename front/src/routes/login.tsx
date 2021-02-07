@@ -23,6 +23,7 @@ class Login extends Component<Props, State> {
     };
     const { api } = config;
     axios.defaults.baseURL = `http://${api.host}:${api.port}`;
+    axios.defaults.withCredentials = true;
     this.onClickLogin = this.onClickLogin.bind(this);
   }
 
@@ -39,7 +40,7 @@ class Login extends Component<Props, State> {
   onClickLogin() {
     const { updateAuthenticationResult } = this.props;
     const { username, password } = this.state;
-    axios.post('/login', { username, password }, { withCredentials: true }).then((value) => {
+    axios.post('/login', { username, password }).then((value) => {
       updateAuthenticationResult(true);
     }).catch((reason) => {
       console.error(reason);
