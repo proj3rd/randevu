@@ -6,6 +6,46 @@ import { User } from "randevu-shared/dist/types";
 import { validateString } from "../utils";
 
 export function serviceFeature(app: Express, db: Database) {
+  app.get('/features', async (req, res) => {
+    const user = req.user as User;
+    if(!user) {
+      return res.status(403).end();
+    }
+    let trx: Transaction | undefined;
+    try {
+      const collectionFeature = db.collection(COLLECTION_FEATURE);
+      const collectionOwns = db.collection(EDGE_COLLECTION_OWNS);
+      const collectionUser = db.collection(COLLECTION_USER);
+      trx = await db.beginTransaction({
+        read: [collectionFeature, collectionOwns, collectionUser],
+      });
+      const cursorFeatureWithOwnerList = await trx.step(() => db.query({
+        query: `
+          FOR feature in @@collectionFeature
+            FOR owner IN INBOUND feature @@collectionOwns
+            RETURN {
+              featureId: feature.featureId,
+              featureName: feature.featureName,
+              owner: owner.username
+            }
+        `,
+        bindVars: {
+          '@collectionFeature': COLLECTION_FEATURE,
+          '@collectionOwns': EDGE_COLLECTION_OWNS,
+        },
+      }));
+      const featureWithOwnerList = await cursorFeatureWithOwnerList.all();
+      await trx.commit();
+      return res.json(featureWithOwnerList);
+    } catch (e) {
+      if (trx) {
+        await trx.abort();
+      }
+      console.error(e);
+      return res.status(500).end();
+    }
+  });
+
   app.post('/features',  async (req, res) => {
     const user = req.user as User;
     if (!user || user.role !== 'admin') {
