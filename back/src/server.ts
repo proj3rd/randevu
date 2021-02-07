@@ -1,4 +1,5 @@
 import { Database } from 'arangojs';
+import cors from 'cors';
 import express from 'express';
 import { config } from 'randevu-shared/dist/config';
 import { serviceFeature } from './services/feature';
@@ -12,6 +13,10 @@ if (require.main === module) {
     auth: { username: dbConfig.username, password: dbConfig.password },
   });
   const app = express();
+  const allowedCrossOriginList = [
+    'http://localhost:3000',
+  ];
+  app.use(cors({ origin: allowedCrossOriginList }));
   app.use(express.json());
   serviceUser(app, db);
   serviceFeature(app, db);

@@ -20,7 +20,7 @@ class Router extends Component<RouteComponentProps, State> {
 
   componentDidMount() {
     const { api } = config;
-    axios.defaults.baseURL = `https://${api.host}:${api.port}`;
+    axios.defaults.baseURL = `http://${api.host}:${api.port}`;
     axios.get('/authenticate').then((value) => {
       this.setState({ authenticated: true });
     }).catch((reason) => {
