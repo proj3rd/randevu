@@ -10,7 +10,7 @@ type FeatureInfo = {
 };
 
 type Props = {
-  updateAuthenticationResult: (authenticated: boolean) => void;
+  updateAuthenticationResult: (authenticated: boolean, role: string | undefined) => void;
 };
 type State = {
   featureInfoList: FeatureInfo[],
@@ -35,7 +35,7 @@ class Feature extends Component<Props, State> {
         this.setState({ featureInfoList });
       }).catch((reason) => {});
     }).catch((reason) => {
-      updateAuthenticationResult(false);
+      updateAuthenticationResult(false, undefined);
     });
   }
 

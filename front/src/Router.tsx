@@ -10,6 +10,7 @@ import Feature from "./routes/feature";
 
 type State = {
   authenticated: boolean,
+  role: string | undefined;
 };
 
 class Router extends Component<RouteComponentProps, State> {
@@ -17,6 +18,7 @@ class Router extends Component<RouteComponentProps, State> {
     super(props);
     this.state = {
       authenticated: false,
+      role: undefined,
     };
     const { api } = config;
     axios.defaults.baseURL = `http://${api.host}:${api.port}`;
@@ -43,21 +45,26 @@ class Router extends Component<RouteComponentProps, State> {
     });
   }
 
-  onUpdateAuthenticationResult(authenticated: boolean) {
-    this.setState({ authenticated });
+  onUpdateAuthenticationResult(authenticated: boolean, role: string | undefined) {
+    this.setState({ authenticated, role });
     const { history } = this.props;
     history.push('/');
   }
 
   render() {
     const { history } = this.props;
-    const { authenticated } = this.state;
+    const { authenticated, role } = this.state;
     return (
       <>
         <Menu>
           <Menu.Item header onClick={() => history.push('/')}>randevu</Menu.Item>
           <Menu.Item onClick={() => {history.push('/features')}} disabled={!authenticated}>Features</Menu.Item>
           <Menu.Menu position='right'>
+            {
+              authenticated && role === 'admin' ? (
+                <Menu.Item>Admin</Menu.Item>
+              ) : <></>
+            }
             {
               authenticated ? (
                 <Menu.Item onClick={this.onClickLogout}>Logout</Menu.Item>

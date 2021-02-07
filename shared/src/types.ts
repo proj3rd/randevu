@@ -18,5 +18,5 @@ type DbConfig = {
 
 export type User = {
   username: string;
-  role: string;
+  role?: string;
 };

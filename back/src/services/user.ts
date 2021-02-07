@@ -81,11 +81,12 @@ export function serviceUser(app: Express, db: Database) {
   ));
 
   app.get('/authenticate', (req, res) => {
-    const { user } = req;
+    const user = req.user as User;
     if (!user) {
       return res.status(400).end();
     }
-    return res.status(200).end();
+    const { role } = user;
+    return res.status(200).json({ role });
   });
 
   app.post('/join', async (req, res) => {
@@ -122,7 +123,7 @@ export function serviceUser(app: Express, db: Database) {
   });
 
   app.post('/login', (req, res, next) => {
-    passport.authenticate('local', (err, user, info) => {
+    passport.authenticate('local', (err, user: User, info) => {
       if (err) {
         return next(err);
       }
@@ -133,7 +134,8 @@ export function serviceUser(app: Express, db: Database) {
         if (err) {
           return next(err);
         }
-        return res.status(200).end();
+        const { role } = user;
+        return res.status(200).json({ role });
       });
     })(req, res, next);
   });

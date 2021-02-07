@@ -4,7 +4,7 @@ import { Container, Form, Message } from "semantic-ui-react";
 import { config } from 'randevu-shared/dist/config';
 
 type Props = {
-  updateAuthenticationResult: (authenticated: boolean) => void;
+  updateAuthenticationResult: (authenticated: boolean, role: string | undefined) => void;
 };
 
 type State = {
@@ -41,7 +41,8 @@ class Login extends Component<Props, State> {
     const { updateAuthenticationResult } = this.props;
     const { username, password } = this.state;
     axios.post('/login', { username, password }).then((value) => {
-      updateAuthenticationResult(true);
+      const { role } = value.data;
+      updateAuthenticationResult(true, role);
     }).catch((reason) => {
       console.error(reason);
       this.setState({ messageVisible: true });
