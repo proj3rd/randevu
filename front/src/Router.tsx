@@ -5,6 +5,7 @@ import { Menu } from "semantic-ui-react";
 import { config } from 'randevu-shared/dist/config';
 import Join from "./routes/join";
 import Login from "./routes/login";
+import Landing from "./routes/landing";
 
 type State = {
   authenticated: boolean,
@@ -68,7 +69,7 @@ class Router extends Component<RouteComponentProps, State> {
           </Menu.Menu>
         </Menu>
         <Switch>
-          <Route exact path='/'>randevu</Route>
+          <Route exact path='/'><Landing /></Route>
           <Route path='/features'>features</Route>
           <Route path='/join'><Join /></Route>
           <Route path='/login'>
