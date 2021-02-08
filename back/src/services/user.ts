@@ -144,6 +144,43 @@ export function serviceUser(app: Express, db: Database) {
     req.logout();
     return res.status(200).end();
   });
+
+  app.get('/users/:username', async (req, res) => {
+    const user = req.user as User;
+    if (!user) {
+      return res.status(403).end();
+    }
+    const { username } = req.params;
+    let trx: Transaction | undefined;
+    try {
+      const collectionUser = db.collection(COLLECTION_USER);
+      trx = await db.beginTransaction({
+        read: collectionUser,
+      });
+      const cursorUserFound = await trx.step(() => db.query({
+        query: `
+          FOR user IN @@collectionUser
+            FILTER user.username == @username
+            LIMIT 1
+            RETURN { userId: user._id, username: user.username, role: user.role }
+        `,
+        bindVars: { '@collectionUser': COLLECTION_USER, username }
+      }));
+      const userFound = await cursorUserFound.all();
+      if (!userFound.length) {
+        await trx.abort();
+        return res.status(404).end();
+      }
+      await trx.commit();
+      return res.json(userFound[0]);
+    } catch (e) {
+      if (trx) {
+        await trx.abort();
+      }
+      console.error(e);
+      return res.status(500).end();
+    }
+  });
 }
 
 async function findUserByName(db: Database, trx: Transaction, username: string) {
