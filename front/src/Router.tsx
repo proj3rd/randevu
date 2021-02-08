@@ -82,7 +82,7 @@ class Router extends Component<RouteComponentProps, State> {
         <Switch>
           <Route exact path='/'><Landing /></Route>
           <Route path='/features'>
-            <Feature updateAuthenticationResult={this.onUpdateAuthenticationResult} />
+            <Feature updateAuthenticationResult={this.onUpdateAuthenticationResult} role={role} />
           </Route>
           <Route path='/admin'><Admin /></Route>
           <Route path='/join'><Join /></Route>

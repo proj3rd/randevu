@@ -1,7 +1,8 @@
 import axios from "axios";
 import { Component } from "react";
-import { Container, Table } from "semantic-ui-react";
+import { Button, Container, Header, Icon, Table } from "semantic-ui-react";
 import { config } from 'randevu-shared/dist/config';
+import ModalCreateFeature from "../components/modalCreateFeature";
 
 type FeatureInfo = {
   featureId: string,
@@ -11,9 +12,11 @@ type FeatureInfo = {
 
 type Props = {
   updateAuthenticationResult: (authenticated: boolean, role: string | undefined) => void;
+  role: string | undefined;
 };
 type State = {
   featureInfoList: FeatureInfo[],
+  openModalCreateFeature: boolean,
 };
 
 class Feature extends Component<Props, State> {
@@ -21,7 +24,9 @@ class Feature extends Component<Props, State> {
     super(props);
     this.state ={
       featureInfoList: [],
+      openModalCreateFeature: false,
     };
+    this.openModalCreateFeature = this.openModalCreateFeature.bind(this);
     const { api } = config;
     axios.defaults.baseURL = `http://${api.host}:${api.port}`;
     axios.defaults.withCredentials = true;
@@ -39,8 +44,13 @@ class Feature extends Component<Props, State> {
     });
   }
 
+  openModalCreateFeature(open: boolean) {
+    this.setState({ openModalCreateFeature: open });
+  }
+
   render() {
-    const { featureInfoList } = this.state;
+    const { role } = this.props;
+    const { featureInfoList, openModalCreateFeature } = this.state;
     return (
       <Container>
         <Header as='h1'>Features</Header>
@@ -53,6 +63,18 @@ class Feature extends Component<Props, State> {
             </Table.Row>
           </Table.Header>
           <Table.Body>
+            {
+              role === 'admin' ? (
+                <Table.Row active>
+                  <Table.Cell colSpan={3} textAlign='center'>
+                    <Button icon labelPosition='left' size='tiny' onClick={() => this.openModalCreateFeature(true)}>
+                      <Icon name='plus' />
+                      Create a feature
+                    </Button>
+                  </Table.Cell>
+                </Table.Row>
+              ) : <></>
+            }
             {
               featureInfoList.map((featureInfo) => {
                 const { featureId, featureName, owner } = featureInfo;
@@ -67,6 +89,10 @@ class Feature extends Component<Props, State> {
             }
           </Table.Body>
         </Table>
+        <ModalCreateFeature
+          open={openModalCreateFeature}
+          closeAction={() => this.openModalCreateFeature(false)}
+        />
       </Container>
     );
   }

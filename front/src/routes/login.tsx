@@ -70,7 +70,7 @@ class Login extends Component<Props, State> {
           messageVisible ? (
             <Message negative>
               <Message.Header>Login failed</Message.Header>
-              Myabe due to incorrect user information or internal server error
+              Maybe due to incorrect user information or internal server error
             </Message>
           ) : <></>
         }
