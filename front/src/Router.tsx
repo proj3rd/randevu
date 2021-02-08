@@ -59,7 +59,7 @@ class Router extends Component<RouteComponentProps, State> {
     return (
       <>
         <Menu>
-          <Menu.Item header onClick={() => history.push('/')}>randevu</Menu.Item>
+          <Menu.Item header onClick={() => history.push('/')}>RANdevU</Menu.Item>
           <Menu.Item onClick={() => {history.push('/features')}} disabled={!authenticated}>Features</Menu.Item>
           <Menu.Menu position='right'>
             {
