@@ -40,20 +40,21 @@ class ModalCreateFeature extends Component<Props, State> {
   render() {
     const { closeAction, ...modalProps } = this.props;
     const { featureId, featureName, owner } = this.state;
+    const disabled = !featureId || !featureName || !owner;
     return (
       <Modal {...modalProps} onClose={closeAction}>
         <Modal.Header>Create a feature</Modal.Header>
         <Modal.Content>
           <Form>
-            <Form.Field>
+            <Form.Field error={!featureId}>
               <label>Feature ID</label>
               <input type='text' value={featureId} onChange={this.onChangeFeatureId} />
             </Form.Field>
-            <Form.Field>
+            <Form.Field error={!featureName}>
               <label>Feature name</label>
               <input type='text' value={featureName} onChange={this.onChangeFeatureName} />
             </Form.Field>
-            <Form.Field>
+            <Form.Field error={!owner}>
               <label>Owner</label>
               <input type='text' value={owner} onChange={this.onChangeOwner} />
             </Form.Field>
@@ -61,7 +62,7 @@ class ModalCreateFeature extends Component<Props, State> {
         </Modal.Content>
         <Modal.Actions>
           <Button color='red' onClick={closeAction}>Cancel</Button>
-          <Button color='green'>Create</Button>
+          <Button color='green' disabled={disabled}>Create</Button>
         </Modal.Actions>
       </Modal>
     );
