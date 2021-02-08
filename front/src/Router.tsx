@@ -24,8 +24,8 @@ class Router extends Component<RouteComponentProps, State> {
     const { api } = config;
     axios.defaults.baseURL = `http://${api.host}:${api.port}`;
     axios.defaults.withCredentials = true;
-    this.onClickLogout = this.onClickLogout.bind(this);
-    this.onUpdateAuthenticationResult = this.onUpdateAuthenticationResult.bind(this);
+    this.logout = this.logout.bind(this);
+    this.updateAuthenticationResult = this.updateAuthenticationResult.bind(this);
   }
 
   componentDidMount() {
@@ -37,7 +37,7 @@ class Router extends Component<RouteComponentProps, State> {
     });
   }
 
-  onClickLogout() {
+  logout() {
     axios.get('/logout').then((value) => {
       this.setState({ authenticated: false });
       const { history } = this.props;
@@ -47,7 +47,7 @@ class Router extends Component<RouteComponentProps, State> {
     });
   }
 
-  onUpdateAuthenticationResult(authenticated: boolean, role: string | undefined) {
+  updateAuthenticationResult(authenticated: boolean, role: string | undefined) {
     this.setState({ authenticated, role });
     const { history } = this.props;
     history.push('/');
@@ -69,7 +69,7 @@ class Router extends Component<RouteComponentProps, State> {
             }
             {
               authenticated ? (
-                <Menu.Item onClick={this.onClickLogout}>Logout</Menu.Item>
+                <Menu.Item onClick={this.logout}>Logout</Menu.Item>
               ) : (
                 <>
                   <Menu.Item onClick={() => history.push('/join')}>Join</Menu.Item>
@@ -82,12 +82,12 @@ class Router extends Component<RouteComponentProps, State> {
         <Switch>
           <Route exact path='/'><Landing /></Route>
           <Route path='/features'>
-            <Feature updateAuthenticationResult={this.onUpdateAuthenticationResult} role={role} />
+            <Feature onUpdateAuthenticationResult={this.updateAuthenticationResult} role={role} />
           </Route>
           <Route path='/admin'><Admin /></Route>
           <Route path='/join'><Join /></Route>
           <Route path='/login'>
-            <Login updateAuthenticationResult={this.onUpdateAuthenticationResult} />
+            <Login onUpdateAuthenticationResult={this.updateAuthenticationResult} />
           </Route>
           <Route path='*'>Not found</Route>
         </Switch>

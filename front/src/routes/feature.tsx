@@ -11,7 +11,7 @@ type FeatureInfo = {
 };
 
 type Props = {
-  updateAuthenticationResult: (authenticated: boolean, role: string | undefined) => void;
+  onUpdateAuthenticationResult: (authenticated: boolean, role: string | undefined) => void;
   role: string | undefined;
 };
 type State = {
@@ -33,14 +33,14 @@ class Feature extends Component<Props, State> {
   }
 
   componentDidMount() {
-    const { updateAuthenticationResult } = this.props;
+    const { onUpdateAuthenticationResult } = this.props;
     axios.get('/authenticate').then(() => {
       axios.get('/features').then((value) => {
         const featureInfoList = value.data;
         this.setState({ featureInfoList });
       }).catch((reason) => {});
     }).catch((reason) => {
-      updateAuthenticationResult(false, undefined);
+      onUpdateAuthenticationResult(false, undefined);
     });
   }
 
