@@ -52,8 +52,8 @@ export function serviceFeature(app: Express, db: Database) {
     if (!user || user.role !== 'admin') {
       return res.status(403).end();
     }
-    const { featureId, featureName, ownerId } = req.body;
-    if (!validateString(featureId) || !validateString(featureName) || !validateString(ownerId)) {
+    const { featureId, featureName, username } = req.body;
+    if (!validateString(featureId) || !validateString(featureName) || !validateString(username)) {
       return res.status(400).end();
     }
     let trx: Transaction | undefined;
@@ -67,11 +67,6 @@ export function serviceFeature(app: Express, db: Database) {
         read: collectionUser,
         write: [collectionFeature, collectionFeatureVersion, collectionImplements, collectionOwns],
       });
-      const existsUser = await trx.step(() => collectionUser.documentExists(ownerId));
-      if (!existsUser) {
-        await trx.abort();
-        return res.status(400).json({ reason: 'User not found' });
-      }
       const cursorFeatureFound = await trx.step(() => db.query({
         query: `
           FOR feature IN @@collectionFeature
@@ -89,8 +84,23 @@ export function serviceFeature(app: Express, db: Database) {
         return res.status(400).json({ reason: `Duplicate feature ID` });
       }
       const feature = await trx.step(() => collectionFeature.save({ featureId, featureName }));
+      const cursorUserDocIdFound = await trx.step(() => db.query({
+        query: `
+          FOR user in @@collectionUser
+            FILTER user.username == @username
+            LIMIT 1
+            RETURN user._id
+        `,
+        bindVars: { '@collectionUser': COLLECTION_USER, username },
+      }));
+      const userDocIdFound = await cursorUserDocIdFound.all();
+      if (!userDocIdFound.length) {
+        await trx.abort();
+        return res.status(400).json({ reason: 'User not found' });
+      }
+      const userDocId = userDocIdFound[0];
       await trx.step(() => collectionOwns.save({
-        _from: ownerId,
+        _from: userDocId,
         _to: feature._id,
       }));
       const featureVersion = await trx.step(() => collectionFeatureVersion.save({
