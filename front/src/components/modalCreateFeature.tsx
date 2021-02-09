@@ -1,7 +1,7 @@
 import axios from "axios";
 import { config } from "randevu-shared/dist/config";
 import { Component } from "react";
-import { Button, Form, Icon, Label, Modal, ModalProps } from "semantic-ui-react";
+import { Button, Form, Modal, ModalProps } from "semantic-ui-react";
 
 type Props = {} & ModalProps;
 
@@ -9,8 +9,6 @@ type State = {
   featureId: string,
   featureName: string,
   username: string,
-  userId: string,
-  usernameFound: string,
 };
 
 class ModalCreateFeature extends Component<Props, State> {
@@ -20,14 +18,10 @@ class ModalCreateFeature extends Component<Props, State> {
       featureId: '',
       featureName: '',
       username: '',
-      userId: '',
-      usernameFound: '',
     }
     this.onChangeFeatureId = this.onChangeFeatureId.bind(this);
     this.onChangeFeatureName = this.onChangeFeatureName.bind(this);
     this.onChangeOwner = this.onChangeOwner.bind(this);
-    this.onKeyUp = this.onKeyUp.bind(this);
-    this.removeOwner = this.removeOwner.bind(this);
     const { api } = config;
     axios.defaults.baseURL = `http://${api.host}:${api.port}`;
     axios.defaults.withCredentials = true;
@@ -51,32 +45,15 @@ class ModalCreateFeature extends Component<Props, State> {
     this.setState({ username });
   }
 
-  onKeyUp(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.code !== 'Enter') {
-      return;
-    }
-    const { username } = this.state;
-    axios.get(`/users/${username}`).then((value) => {
-      const { userId, username: usernameFound } = value.data;
-      this.setState({ userId, usernameFound });
-    }).catch((reason) => {
-      console.error(reason);
-    });
-  }
-
-  removeOwner() {
-    this.setState({ userId: '', usernameFound: '' });
-  }
-
   render() {
     const { closeAction, ...modalProps } = this.props;
-    const { featureId, featureName, username, usernameFound } = this.state;
-    const disabled = !featureId || !featureName || !usernameFound;
+    const { featureId, featureName, username } = this.state;
+    const disabled = !featureId || !featureName || !username;
     return (
       <Modal {...modalProps} onClose={closeAction}>
         <Modal.Header>Create a feature</Modal.Header>
         <Modal.Content>
-          <Form>
+          <Form onSubmit={this.createFeature}>
             <Form.Field error={!featureId}>
               <label>Feature ID</label>
               <input type='text' value={featureId} onChange={this.onChangeFeatureId} />
@@ -85,19 +62,11 @@ class ModalCreateFeature extends Component<Props, State> {
               <label>Feature name</label>
               <input type='text' value={featureName} onChange={this.onChangeFeatureName} />
             </Form.Field>
-            <Form.Field error={!usernameFound}>
+            <Form.Field error={!username}>
               <label>Owner</label>
-              <input type='text' value={username} onChange={this.onChangeOwner} onKeyUp={this.onKeyUp} />
+              <input type='text' value={username} onChange={this.onChangeOwner} />
             </Form.Field>
           </Form>
-          {
-            usernameFound ? (
-              <Label onClick={this.removeOwner}>
-                {usernameFound}
-                <Icon name='delete' />
-              </Label>
-            ) : <></>
-          }
         </Modal.Content>
         <Modal.Actions>
           <Button onClick={closeAction}>Cancel</Button>
