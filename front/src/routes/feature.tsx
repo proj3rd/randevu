@@ -1,6 +1,6 @@
 import axios from "axios";
 import { Component } from "react";
-import { Button, Container, Header, Icon, Table } from "semantic-ui-react";
+import { Button, Container, Dimmer, Header, Icon, Loader, Table } from "semantic-ui-react";
 import { config } from 'randevu-shared/dist/config';
 import ModalCreateFeature from "../components/modalCreateFeature";
 
@@ -15,6 +15,7 @@ type Props = {
   role: string | undefined;
 };
 type State = {
+  loading: boolean,
   featureInfoList: FeatureInfo[],
   openModalCreateFeature: boolean,
 };
@@ -23,6 +24,7 @@ class Feature extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state ={
+      loading: false,
       featureInfoList: [],
       openModalCreateFeature: false,
     };
@@ -34,12 +36,16 @@ class Feature extends Component<Props, State> {
 
   componentDidMount() {
     const { onUpdateAuthenticationResult } = this.props;
+    this.setState({ loading: true });
     axios.get('/authenticate').then(() => {
       axios.get('/features').then((value) => {
         const featureInfoList = value.data;
-        this.setState({ featureInfoList });
-      }).catch((reason) => {});
+        this.setState({ loading: false, featureInfoList });
+      }).catch((reason) => {
+        this.setState({ loading: false });
+      });
     }).catch((reason) => {
+      this.setState({ loading: false });
       onUpdateAuthenticationResult(false, undefined);
     });
   }
@@ -50,7 +56,7 @@ class Feature extends Component<Props, State> {
 
   render() {
     const { role } = this.props;
-    const { featureInfoList, openModalCreateFeature } = this.state;
+    const { loading, featureInfoList, openModalCreateFeature } = this.state;
     return (
       <Container>
         <Header as='h1'>Features</Header>
@@ -93,6 +99,9 @@ class Feature extends Component<Props, State> {
           open={openModalCreateFeature}
           closeAction={() => this.openModalCreateFeature(false)}
         />
+        <Dimmer active={loading}>
+          <Loader />
+        </Dimmer>
       </Container>
     );
   }
