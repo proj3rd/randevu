@@ -11,6 +11,8 @@ type State = {
   username: string,
   loading: boolean,
   messageVisible: boolean,
+  positive: boolean,
+  negative: boolean,
   messageContent: string,
 };
 
@@ -23,6 +25,8 @@ class ModalCreateFeature extends Component<Props, State> {
       username: '',
       loading: false,
       messageVisible: false,
+      positive: false,
+      negative: false,
       messageContent: '',
     }
     this.createFeature = this.createFeature.bind(this);
@@ -41,10 +45,10 @@ class ModalCreateFeature extends Component<Props, State> {
     }
     this.setState({ loading: true });
     axios.post('/features/', { featureId, featureName, username }).then((value) => {
-      // TODO: close and refresh feature list
+      this.setState({ loading: false, messageVisible: true, positive: true, negative: false });
     }).catch((reason) => {
       const messageContent = reason?.response?.data?.reason ?? 'Maybe due to internal server error';
-      this.setState({ loading: false, messageVisible: true, messageContent });
+      this.setState({ loading: false, messageVisible: true, positive: false, negative: true, messageContent });
     })
   }
 
@@ -65,7 +69,7 @@ class ModalCreateFeature extends Component<Props, State> {
 
   render() {
     const { closeAction, ...modalProps } = this.props;
-    const { featureId, featureName, username, loading, messageVisible, messageContent } = this.state;
+    const { featureId, featureName, username, loading, messageVisible, positive, negative, messageContent } = this.state;
     const disabled = !featureId || !featureName || !username;
     return (
       <Modal {...modalProps} onClose={closeAction}>
@@ -86,8 +90,13 @@ class ModalCreateFeature extends Component<Props, State> {
             </Form.Field>
           </Form>
           {
-            messageVisible ? (
-              <Message error>
+            messageVisible && positive ? (
+              <Message positive>
+                <Message.Header>Success</Message.Header>
+                <Message.Content>Feature has been created</Message.Content>
+              </Message>
+            ) : messageVisible && negative ? (
+              <Message negative>
                 <Message.Header>Oops</Message.Header>
                 <Message.Content>{messageContent}</Message.Content>
               </Message>
