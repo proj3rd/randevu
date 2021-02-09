@@ -9,6 +9,7 @@ type State = {
   featureId: string,
   featureName: string,
   username: string,
+  loading: boolean,
 };
 
 class ModalCreateFeature extends Component<Props, State> {
@@ -18,7 +19,9 @@ class ModalCreateFeature extends Component<Props, State> {
       featureId: '',
       featureName: '',
       username: '',
+      loading: false,
     }
+    this.createFeature = this.createFeature.bind(this);
     this.onChangeFeatureId = this.onChangeFeatureId.bind(this);
     this.onChangeFeatureName = this.onChangeFeatureName.bind(this);
     this.onChangeOwner = this.onChangeOwner.bind(this);
@@ -28,6 +31,12 @@ class ModalCreateFeature extends Component<Props, State> {
   }
 
   createFeature() {
+    const { loading } = this.state;
+    if (loading) {
+      return;
+    }
+    this.setState({ loading: true });
+    // TODO
   }
 
   onChangeFeatureId(e: React.ChangeEvent<HTMLInputElement>) {
@@ -47,7 +56,7 @@ class ModalCreateFeature extends Component<Props, State> {
 
   render() {
     const { closeAction, ...modalProps } = this.props;
-    const { featureId, featureName, username } = this.state;
+    const { featureId, featureName, username, loading } = this.state;
     const disabled = !featureId || !featureName || !username;
     return (
       <Modal {...modalProps} onClose={closeAction}>
@@ -70,7 +79,7 @@ class ModalCreateFeature extends Component<Props, State> {
         </Modal.Content>
         <Modal.Actions>
           <Button onClick={closeAction}>Cancel</Button>
-          <Button color='green' disabled={disabled} onClick={this.createFeature}>Create</Button>
+          <Button color='green' disabled={disabled} onClick={this.createFeature} loading={loading}>Create</Button>
         </Modal.Actions>
       </Modal>
     );
