@@ -7,6 +7,7 @@ type State = {
   username: string,
   password: string,
   retype: string,
+  loading: boolean,
   messageVisible: boolean,
   negative: boolean,
   positive: boolean,
@@ -19,6 +20,7 @@ class Join extends Component<Props, State> {
       username: '',
       password: '',
       retype: '',
+      loading: false,
       messageVisible: false,
       negative: false,
       positive: false,
@@ -42,16 +44,21 @@ class Join extends Component<Props, State> {
   }
 
   onClickJoin() {
+    const { loading } = this.state;
+    if (loading) {
+      return;
+    }
+    this.setState({ loading: true });
     const { username, password } = this.state;
     axios.post('/join', { username, password }).then((value) => {
-      this.setState({ messageVisible: true, positive: true, negative: false });
+      this.setState({ loading: false, messageVisible: true, positive: true, negative: false });
     }).catch((reason) => {
-      this.setState({ messageVisible: true, positive: false, negative: true });
+      this.setState({ loading: false, messageVisible: true, positive: false, negative: true });
     });
   }
 
   render() {
-    const { username, password, retype, messageVisible, negative, positive } = this.state;
+    const { username, password, retype, loading, messageVisible, negative, positive } = this.state;
     const disabled = !username || !password || !retype || password !== retype;
     return (
       <Container>
@@ -69,7 +76,7 @@ class Join extends Component<Props, State> {
             <label>Retype password</label>
             <input type='password' value={retype} onChange={(e) => this.onChangeRetype(e)} />
           </Form.Field>
-          <Form.Button disabled={disabled} onClick={this.onClickJoin}>Join</Form.Button>
+          <Form.Button disabled={disabled} onClick={this.onClickJoin} loading={loading}>Join</Form.Button>
         </Form>
         {
           messageVisible && positive ? (
