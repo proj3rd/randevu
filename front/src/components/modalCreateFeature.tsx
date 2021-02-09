@@ -1,7 +1,7 @@
 import axios from "axios";
 import { config } from "randevu-shared/dist/config";
 import { Component } from "react";
-import { Button, Form, Modal, ModalProps } from "semantic-ui-react";
+import { Button, Form, Message, Modal, ModalProps } from "semantic-ui-react";
 
 type Props = {} & ModalProps;
 
@@ -10,6 +10,8 @@ type State = {
   featureName: string,
   username: string,
   loading: boolean,
+  messageVisible: boolean,
+  messageContent: string,
 };
 
 class ModalCreateFeature extends Component<Props, State> {
@@ -20,6 +22,8 @@ class ModalCreateFeature extends Component<Props, State> {
       featureName: '',
       username: '',
       loading: false,
+      messageVisible: false,
+      messageContent: '',
     }
     this.createFeature = this.createFeature.bind(this);
     this.onChangeFeatureId = this.onChangeFeatureId.bind(this);
@@ -39,9 +43,8 @@ class ModalCreateFeature extends Component<Props, State> {
     axios.post('/features/', { featureId, featureName, username }).then((value) => {
       // TODO: close and refresh feature list
     }).catch((reason) => {
-      console.error(reason);
-      // TODO: show failure message
-      this.setState({ loading: false });
+      const messageContent = reason?.response?.data?.reason ?? 'Maybe due to internal server error';
+      this.setState({ loading: false, messageVisible: true, messageContent });
     })
   }
 
@@ -62,7 +65,7 @@ class ModalCreateFeature extends Component<Props, State> {
 
   render() {
     const { closeAction, ...modalProps } = this.props;
-    const { featureId, featureName, username, loading } = this.state;
+    const { featureId, featureName, username, loading, messageVisible, messageContent } = this.state;
     const disabled = !featureId || !featureName || !username;
     return (
       <Modal {...modalProps} onClose={closeAction}>
@@ -82,6 +85,14 @@ class ModalCreateFeature extends Component<Props, State> {
               <input type='text' value={username} onChange={this.onChangeOwner} />
             </Form.Field>
           </Form>
+          {
+            messageVisible ? (
+              <Message error>
+                <Message.Header>Oops</Message.Header>
+                <Message.Content>{messageContent}</Message.Content>
+              </Message>
+            ) : <></>
+          }
         </Modal.Content>
         <Modal.Actions>
           <Button onClick={closeAction}>Cancel</Button>
