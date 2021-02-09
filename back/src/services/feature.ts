@@ -24,6 +24,7 @@ export function serviceFeature(app: Express, db: Database) {
           FOR feature in @@collectionFeature
             FOR owner IN INBOUND feature @@collectionOwns
             RETURN {
+              _id: feature._id,
               featureId: feature.featureId,
               featureName: feature.featureName,
               owner: owner.username
