@@ -10,6 +10,7 @@ type Props = {
 type State = {
   username: string,
   password: string,
+  loading: boolean,
   messageVisible: boolean,
 }
 
@@ -19,6 +20,7 @@ class Login extends Component<Props, State> {
     this.state = {
       username: '',
       password: '',
+      loading: false,
       messageVisible: false,
     };
     const { api } = config;
@@ -39,18 +41,23 @@ class Login extends Component<Props, State> {
 
   login() {
     const { onUpdateAuthenticationResult } = this.props;
-    const { username, password } = this.state;
+    const { username, password, loading } = this.state;
+    if (loading) {
+      return;
+    }
+    this.setState({ loading: true });
     axios.post('/login', { username, password }).then((value) => {
       const { role } = value.data;
+      this.setState({ loading: false });
       onUpdateAuthenticationResult(true, role);
     }).catch((reason) => {
       console.error(reason);
-      this.setState({ messageVisible: true });
+      this.setState({ loading: false, messageVisible: true });
     });
   }
 
   render() {
-    const { username, password, messageVisible } = this.state;
+    const { username, password, loading, messageVisible } = this.state;
     const disabled = !username || !password;
     return (
       <Container>
@@ -64,7 +71,7 @@ class Login extends Component<Props, State> {
             <label>Password</label>
             <input type='password' value={password} onChange={(e) => this.onChangePassword(e)} />
           </Form.Field>
-          <Form.Button disabled={disabled} onClick={this.login}>Login</Form.Button>
+          <Form.Button disabled={disabled} onClick={this.login} loading={loading}>Login</Form.Button>
         </Form>
         {
           messageVisible ? (
