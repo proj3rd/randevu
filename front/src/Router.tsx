@@ -1,7 +1,7 @@
 import axios from "axios";
 import { Component } from "react";
 import { Route, RouteComponentProps, Switch, withRouter } from "react-router-dom";
-import { Menu } from "semantic-ui-react";
+import { Dimmer, Loader, Menu } from "semantic-ui-react";
 import { config } from 'randevu-shared/dist/config';
 import Join from "./routes/join";
 import Login from "./routes/login";
@@ -10,6 +10,7 @@ import Feature from "./routes/feature";
 import Admin from "./routes/admin";
 
 type State = {
+  loading: boolean,
   authenticated: boolean,
   role: string | undefined;
 };
@@ -18,6 +19,7 @@ class Router extends Component<RouteComponentProps, State> {
   constructor(props: RouteComponentProps) {
     super(props);
     this.state = {
+      loading: false,
       authenticated: false,
       role: undefined,
     };
@@ -29,21 +31,25 @@ class Router extends Component<RouteComponentProps, State> {
   }
 
   componentDidMount() {
+    this.setState({ loading: true });
     axios.get('/authenticate').then((value) => {
       const { role } = value.data;
-      this.setState({ authenticated: true, role });
+      this.setState({ loading: false, authenticated: true, role });
     }).catch((reason) => {
       console.error(reason);
+      this.setState({ loading: false });
     });
   }
 
   logout() {
+    this.setState({ loading: true });
     axios.get('/logout').then((value) => {
-      this.setState({ authenticated: false });
+      this.setState({ loading: false, authenticated: false });
       const { history } = this.props;
       history.push('/');
     }).catch((reason) => {
       console.error(reason);
+      this.setState({ loading: false });
     });
   }
 
@@ -55,7 +61,7 @@ class Router extends Component<RouteComponentProps, State> {
 
   render() {
     const { history } = this.props;
-    const { authenticated, role } = this.state;
+    const { loading, authenticated, role } = this.state;
     return (
       <>
         <Menu>
@@ -91,6 +97,9 @@ class Router extends Component<RouteComponentProps, State> {
           </Route>
           <Route path='*'>Not found</Route>
         </Switch>
+        <Dimmer active={loading}>
+          <Loader />
+        </Dimmer>
       </>
     );
   }
