@@ -162,7 +162,7 @@ export function serviceUser(app: Express, db: Database) {
           FOR user IN @@collectionUser
             FILTER user.username == @username
             LIMIT 1
-            RETURN { userId: user._id, username: user.username, role: user.role }
+            RETURN { _id: user._id, username: user.username, role: user.role }
         `,
         bindVars: { '@collectionUser': COLLECTION_USER, username }
       }));
