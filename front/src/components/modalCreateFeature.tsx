@@ -31,12 +31,18 @@ class ModalCreateFeature extends Component<Props, State> {
   }
 
   createFeature() {
-    const { loading } = this.state;
+    const { loading, featureId, featureName, username } = this.state;
     if (loading) {
       return;
     }
     this.setState({ loading: true });
-    // TODO
+    axios.post('/features/', { featureId, featureName, username }).then((value) => {
+      // TODO: close and refresh feature list
+    }).catch((reason) => {
+      console.error(reason);
+      // TODO: show failure message
+      this.setState({ loading: false });
+    })
   }
 
   onChangeFeatureId(e: React.ChangeEvent<HTMLInputElement>) {
