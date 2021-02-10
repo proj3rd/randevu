@@ -4,11 +4,17 @@ import { Button, Container, Dimmer, Header, Icon, Loader, Table } from "semantic
 import { config } from 'randevu-shared/dist/config';
 import ModalRegisterOperator from "../components/modalRegisterOperator";
 
+type OperatorInfo = {
+  operatorName: string,
+  owner: string,
+};
+
 type Props = {
   onUpdateAuthenticationResult: (authenticated: boolean, role: string | undefined) => void;
   role: string | undefined;
 };
 type State = {
+  operatorList: OperatorInfo[],
   loading: boolean,
   openModalRegisterOperator: boolean,
 };
@@ -17,9 +23,11 @@ class Operator extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state ={
+      operatorList: [],
       loading: false,
       openModalRegisterOperator: false,
     };
+    this.getOperatorList = this.getOperatorList.bind(this);
     this.openModalRegisterOperator = this.openModalRegisterOperator.bind(this);
     const { api } = config;
     axios.defaults.baseURL = `http://${api.host}:${api.port}`;
@@ -30,16 +38,22 @@ class Operator extends Component<Props, State> {
     const { onUpdateAuthenticationResult } = this.props;
     this.setState({ loading: true });
     axios.get('/authenticate').then(() => {
-      axios.get('/features').then((value) => {
-        // TODO: Fetch operator list
-        this.setState({ loading: false });
-      }).catch((reason) => {
-        this.setState({ loading: false });
-      });
-    }).catch((reason) => {
+      this.setState({ loading: false });
+    }).catch(() => {
       this.setState({ loading: false });
       onUpdateAuthenticationResult(false, undefined);
     });
+  }
+
+  getOperatorList() {
+    this.setState({ loading: true });
+    axios.get('/operators').then((value) => {
+      const { data: operatorList } = value;
+      this.setState({ operatorList, loading: false });
+    }).catch((reason) => {
+      console.error(reason);
+      this.setState({ loading: false });
+    })
   }
 
   openModalRegisterOperator(open: boolean) {
@@ -48,10 +62,14 @@ class Operator extends Component<Props, State> {
 
   render() {
     const { role } = this.props;
-    const { loading, openModalRegisterOperator } = this.state;
+    const { operatorList, loading, openModalRegisterOperator } = this.state;
     return (
       <Container>
         <Header as='h1'>Operators</Header>
+        <Button icon labelPosition='left' size='tiny' onClick={this.getOperatorList}>
+          <Icon name='refresh' />
+          Refresh
+        </Button>
         <Table celled compact selectable striped>
           <Table.Header>
             <Table.Row>
@@ -72,7 +90,17 @@ class Operator extends Component<Props, State> {
                 </Table.Row>
               ) : <></>
             }
-            {/* TODO: Operator list */}
+            {
+              operatorList.map((operator) => {
+                const { operatorName, owner } = operator;
+                return (
+                <Table.Row key={operatorName}>
+                  <Table.Cell>{operatorName}</Table.Cell>
+                  <Table.Cell>{owner}</Table.Cell>
+                </Table.Row>
+                );
+              })
+            }
           </Table.Body>
         </Table>
         <ModalRegisterOperator
