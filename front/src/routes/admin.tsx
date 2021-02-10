@@ -4,6 +4,7 @@ import { Container, Header, Tab, TabProps } from "semantic-ui-react";
 
 const panes = [
   { menuItem: '', path: '' },
+  { menuItem: 'Deployment options', path: '/deployment-options' },
   { menuItem: 'Network entities', path: '/network-entities' },
   { menuItem: 'Network functions', path: '/network-functions' },
   { menuItem: 'Radio access technologies', path: '/radio-access-technologies' },
