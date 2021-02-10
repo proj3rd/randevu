@@ -67,6 +67,10 @@ class Router extends Component<RouteComponentProps, State> {
         <Menu>
           <Menu.Item header onClick={() => history.push('/')}>RANdevU</Menu.Item>
           <Menu.Item onClick={() => {history.push('/features')}} disabled={!authenticated}>Features</Menu.Item>
+          <Menu.Item disabled>Operators</Menu.Item>
+          <Menu.Item disabled>Packages</Menu.Item>
+          <Menu.Item disabled>Requirements</Menu.Item>
+          <Menu.Item disabled>TDocs</Menu.Item>
           <Menu.Menu position='right'>
             {
               authenticated && role === 'admin' ? (
