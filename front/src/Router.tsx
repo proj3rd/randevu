@@ -109,6 +109,4 @@ class Router extends Component<RouteComponentProps, State> {
   }
 }
 
-const RouterWithRouter = withRouter(Router);
-
-export default RouterWithRouter;
+export default withRouter(Router);
