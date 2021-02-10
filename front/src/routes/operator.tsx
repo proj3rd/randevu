@@ -2,6 +2,7 @@ import axios from "axios";
 import { Component } from "react";
 import { Button, Container, Dimmer, Header, Icon, Loader, Table } from "semantic-ui-react";
 import { config } from 'randevu-shared/dist/config';
+import ModalRegisterOperator from "../components/modalRegisterOperator";
 
 type Props = {
   onUpdateAuthenticationResult: (authenticated: boolean, role: string | undefined) => void;
@@ -47,7 +48,7 @@ class Operator extends Component<Props, State> {
 
   render() {
     const { role } = this.props;
-    const { loading } = this.state;
+    const { loading, openModalRegisterOperator } = this.state;
     return (
       <Container>
         <Header as='h1'>Operators</Header>
@@ -74,7 +75,10 @@ class Operator extends Component<Props, State> {
             {/* TODO: Operator list */}
           </Table.Body>
         </Table>
-        {/* TODO: Modal to register an operator  */}
+        <ModalRegisterOperator
+          open={openModalRegisterOperator}
+          closeAction={() => this.openModalRegisterOperator(false)}
+        />
         <Dimmer active={loading}>
           <Loader />
         </Dimmer>
