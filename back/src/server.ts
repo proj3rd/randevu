@@ -3,6 +3,7 @@ import cors from 'cors';
 import express from 'express';
 import { config } from 'randevu-shared/dist/config';
 import { serviceFeature } from './services/feature';
+import { serviceOperator } from './services/operator';
 import { serviceUser } from './services/user';
 
 if (require.main === module) {
@@ -23,6 +24,7 @@ if (require.main === module) {
   app.use(express.json());
   serviceUser(app, db);
   serviceFeature(app, db);
+  serviceOperator(app, db);
   app.listen(api.port, api.host, () => {
     console.log(`randevu-backend listening on ${api.port}...`);
   });
