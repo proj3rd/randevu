@@ -9,6 +9,7 @@ import Landing from "./routes/landing";
 import Feature from "./routes/feature";
 import Admin from "./routes/admin";
 import Operator from "./routes/operator";
+import Package from "./routes/package";
 
 type State = {
   loading: boolean,
@@ -69,7 +70,7 @@ class Router extends Component<RouteComponentProps, State> {
           <Menu.Item header onClick={() => history.push('/')}>RANdevU</Menu.Item>
           <Menu.Item onClick={() => {history.push('/features')}} disabled={!authenticated}>Features</Menu.Item>
           <Menu.Item onClick={() => {history.push('/operators')}} disabled={!authenticated}>Operators</Menu.Item>
-          <Menu.Item disabled>Packages</Menu.Item>
+          <Menu.Item onClick={() => {history.push('/packages')}} disabled={!authenticated}>Packages</Menu.Item>
           <Menu.Item disabled>Requirements</Menu.Item>
           <Menu.Item disabled>TDocs</Menu.Item>
           <Menu.Menu position='right'>
@@ -97,6 +98,9 @@ class Router extends Component<RouteComponentProps, State> {
           </Route>
           <Route path='/operators'>
             <Operator onUpdateAuthenticationResult={this.updateAuthenticationResult} role={role} />
+          </Route>
+          <Route>
+            <Package onUpdateAuthenticationResult={this.updateAuthenticationResult} role={role} />
           </Route>
           <Route path='/admin'><Admin /></Route>
           <Route path='/join'><Join /></Route>
