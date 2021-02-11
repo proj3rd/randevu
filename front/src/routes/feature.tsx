@@ -28,7 +28,7 @@ class Feature extends Component<Props, State> {
       loading: false,
       featureInfoList: [],
       openModalCreateFeature: false,
-      openSearch: false,
+      openSearch: true,
     };
     this.openModalCreateFeature = this.openModalCreateFeature.bind(this);
     this.toggleSearch = this.toggleSearch.bind(this);
