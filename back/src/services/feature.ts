@@ -19,19 +19,37 @@ export function serviceFeature(app: Express, db: Database) {
       trx = await db.beginTransaction({
         read: [collectionFeature, collectionOwns, collectionUser],
       });
+      const { featureId, featureName, owner } = req.query;
+      const filterList = [];
+      const bindVarsFilter = {} as any;
+      if (featureId) {
+        filterList.push(`feature.featureId LIKE CONCAT('%', @featureId, '%')`);
+        bindVarsFilter.featureId = featureId;
+      }
+      if (featureName) {
+        filterList.push(`feature.featureName LIKE CONCAT('%', @featureName, '%')`);
+        bindVarsFilter.featureName = featureName;
+      }
+      if (owner) {
+        filterList.push(`owner.username LIKE CONCAT('%', @owner, '%')`);
+        bindVarsFilter.owner = owner;
+      }
+      const filter = filterList.length ? `FILTER ${filterList.join(' AND ')}` : '';
       const cursorFeatureWithOwnerList = await trx.step(() => db.query({
         query: `
           FOR feature in @@collectionFeature
             FOR owner IN INBOUND feature @@collectionOwns
-            RETURN {
-              featureId: feature.featureId,
-              featureName: feature.featureName,
-              owner: owner.username
-            }
+              ${filter}
+              RETURN {
+                featureId: feature.featureId,
+                featureName: feature.featureName,
+                owner: owner.username
+              }
         `,
         bindVars: {
           '@collectionFeature': COLLECTION_FEATURE,
           '@collectionOwns': EDGE_COLLECTION_OWNS,
+          ...bindVarsFilter,
         },
       }));
       const featureWithOwnerList = await cursorFeatureWithOwnerList.all();

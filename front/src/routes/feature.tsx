@@ -1,6 +1,6 @@
 import axios from "axios";
 import { Component } from "react";
-import { Accordion, Button, Container, Dimmer, Form, Header, Icon, Loader, Segment, Table } from "semantic-ui-react";
+import { Accordion, Button, Container, Dimmer, Form, Header, Icon, Loader, Message, Segment, Table } from "semantic-ui-react";
 import { config } from 'randevu-shared/dist/config';
 import ModalCreateFeature from "../components/modalCreateFeature";
 
@@ -14,11 +14,16 @@ type Props = {
   onUpdateAuthenticationResult: (authenticated: boolean, role: string | undefined) => void;
   role: string | undefined;
 };
+
 type State = {
   loading: boolean,
   featureInfoList: FeatureInfo[],
   openModalCreateFeature: boolean,
   openSearch: boolean,
+  featureId: string,
+  featureName: string,
+  owner: string,
+  messageVisible: boolean,
 };
 
 class Feature extends Component<Props, State> {
@@ -29,8 +34,16 @@ class Feature extends Component<Props, State> {
       featureInfoList: [],
       openModalCreateFeature: false,
       openSearch: true,
+      featureId: '',
+      featureName: '',
+      owner: '',
+      messageVisible: false,
     };
+    this.onChangeFeatureId = this.onChangeFeatureId.bind(this);
+    this.onChangeFeatureName = this.onChangeFeatureName.bind(this);
+    this.onChangeOwner = this.onChangeOwner.bind(this);
     this.openModalCreateFeature = this.openModalCreateFeature.bind(this);
+    this.search = this.search.bind(this);
     this.toggleSearch = this.toggleSearch.bind(this);
     const { api } = config;
     axios.defaults.baseURL = `http://${api.host}:${api.port}`;
@@ -41,20 +54,44 @@ class Feature extends Component<Props, State> {
     const { onUpdateAuthenticationResult } = this.props;
     this.setState({ loading: true });
     axios.get('/authenticate').then(() => {
-      axios.get('/features').then((value) => {
-        const featureInfoList = value.data;
-        this.setState({ loading: false, featureInfoList });
-      }).catch((reason) => {
-        this.setState({ loading: false });
-      });
+      this.setState({ loading: false });
     }).catch((reason) => {
       this.setState({ loading: false });
       onUpdateAuthenticationResult(false, undefined);
     });
   }
 
+  onChangeFeatureId(e: React.ChangeEvent<HTMLInputElement>) {
+    const featureId = e.target.value;
+    this.setState({ featureId });
+  }
+
+  onChangeFeatureName(e: React.ChangeEvent<HTMLInputElement>) {
+    const featureName = e.target.value;
+    this.setState({ featureName });
+  }
+
+  onChangeOwner(e: React.ChangeEvent<HTMLInputElement>) {
+    const owner = e.target.value;
+    this.setState({ owner });
+  }
+
   openModalCreateFeature(open: boolean) {
     this.setState({ openModalCreateFeature: open });
+  }
+
+  search() {
+    const { featureId, featureName, owner } = this.state;
+    this.setState({ loading: true });
+    axios.get('/features', {
+      params: { featureId, featureName, owner }
+    }).then((value) => {
+      const featureInfoList = value.data;
+      this.setState({ loading: false, featureInfoList, messageVisible: false });
+    }).catch((reason) => {
+      console.error(reason);
+      this.setState({ loading: false, messageVisible: true });
+    });
   }
 
   toggleSearch() {
@@ -66,12 +103,11 @@ class Feature extends Component<Props, State> {
 
   render() {
     const { role } = this.props;
-    const { loading, featureInfoList, openModalCreateFeature, openSearch } = this.state;
+    const { loading, featureInfoList, openModalCreateFeature, openSearch, featureId, featureName, owner, messageVisible } = this.state;
     return (
       <Container>
         <Header as='h1'>Features</Header>
         <Segment>
-
           <Accordion>
             <Accordion.Title active={openSearch} onClick={this.toggleSearch}>
               <Icon name='dropdown' />
@@ -82,19 +118,19 @@ class Feature extends Component<Props, State> {
                 <Form.Group>
                   <Form.Field inline>
                     <label>Feature ID</label>
-                    <input type='text' />
+                    <input type='text' value={featureId} onChange={this.onChangeFeatureId} />
                   </Form.Field>
                   <Form.Field inline>
                     <label>Feature name</label>
-                    <input type='text' />
+                    <input type='text' value={featureName} onChange={this.onChangeFeatureName} />
                   </Form.Field>
                   <Form.Field inline>
                     <label>Owner</label>
-                    <input type='text' />
+                    <input type='text' value={owner} onChange={this.onChangeOwner} />
                   </Form.Field>
                 </Form.Group>
                 <Form.Field>
-                  <Button icon labelPosition='left'>
+                  <Button icon labelPosition='left' onClick={this.search}>
                     <Icon name='search' />
                     Search
                   </Button>
@@ -103,6 +139,14 @@ class Feature extends Component<Props, State> {
             </Accordion.Content>
           </Accordion>
         </Segment>
+        {
+          messageVisible ? (
+            <Message visible={messageVisible} negative>
+              <Message.Header>Oops</Message.Header>
+              <Message.Content>Maybe due to internal server error</Message.Content>
+            </Message>
+          ) : <></>
+        }
         <Table celled compact selectable striped>
           <Table.Header>
             <Table.Row>
