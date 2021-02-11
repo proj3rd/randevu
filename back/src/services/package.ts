@@ -1,7 +1,7 @@
 import { Database } from "arangojs";
 import { Transaction } from "arangojs/transaction";
 import { Express } from 'express';
-import { COLLECTION_FEATURE, COLLECTION_FEATURE_VERSION, COLLECTION_USER, EDGE_COLLECTION_IMPLEMENTS, EDGE_COLLECTION_OWNS } from "../constants";
+import { COLLECTION_FEATURE, COLLECTION_PACKAGE_MAIN, COLLECTION_USER, EDGE_COLLECTION_OWNS } from "../constants";
 import { User } from "randevu-shared/dist/types";
 import { validateString } from "../utils";
 
@@ -69,46 +69,44 @@ export function servicePackage(app: Express, db: Database) {
     if (!user || user.role !== 'admin') {
       return res.status(403).end();
     }
-    const { featureId, featureName, username } = req.body;
-    if (!validateString(featureId) || !validateString(featureName) || !validateString(username)) {
+    const { packageName, owner } = req.body;
+    if (!validateString(packageName) || !validateString(owner)) {
       return res.status(400).end();
     }
     let trx: Transaction | undefined;
     try {
       const collectionUser = db.collection(COLLECTION_USER);
-      const collectionFeature = db.collection(COLLECTION_FEATURE);
-      const collectionFeatureVersion = db.collection(COLLECTION_FEATURE_VERSION);
-      const collectionImplements = db.collection(EDGE_COLLECTION_IMPLEMENTS);
+      const collectionPackageMain = db.collection(COLLECTION_PACKAGE_MAIN);
       const collectionOwns = db.collection(EDGE_COLLECTION_OWNS);
       trx = await db.beginTransaction({
         read: collectionUser,
-        write: [collectionFeature, collectionFeatureVersion, collectionImplements, collectionOwns],
+        write: [collectionPackageMain, collectionOwns],
       });
-      const cursorFeatureFound = await trx.step(() => db.query({
+      const cursorPackageFound = await trx.step(() => db.query({
         query: `
-          FOR feature IN @@collectionFeature
-            FILTER feature.featureId == @featureId
+          FOR pacakge IN @@collectionPackage
+            FILTER pacakge.packageName == @packageName
             LIMIT 1
-            RETURN feature._id
+            RETURN pacakge._id
         `,
         bindVars: {
-          '@collectionFeature': COLLECTION_FEATURE, featureId,
+          '@collectionPackage': collectionPackageMain.name, packageName,
         },
       }));
-      const featureFound = await cursorFeatureFound.all();
-      if (featureFound.length) {
+      const packageFound = await cursorPackageFound.all();
+      if (packageFound.length) {
         await trx.abort();
-        return res.status(400).json({ reason: `Duplicate feature ID` });
+        return res.status(400).json({ reason: `Duplicate package name` });
       }
-      const feature = await trx.step(() => collectionFeature.save({ featureId, featureName }));
+      const pkg = await trx.step(() => collectionPackageMain.save({ packageName }));
       const cursorUserDocIdFound = await trx.step(() => db.query({
         query: `
           FOR user in @@collectionUser
-            FILTER user.username == @username
+            FILTER user.username == @owner
             LIMIT 1
             RETURN user._id
         `,
-        bindVars: { '@collectionUser': COLLECTION_USER, username },
+        bindVars: { '@collectionUser': collectionUser.name, owner },
       }));
       const userDocIdFound = await cursorUserDocIdFound.all();
       if (!userDocIdFound.length) {
@@ -118,15 +116,7 @@ export function servicePackage(app: Express, db: Database) {
       const userDocId = userDocIdFound[0];
       await trx.step(() => collectionOwns.save({
         _from: userDocId,
-        _to: feature._id,
-      }));
-      const featureVersion = await trx.step(() => collectionFeatureVersion.save({
-        version: 1,
-        revision: 0,
-      }));
-      await trx.step(() => collectionImplements.save({
-        _from: featureVersion._id,
-        _to: feature._id,
+        _to: pkg._id,
       }));
       await trx.commit();
       return res.status(200).end();
