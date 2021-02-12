@@ -129,12 +129,17 @@ class Feature extends Component<Props, State> {
                     <input type='text' value={owner} onChange={this.onChangeOwner} />
                   </Form.Field>
                 </Form.Group>
-                <Form.Field>
-                  <Button icon labelPosition='left' onClick={this.search}>
-                    <Icon name='search' />
-                    Search
-                  </Button>
-                </Form.Field>
+                <Form.Group>
+                  <Form.Field>
+                    <Button icon labelPosition='left' onClick={this.search}>
+                      <Icon name='search' />
+                      Search
+                    </Button>
+                  </Form.Field>
+                  <Form.Field>
+                    <Button>My features</Button>
+                  </Form.Field>
+                </Form.Group>
               </Form>
             </Accordion.Content>
           </Accordion>
@@ -173,8 +178,16 @@ class Feature extends Component<Props, State> {
                 const { featureId, featureName, owner } = featureInfo;
                 return (
                   <Table.Row key={featureId}>
-                    <Table.Cell>{featureId}</Table.Cell>
-                    <Table.Cell>{featureName}</Table.Cell>
+                    <Table.Cell>
+                      <a href={`/features/${featureId}`} target='_blank' rel='noreferrer'>
+                        {featureId}
+                      </a>
+                      </Table.Cell>
+                    <Table.Cell>
+                      <a href={`/features/${featureId}`} target='_blank' rel='noreferrer'>
+                        {featureName}
+                      </a>
+                    </Table.Cell>
                     <Table.Cell>{owner}</Table.Cell>
                   </Table.Row>
                 );
