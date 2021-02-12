@@ -7,6 +7,10 @@ type Props = {} & ModalProps;
 
 type State = {
   packageName: string,
+  operatorList: Array<{ key: string, value: string, text: string }>,
+  operator: string,
+  packageList: Array<{ key: string, value: string, text: string }>,
+  pkg: string,
   owner: string,
   loading: boolean,
   messageVisible: boolean,
@@ -20,6 +24,10 @@ class ModalCreatePackage extends Component<Props, State> {
     super(props);
     this.state = {
       packageName: '',
+      operatorList: [],
+      operator: '',
+      packageList: [],
+      pkg: '',
       owner: '',
       loading: false,
       messageVisible: false,
@@ -28,6 +36,7 @@ class ModalCreatePackage extends Component<Props, State> {
       messageContent: '',
     }
     this.createPackage = this.createPackage.bind(this);
+    this.onChangeOperator = this.onChangeOperator.bind(this);
     this.onChangePackageName = this.onChangePackageName.bind(this);
     this.onChangeOwner = this.onChangeOwner.bind(this);
     const { api } = config;
@@ -49,6 +58,34 @@ class ModalCreatePackage extends Component<Props, State> {
     })
   }
 
+  init() {
+    axios.get('/operators').then((value) => {
+      const operatorNameWithOwnerList = value.data as Array<{operatorName: string, owner: string}>;
+      const operatorList = operatorNameWithOwnerList.map((operatorNameWithOwner) => {
+        const { operatorName } = operatorNameWithOwner;
+        return { key: operatorName, value: operatorName, text: operatorName };
+      });
+      this.setState({ operatorList, packageList: [] });
+    }).catch((reason) => {
+      console.error(reason);
+    });
+  }
+
+  onChangeOperator(e: React.ChangeEvent<HTMLSelectElement>) {
+    const { value: operator } = e.target;
+    this.setState({ operator });
+    axios.get('/packages', { params: { operatorNameList: [operator] } }).then((value) => {
+      const { data: packageInfoList } = value;
+      const packageList = packageInfoList.map((packageInfo : any /* TODO */) => {
+        const { packageName } = packageInfo;
+        return { key: packageName, value: packageName, text: packageName };
+      });
+      this.setState({ packageList });
+    }).catch((reason) => {
+      console.error(reason);
+    });
+  }
+
   onChangePackageName(e: React.ChangeEvent<HTMLInputElement>) {
     const packageName = e.target.value;
     this.setState({ packageName });
@@ -61,8 +98,8 @@ class ModalCreatePackage extends Component<Props, State> {
 
   render() {
     const { closeAction, ...modalProps } = this.props;
-    const { packageName, owner, loading, messageVisible, positive, negative, messageContent } = this.state;
-    const disabled = !packageName || !owner;
+    const { packageName, operatorList, operator, packageList, owner, loading, messageVisible, positive, negative, messageContent } = this.state;
+    const disabled = !packageName || !operator || !owner;
     return (
       <Modal {...modalProps} onClose={closeAction}>
         <Modal.Header>Create a package</Modal.Header>
@@ -71,6 +108,34 @@ class ModalCreatePackage extends Component<Props, State> {
             <Form.Field error={!packageName}>
               <label>Package name</label>
               <input type='text' value={packageName} onChange={this.onChangePackageName} />
+            </Form.Field>
+            <Form.Field error={!operator}>
+              <label>Operator</label>
+              <select disabled={!operatorList.length} onChange={this.onChangeOperator}>
+                <option value=''></option>
+                {
+                  operatorList.map((operator) => {
+                    const { key, value, text } = operator;
+                    return (
+                      <option key={key} value={value}>{text}</option>
+                    );
+                  })
+                }
+              </select>
+            </Form.Field>
+            <Form.Field>
+              <label>Previous package</label>
+              <select disabled={!packageList.length}>
+                <option value=''></option>
+                {
+                  packageList.map((pkg) => {
+                    const { key, value, text } = pkg;
+                    return (
+                      <option key={key} value={value}>{text}</option>
+                    );
+                  })
+                }
+              </select>
             </Form.Field>
             <Form.Field error={!owner}>
               <label>Owner</label>

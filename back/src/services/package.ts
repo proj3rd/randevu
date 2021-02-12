@@ -1,7 +1,7 @@
 import { Database } from "arangojs";
 import { Transaction } from "arangojs/transaction";
 import { Express } from 'express';
-import { COLLECTION_FEATURE, COLLECTION_PACKAGE_MAIN, COLLECTION_USER, EDGE_COLLECTION_OWNS } from "../constants";
+import { COLLECTION_OPERATOR, COLLECTION_PACKAGE, COLLECTION_USER, EDGE_COLLECTION_OWNS, EDGE_COLLECTION_SUCCEEDS, EDGE_COLLECTION_TARGETS } from "../constants";
 import { User } from "randevu-shared/dist/types";
 import { validateString } from "../utils";
 
@@ -13,48 +13,67 @@ export function servicePackage(app: Express, db: Database) {
     }
     let trx: Transaction | undefined;
     try {
-      const collectionFeature = db.collection(COLLECTION_FEATURE);
+      const collectionOperator = db.collection(COLLECTION_OPERATOR);
       const collectionOwns = db.collection(EDGE_COLLECTION_OWNS);
+      const collectionPackage = db.collection(COLLECTION_PACKAGE);
+      const collectionSucceeds = db.collection(EDGE_COLLECTION_SUCCEEDS);
+      const collectionTargets = db.collection(EDGE_COLLECTION_TARGETS);
       const collectionUser = db.collection(COLLECTION_USER);
       trx = await db.beginTransaction({
-        read: [collectionFeature, collectionOwns, collectionUser],
+        read: [collectionPackage, collectionOperator, collectionOwns, collectionTargets, collectionSucceeds, collectionUser],
       });
-      const { featureId, featureName, owner } = req.query;
+      const { packageName, operatorNameList } = req.query;
       const filterList = [];
       const bindVarsFilter = {} as any;
-      if (featureId) {
-        filterList.push(`feature.featureId LIKE CONCAT('%', @featureId, '%')`);
-        bindVarsFilter.featureId = featureId;
+      if (packageName) {
+        if (typeof packageName === 'string') {
+          filterList.push(`package.packageName LIKE CONCAT('%', @packageName, '%')`);
+          bindVarsFilter.packageName = packageName;
+        } else {
+          await trx.abort();
+          return res.status(400).end();
+        }
       }
-      if (featureName) {
-        filterList.push(`feature.featureName LIKE CONCAT('%', @featureName, '%')`);
-        bindVarsFilter.featureName = featureName;
-      }
-      if (owner) {
-        filterList.push(`owner.username LIKE CONCAT('%', @owner, '%')`);
-        bindVarsFilter.owner = owner;
+      if (operatorNameList) {
+        if (operatorNameList instanceof Array) {
+          if (operatorNameList.length) {
+            filterList.push(`POSITION (@operatorNameList, operator.operatorName)`)
+            bindVarsFilter.operatorNameList = operatorNameList;
+          }
+        } else {
+          await trx.abort();
+          return res.status(400).end();
+        }
       }
       const filter = filterList.length ? `FILTER ${filterList.join(' AND ')}` : '';
-      const cursorFeatureWithOwnerList = await trx.step(() => db.query({
+      const cursorPackageInfoList = await trx.step(() => db.query({
         query: `
-          FOR feature in @@collectionFeature
-            FOR owner IN INBOUND feature @@collectionOwns
+          FOR package in @@collectionPackage
+            FOR operator IN OUTBOUND package @@collectionTargets
               ${filter}
-              RETURN {
-                featureId: feature.featureId,
-                featureName: feature.featureName,
-                owner: owner.username
-              }
+              FOR owner IN INBOUND package @@collectionOwns
+                let previousPackageName = (
+                  FOR prevPkg IN OUTBOUND package @@collectionSucceeds
+                    RETURN prevPkg.packageName
+                )[0]
+                RETURN {
+                  packageName: package.packageName,
+                  operatorName: operator.operatorName,
+                  previousPackageName,
+                  owner: owner.username
+                }
         `,
         bindVars: {
-          '@collectionFeature': COLLECTION_FEATURE,
-          '@collectionOwns': EDGE_COLLECTION_OWNS,
+          '@collectionPackage': collectionPackage.name,
+          '@collectionTargets': collectionTargets.name,
+          '@collectionOwns': collectionOwns.name,
+          '@collectionSucceeds': collectionSucceeds.name,
           ...bindVarsFilter,
         },
       }));
-      const featureWithOwnerList = await cursorFeatureWithOwnerList.all();
+      const packageInfoList = await cursorPackageInfoList.all();
       await trx.commit();
-      return res.json(featureWithOwnerList);
+      return res.json(packageInfoList);
     } catch (e) {
       if (trx) {
         await trx.abort();
@@ -69,19 +88,23 @@ export function servicePackage(app: Express, db: Database) {
     if (!user || user.role !== 'admin') {
       return res.status(403).end();
     }
-    const { packageName, owner } = req.body;
-    if (!validateString(packageName) || !validateString(owner)) {
+    const { packageName, operatorName, previousPackageName, owner } = req.body;
+    if (!validateString(packageName) || !validateString(operatorName) || !validateString(owner)) {
       return res.status(400).end();
     }
     let trx: Transaction | undefined;
     try {
-      const collectionUser = db.collection(COLLECTION_USER);
-      const collectionPackageMain = db.collection(COLLECTION_PACKAGE_MAIN);
+      const collectionOperator = db.collection(COLLECTION_OPERATOR);
       const collectionOwns = db.collection(EDGE_COLLECTION_OWNS);
+      const collectionPackage = db.collection(COLLECTION_PACKAGE);
+      const collectionSucceeds = db.collection(EDGE_COLLECTION_SUCCEEDS);
+      const collectionTargets = db.collection(EDGE_COLLECTION_TARGETS);
+      const collectionUser = db.collection(COLLECTION_USER);
       trx = await db.beginTransaction({
-        read: collectionUser,
-        write: [collectionPackageMain, collectionOwns],
+        read: [collectionOperator, collectionUser],
+        write: [collectionPackage, collectionOwns, collectionSucceeds, collectionTargets],
       });
+      // Create package document
       const cursorPackageFound = await trx.step(() => db.query({
         query: `
           FOR pacakge IN @@collectionPackage
@@ -90,7 +113,7 @@ export function servicePackage(app: Express, db: Database) {
             RETURN pacakge._id
         `,
         bindVars: {
-          '@collectionPackage': collectionPackageMain.name, packageName,
+          '@collectionPackage': collectionPackage.name, packageName,
         },
       }));
       const packageFound = await cursorPackageFound.all();
@@ -98,7 +121,8 @@ export function servicePackage(app: Express, db: Database) {
         await trx.abort();
         return res.status(400).json({ reason: `Duplicate package name` });
       }
-      const pkg = await trx.step(() => collectionPackageMain.save({ packageName }));
+      const pkg = await trx.step(() => collectionPackage.save({ packageName }));
+      // User -owns-> package
       const cursorUserDocIdFound = await trx.step(() => db.query({
         query: `
           FOR user in @@collectionUser
@@ -118,6 +142,53 @@ export function servicePackage(app: Express, db: Database) {
         _from: userDocId,
         _to: pkg._id,
       }));
+      // Package -targets-> operator
+      const cursorOperatorIdFound = await trx.step(() => db.query({
+        query: `
+          FOR operator IN @@collectionOperator
+            FILTER operator.operatorName == @operatorName
+            LIMIT 1
+            RETURN operator._id
+        `,
+        bindVars: { '@collectionOperator': collectionOperator.name, operatorName },
+      }));
+      const operatorIdFound = await cursorOperatorIdFound.all();
+      if (!operatorIdFound.length) {
+        await trx.abort();
+        return res.status(400).json({ reason: 'Operator not found' });
+      }
+      const operatorId = operatorIdFound[0];
+      await trx.step(() => collectionTargets.save({
+        _from: pkg._id,
+        _to: operatorId,
+      }));
+      // Package -success-> (previous) package
+      if (previousPackageName) {
+        if (typeof previousPackageName === 'string') {
+          const cursorPreviousPkgIdFound = await trx.step(() => db.query({
+            query: `
+              FOR package IN @@collectionPackage
+                FILTER package.packageName == @previousPackageName
+                LIMIT 1
+                RETURN package._id
+            `,
+            bindVars: { '@collectionPackage': collectionPackage.name, previousPackageName },
+          }));
+          const previousPackageIdFound = await cursorPreviousPkgIdFound.all();
+          if (!previousPackageIdFound.length) {
+            await trx.abort();
+            return res.status(400).json({ reason: 'Previous package not found' });
+          }
+          const previousPackageId = previousPackageIdFound[0];
+          await trx.step(() => collectionSucceeds.save({
+            _from: pkg._id,
+            _to: previousPackageId,
+          }));
+        } else {
+          await trx.abort();
+          return res.status(400);
+        }
+      }
       await trx.commit();
       return res.status(200).end();
     } catch (e) {

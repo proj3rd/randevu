@@ -99,7 +99,7 @@ class Router extends Component<RouteComponentProps, State> {
           <Route path='/operators'>
             <Operator onUpdateAuthenticationResult={this.updateAuthenticationResult} role={role} />
           </Route>
-          <Route>
+          <Route path='/packages'>
             <Package onUpdateAuthenticationResult={this.updateAuthenticationResult} role={role} />
           </Route>
           <Route path='/admin'><Admin /></Route>

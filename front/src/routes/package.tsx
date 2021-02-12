@@ -1,12 +1,18 @@
 import axios from "axios";
-import { Component } from "react";
+import { Component, createRef } from "react";
 import { Accordion, Button, Container, Dimmer, Form, Header, Icon, Label, Loader, Message, Segment, Table } from "semantic-ui-react";
 import { config } from 'randevu-shared/dist/config';
 import ModalCreatePackage from "../components/modalCreatePackage";
+import produce from "immer";
+
+type OperatorLabel = {
+  operatorName: string,
+  checked: boolean,
+};
 
 type PackageInfo = {
-  featureId: string,
   packageName: string,
+  operatorName: string,
   owner: string,
 };
 
@@ -17,7 +23,8 @@ type Props = {
 
 type State = {
   loading: boolean,
-  featureInfoList: PackageInfo[],
+  operatorLabelList: OperatorLabel[],
+  packageInfoList: PackageInfo[],
   openModalCreatePackage: boolean,
   openSearch: boolean,
   packageName: string,
@@ -26,21 +33,26 @@ type State = {
 };
 
 class Package extends Component<Props, State> {
+  private refModalCreatePackage: React.RefObject<ModalCreatePackage>;
+
   constructor(props: Props) {
     super(props);
     this.state ={
       loading: false,
-      featureInfoList: [],
+      operatorLabelList: [],
+      packageInfoList: [],
       openModalCreatePackage: false,
       openSearch: true,
       packageName: '',
       owner: '',
       messageVisible: false,
     };
-    this.onChangepackageName = this.onChangepackageName.bind(this);
+    this.refModalCreatePackage = createRef();
+    this.onChangePackageName = this.onChangePackageName.bind(this);
     this.onChangeOwner = this.onChangeOwner.bind(this);
     this.openModalCreatePackage = this.openModalCreatePackage.bind(this);
     this.search = this.search.bind(this);
+    this.toggleLabel = this.toggleLabel.bind(this);
     this.toggleSearch = this.toggleSearch.bind(this);
     const { api } = config;
     axios.defaults.baseURL = `http://${api.host}:${api.port}`;
@@ -51,14 +63,24 @@ class Package extends Component<Props, State> {
     const { onUpdateAuthenticationResult } = this.props;
     this.setState({ loading: true });
     axios.get('/authenticate').then(() => {
-      this.setState({ loading: false });
+      axios.get('/operators').then((value) => {
+        const { data: operatorInfoList } = value;
+        const operatorLabelList: OperatorLabel[] = operatorInfoList.map((operatorInfo: any /* TODO */) => {
+          const { operatorName } = operatorInfo;
+          return { operatorName, checked: false };
+        });
+        this.setState({ loading: false, operatorLabelList });
+      }).catch((reason) => {
+        console.error(reason);
+        this.setState({ loading: false });
+      })
     }).catch(() => {
       this.setState({ loading: false });
       onUpdateAuthenticationResult(false, undefined);
     });
   }
 
-  onChangepackageName(e: React.ChangeEvent<HTMLInputElement>) {
+  onChangePackageName(e: React.ChangeEvent<HTMLInputElement>) {
     const packageName = e.target.value;
     this.setState({ packageName });
   }
@@ -70,20 +92,38 @@ class Package extends Component<Props, State> {
 
   openModalCreatePackage(open: boolean) {
     this.setState({ openModalCreatePackage: open });
+    this.refModalCreatePackage.current?.init();
   }
 
   search() {
-    const { packageName, owner } = this.state;
     this.setState({ loading: true });
+    const { packageName, operatorLabelList, owner } = this.state;
+    const operatorNameList = operatorLabelList.filter((operatorLabel) => {
+      return operatorLabel.checked;
+    }).map((operatorLabel) => operatorLabel.operatorName);
     axios.get('/packages', {
-      params: { packageName, owner }
+      params: { packageName, operatorNameList, owner }
     }).then((value) => {
-      const featureInfoList = value.data;
-      this.setState({ loading: false, featureInfoList, messageVisible: false });
+      const packageInfoList = value.data;
+      this.setState({ loading: false, packageInfoList, messageVisible: false });
     }).catch((reason) => {
       console.error(reason);
       this.setState({ loading: false, messageVisible: true });
     });
+  }
+
+  toggleLabel(operatorName: string) {
+    const prevState = this.state;
+    const nextState = produce(prevState, (draftState) => {
+      const { operatorLabelList } = draftState;
+      const operatorLabelFound = operatorLabelList.find((operatorLabel) => {
+        return operatorLabel.operatorName === operatorName;
+      });
+      if (operatorLabelFound) {
+        operatorLabelFound.checked = !operatorLabelFound.checked;
+      }
+    });
+    this.setState(nextState);
   }
 
   toggleSearch() {
@@ -95,10 +135,10 @@ class Package extends Component<Props, State> {
 
   render() {
     const { role } = this.props;
-    const { loading, featureInfoList, openModalCreatePackage, openSearch, packageName, messageVisible } = this.state;
+    const { loading, operatorLabelList, packageInfoList, openModalCreatePackage, openSearch, packageName, messageVisible } = this.state;
     return (
       <Container>
-        <Header as='h1'>Package</Header>
+        <Header as='h1'>Packages</Header>
         <Segment>
           <Accordion>
             <Accordion.Title active={openSearch} onClick={this.toggleSearch}>
@@ -109,11 +149,22 @@ class Package extends Component<Props, State> {
               <Form>
                 <Form.Field inline>
                   <label>Package name</label>
-                  <input type='text' value={packageName} onChange={this.onChangepackageName} />
+                  <input type='text' value={packageName} onChange={this.onChangePackageName} />
                 </Form.Field>
                 <Form.Field inline>
                   <label>Operators</label>
-                  <Label>SK Telecom</Label>
+                  {
+                    operatorLabelList.map((operatorLabel) => {
+                      const { operatorName, checked } = operatorLabel;
+                      const color = checked ? 'blue' : undefined;
+                      const icon = checked ? 'check' : 'minus';
+                      return (
+                        <Label as='a' key={operatorName} onClick={() => this.toggleLabel(operatorName)} color={color}>
+                          <Icon name={icon} />
+                          {operatorName}
+                        </Label>
+                    )})
+                  }
                 </Form.Field>
                 <Form.Field>
                   <Button icon labelPosition='left' onClick={this.search}>
@@ -136,8 +187,7 @@ class Package extends Component<Props, State> {
         <Table celled compact selectable striped>
           <Table.Header>
             <Table.Row>
-              <Table.HeaderCell>Main package</Table.HeaderCell>
-              <Table.HeaderCell>Sub package</Table.HeaderCell>
+              <Table.HeaderCell>Package name</Table.HeaderCell>
               <Table.HeaderCell>Operator</Table.HeaderCell>
               <Table.HeaderCell>Owner</Table.HeaderCell>
             </Table.Row>
@@ -146,7 +196,7 @@ class Package extends Component<Props, State> {
             {
               role === 'admin' ? (
                 <Table.Row active>
-                  <Table.Cell colSpan={4} textAlign='center'>
+                  <Table.Cell colSpan={3} textAlign='center'>
                     <Button icon labelPosition='left' size='tiny' onClick={() => this.openModalCreatePackage(true)}>
                       <Icon name='plus' />
                       Create a package
@@ -156,12 +206,12 @@ class Package extends Component<Props, State> {
               ) : <></>
             }
             {
-              featureInfoList.map((featureInfo) => {
-                const { featureId, packageName, owner } = featureInfo;
+              packageInfoList.map((packageInfo) => {
+                const { packageName, operatorName, owner } = packageInfo;
                 return (
-                  <Table.Row key={featureId}>
-                    <Table.Cell>{featureId}</Table.Cell>
+                  <Table.Row key={packageName}>
                     <Table.Cell>{packageName}</Table.Cell>
+                    <Table.Cell>{operatorName}</Table.Cell>
                     <Table.Cell>{owner}</Table.Cell>
                   </Table.Row>
                 );
@@ -170,6 +220,7 @@ class Package extends Component<Props, State> {
           </Table.Body>
         </Table>
         <ModalCreatePackage
+          ref={this.refModalCreatePackage}
           open={openModalCreatePackage}
           closeAction={() => this.openModalCreatePackage(false)}
         />
