@@ -197,7 +197,7 @@ class Package extends Component<Props, State> {
               role === 'admin' ? (
                 <Table.Row active>
                   <Table.Cell colSpan={3} textAlign='center'>
-                    <Button icon labelPosition='left' size='tiny' onClick={() => this.openModalCreatePackage(true)}>
+                    <Button icon labelPosition='left' onClick={() => this.openModalCreatePackage(true)}>
                       <Icon name='plus' />
                       Create a package
                     </Button>

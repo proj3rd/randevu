@@ -66,7 +66,7 @@ class Operator extends Component<Props, State> {
     return (
       <Container>
         <Header as='h1'>Operators</Header>
-        <Button icon labelPosition='left' size='tiny' onClick={this.getOperatorList}>
+        <Button icon labelPosition='left' onClick={this.getOperatorList}>
           <Icon name='refresh' />
           Refresh
         </Button>
@@ -82,7 +82,7 @@ class Operator extends Component<Props, State> {
               role === 'admin' ? (
                 <Table.Row active>
                   <Table.Cell colSpan={2} textAlign='center'>
-                    <Button icon labelPosition='left' size='tiny' onClick={() => this.openModalRegisterOperator(true)}>
+                    <Button icon labelPosition='left' onClick={() => this.openModalRegisterOperator(true)}>
                       <Icon name='plus' />
                       Register an operator
                     </Button>
