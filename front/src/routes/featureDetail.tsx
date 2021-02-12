@@ -93,8 +93,8 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
             </select>
           </Form.Field>
         </Form>
-        <Header as='h2'>Release information</Header>
-        <Header as='h2'>Change list</Header>
+        <Header as='h2'>Releases</Header>
+        <Header as='h2'>Changes</Header>
         <Header as='h2'>Requirements</Header>
         <Dimmer active={loading}>
           <Loader />
