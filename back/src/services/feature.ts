@@ -1,11 +1,104 @@
 import { Database } from "arangojs";
 import { Transaction } from "arangojs/transaction";
 import { Express } from 'express';
-import { COLLECTION_FEATURE, COLLECTION_FEATURE_VERSION, COLLECTION_USER, EDGE_COLLECTION_IMPLEMENTS, EDGE_COLLECTION_OWNS } from "../constants";
+import { COLLECTION_FEATURE, COLLECTION_FEATURE_VERSION, COLLECTION_USER, EDGE_COLLECTION_FORKED_FROM, EDGE_COLLECTION_IMPLEMENTS, EDGE_COLLECTION_OWNS } from "../constants";
 import { User } from "randevu-shared/dist/types";
 import { validateString } from "../utils";
 
 export function serviceFeature(app: Express, db: Database) {
+  app.get('/features/:featureId/versions', async (req, res) => {
+    const user = req.user as User;
+    if (!user) {
+      return res.status(403).end();
+    }
+    let trx: Transaction | undefined;
+    try {
+      const collectionFeature = db.collection(COLLECTION_FEATURE);
+      const collectionForkedFrom = db.collection(EDGE_COLLECTION_FORKED_FROM);
+      const collectionImplements = db.collection(EDGE_COLLECTION_IMPLEMENTS);
+      trx = await db.beginTransaction({
+        read: [collectionFeature, collectionForkedFrom, collectionImplements],
+      });
+      const { featureId } = req.params;
+      const cursorVersionListFound = await trx.step(() => db.query({
+        query: `
+          FOR feature IN @@collectionFeature
+            FILTER feature.featureId == @featureId
+            LIMIT 1
+            LET versionList = APPEND([1], (
+              FOR featureVersion IN INBOUND feature @@collectionImplements
+                FOR previousFeatureVersion IN OUTBOUND featureVersion @@collectionForkedFrom
+                  RETURN featureVersion.version
+            ))
+            RETURN versionList
+        `,
+        bindVars: {
+          '@collectionFeature': collectionFeature.name,
+          featureId,
+          '@collectionImplements': collectionImplements.name,
+          '@collectionForkedFrom': collectionForkedFrom.name,
+        },
+      }));
+      const versionListFound = await cursorVersionListFound.all();
+      if (!versionListFound.length) {
+        await trx.abort();
+        return res.status(404).end();
+      }
+      const versionList = versionListFound[0];
+      await trx.commit();
+      return res.json(versionList);
+    } catch (e) {
+      if (trx) {
+        await trx.abort();
+      }
+      console.error(e);
+      return res.status(500).end();
+    }
+  });
+
+  app.get('/features/:featureId', async (req, res) => {
+    const user = req.user as User;
+    if (!user) {
+      return res.status(403).end();
+    }
+    let trx: Transaction | undefined;
+    try {
+      const collectionFeature = db.collection(COLLECTION_FEATURE);
+      const collectionOwns = db.collection(EDGE_COLLECTION_OWNS);
+      trx = await db.beginTransaction({
+        read: collectionFeature,
+      });
+      const { featureId } = req.params;
+      const cursorFeatureInfoFound = await trx.step(() => db.query({
+        query: `
+          FOR feature IN @@collectionFeature
+            FILTER feature.featureId == @featureId
+            LIMIT 1
+            FOR owner IN INBOUND feature @@collectionOwns
+              RETURN { featureId: @featureId, featureName: feature.featureName, owner: owner.username }
+        `,
+        bindVars: {
+          '@collectionFeature': collectionFeature.name, featureId,
+          '@collectionOwns': collectionOwns.name,
+        },
+      }));
+      const featureInfoFound = await cursorFeatureInfoFound.all();
+      if (!featureInfoFound.length) {
+        await trx.abort();
+        return res.status(404).end();
+      }
+      const featureInfo = featureInfoFound[0];
+      await trx.commit();
+      return res.json(featureInfo);
+    } catch (e) {
+      if (trx) {
+        await trx.abort();
+      }
+      console.error(e);
+      return res.status(500).end();
+    }
+  });
+
   app.get('/features', async (req, res) => {
     const user = req.user as User;
     if(!user) {
