@@ -44,6 +44,12 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
         const { featureId, featureName, owner } = value.data;
         document.title = `RANdevU :: ${featureId} ${featureName}`;
         this.setState({ loading: false, featureId, featureName, owner });
+        axios.get(`/features/${featureId}/versions`).then((value) => {
+          const { data: versionList } = value;
+          this.setState({ versionList });
+        }).catch((reason) => {
+          console.error(reason);
+        });
       }).catch((e) => {
         console.error(e);
         const status = e.response?.status;
