@@ -10,9 +10,10 @@ type Props = {
 
 type State = {
   loading: boolean,
-  notFound: boolean,
+  reason: string,
   featureId: string,
   featureName: string,
+  owner: string,
   versionList: string[],
 };
 
@@ -21,9 +22,10 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
     super(props);
     this.state = {
       loading: false,
-      notFound: false,
+      reason: '',
       featureId: '',
       featureName: '',
+      owner: '',
       versionList: [],
     };
     const { api } = config;
@@ -32,10 +34,23 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
   }
 
   componentDidMount() {
-    const { onUpdateAuthenticationResult } = this.props;
+    const { onUpdateAuthenticationResult, location } = this.props;
+    const { pathname } = location;
+    const lastIndexOfSlash = pathname.lastIndexOf('/');
+    const featureId = pathname.substring(lastIndexOfSlash + 1);
     this.setState({ loading: true });
     axios.get('/authenticate').then(() => {
-      this.setState({ loading: false });
+      axios.get(`/features/${featureId}`).then((value) => {
+        const { featureId, featureName, owner } = value.data;
+        this.setState({ loading: false, featureId, featureName, owner });
+      }).catch((e) => {
+        console.error(e);
+        const status = e.response?.status;
+        const reason = status === 403 ? 'Not authorized to access this feature' :
+          status === 404 ? 'Feature not found' :
+          'Maybe due to internal server failure';
+        this.setState({ loading: false, reason });
+      })
     }).catch((reason) => {
       this.setState({ loading: false });
       onUpdateAuthenticationResult(false, undefined);
@@ -43,11 +58,11 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
   }
 
   render() {
-    const { loading, notFound, featureId, featureName, versionList } = this.state;
-    if (notFound) {
+    const { loading, reason, featureId, featureName, versionList } = this.state;
+    if (reason) {
       return (
         <Container>
-          Feature not found
+          {reason}
         </Container>
       );
     }
