@@ -58,6 +58,10 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
     });
   }
 
+  componentWillUnmount() {
+    document.title = 'RANdevU';
+  }
+
   render() {
     const { loading, reason, featureId, featureName, versionList } = this.state;
     if (reason) {
