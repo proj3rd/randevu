@@ -2,7 +2,7 @@ import axios from "axios";
 import { config } from 'randevu-shared/dist/config';
 import { Component } from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
-import { Container, Dimmer, Form, Header, Loader } from "semantic-ui-react";
+import { Button, Container, Dimmer, Form, Header, Loader, Table } from "semantic-ui-react";
 
 type Props = {
   onUpdateAuthenticationResult: (authenticated: boolean, role: string | undefined) => void;
@@ -81,6 +81,10 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
       <Container>
         <Header as='h1'>{featureId} {featureName}</Header>
         <Form>
+          <Form.Group>
+            <Form.Button>Version map</Form.Button>
+            <Form.Button>Generate release history</Form.Button>
+          </Form.Group>
           <Form.Field>
             <label>Version</label>
             <select>
@@ -94,7 +98,25 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
           </Form.Field>
         </Form>
         <Header as='h2'>Releases</Header>
+        <Table>
+          <Table.Header>
+            <Table.Row>
+              <Table.HeaderCell>Package</Table.HeaderCell>
+              <Table.HeaderCell>Operator</Table.HeaderCell>
+            </Table.Row>
+          </Table.Header>
+        </Table>
         <Header as='h2'>Changes</Header>
+        <Table>
+          <Table.Header>
+            <Table.Row>
+              <Table.HeaderCell>Description</Table.HeaderCell>
+              <Table.HeaderCell>Before change</Table.HeaderCell>
+              <Table.HeaderCell>After change</Table.HeaderCell>
+              <Table.HeaderCell>Operators</Table.HeaderCell>
+            </Table.Row>
+          </Table.Header>
+        </Table>
         <Header as='h2'>Requirements</Header>
         <Dimmer active={loading}>
           <Loader />
