@@ -5,7 +5,7 @@ import { RouteComponentProps, withRouter } from "react-router-dom";
 import { Button, Container, Dimmer, Form, Header, Loader, Table } from "semantic-ui-react";
 
 type Props = {
-  onUpdateAuthenticationResult: (authenticated: boolean, role: string | undefined) => void;
+  onUpdateAuthenticationResult: (username: string | undefined, role: string | undefined) => void;
 };
 
 type State = {
@@ -60,7 +60,7 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
       })
     }).catch((reason) => {
       this.setState({ loading: false });
-      onUpdateAuthenticationResult(false, undefined);
+      onUpdateAuthenticationResult(undefined, undefined);
     });
   }
 

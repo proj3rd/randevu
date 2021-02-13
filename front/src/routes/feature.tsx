@@ -11,7 +11,8 @@ type FeatureInfo = {
 };
 
 type Props = {
-  onUpdateAuthenticationResult: (authenticated: boolean, role: string | undefined) => void;
+  onUpdateAuthenticationResult: (username: string | undefined, role: string | undefined) => void
+  username: string | undefined;
   role: string | undefined;
 };
 
@@ -57,7 +58,7 @@ class Feature extends Component<Props, State> {
       this.setState({ loading: false });
     }).catch((reason) => {
       this.setState({ loading: false });
-      onUpdateAuthenticationResult(false, undefined);
+      onUpdateAuthenticationResult(undefined, undefined);
     });
   }
 
@@ -80,11 +81,11 @@ class Feature extends Component<Props, State> {
     this.setState({ openModalCreateFeature: open });
   }
 
-  search() {
+  search(username?: string) {
     const { featureId, featureName, owner } = this.state;
     this.setState({ loading: true });
     axios.get('/features', {
-      params: { featureId, featureName, owner }
+      params: { featureId, featureName, username: username ?? owner }
     }).then((value) => {
       const featureInfoList = value.data;
       this.setState({ loading: false, featureInfoList, messageVisible: false });
@@ -102,7 +103,7 @@ class Feature extends Component<Props, State> {
   }
 
   render() {
-    const { role } = this.props;
+    const { username, role } = this.props;
     const { loading, featureInfoList, openModalCreateFeature, openSearch, featureId, featureName, owner, messageVisible } = this.state;
     return (
       <Container>
@@ -131,13 +132,13 @@ class Feature extends Component<Props, State> {
                 </Form.Group>
                 <Form.Group>
                   <Form.Field>
-                    <Button icon labelPosition='left' onClick={this.search}>
+                    <Button icon labelPosition='left' onClick={() => this.search()}>
                       <Icon name='search' />
                       Search
                     </Button>
                   </Form.Field>
                   <Form.Field>
-                    <Button>My features</Button>
+                    <Button onClick={() => this.search(username)}>My features</Button>
                   </Form.Field>
                 </Form.Group>
               </Form>

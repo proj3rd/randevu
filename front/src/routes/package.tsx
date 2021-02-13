@@ -17,7 +17,7 @@ type PackageInfo = {
 };
 
 type Props = {
-  onUpdateAuthenticationResult: (authenticated: boolean, role: string | undefined) => void;
+  onUpdateAuthenticationResult: (username: string | undefined, role: string | undefined) => void;
   role: string | undefined;
 };
 
@@ -76,7 +76,7 @@ class Package extends Component<Props, State> {
       })
     }).catch(() => {
       this.setState({ loading: false });
-      onUpdateAuthenticationResult(false, undefined);
+      onUpdateAuthenticationResult(undefined, undefined);
     });
   }
 

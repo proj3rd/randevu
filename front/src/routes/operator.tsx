@@ -10,7 +10,7 @@ type OperatorInfo = {
 };
 
 type Props = {
-  onUpdateAuthenticationResult: (authenticated: boolean, role: string | undefined) => void;
+  onUpdateAuthenticationResult: (username: string | undefined, role: string | undefined) => void;
   role: string | undefined;
 };
 type State = {
@@ -41,7 +41,7 @@ class Operator extends Component<Props, State> {
       this.setState({ loading: false });
     }).catch(() => {
       this.setState({ loading: false });
-      onUpdateAuthenticationResult(false, undefined);
+      onUpdateAuthenticationResult(undefined, undefined);
     });
   }
 

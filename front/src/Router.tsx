@@ -14,7 +14,7 @@ import FeatureDetail from "./routes/featureDetail";
 
 type State = {
   loading: boolean,
-  authenticated: boolean,
+  username: string | undefined,
   role: string | undefined;
 };
 
@@ -23,7 +23,7 @@ class Router extends Component<RouteComponentProps, State> {
     super(props);
     this.state = {
       loading: false,
-      authenticated: false,
+      username: undefined,
       role: undefined,
     };
     const { api } = config;
@@ -36,8 +36,8 @@ class Router extends Component<RouteComponentProps, State> {
   componentDidMount() {
     this.setState({ loading: true });
     axios.get('/authenticate').then((value) => {
-      const { role } = value.data;
-      this.setState({ loading: false, authenticated: true, role });
+      const { username, role } = value.data;
+      this.setState({ loading: false, username, role });
     }).catch((reason) => {
       console.error(reason);
       this.setState({ loading: false });
@@ -47,7 +47,7 @@ class Router extends Component<RouteComponentProps, State> {
   logout() {
     this.setState({ loading: true });
     axios.get('/logout').then((value) => {
-      this.setState({ loading: false, authenticated: false });
+      this.setState({ loading: false, username: undefined, role: undefined });
       const { history } = this.props;
       history.push('/');
     }).catch((reason) => {
@@ -56,32 +56,32 @@ class Router extends Component<RouteComponentProps, State> {
     });
   }
 
-  updateAuthenticationResult(authenticated: boolean, role: string | undefined) {
-    this.setState({ authenticated, role });
+  updateAuthenticationResult(username: string | undefined, role: string | undefined) {
+    this.setState({ username, role });
     const { history } = this.props;
     history.push('/');
   }
 
   render() {
     const { history } = this.props;
-    const { loading, authenticated, role } = this.state;
+    const { loading, username, role } = this.state;
     return (
       <>
         <Menu>
           <Menu.Item header onClick={() => history.push('/')}>RANdevU</Menu.Item>
-          <Menu.Item onClick={() => {history.push('/features')}} disabled={!authenticated}>Features</Menu.Item>
-          <Menu.Item onClick={() => {history.push('/operators')}} disabled={!authenticated}>Operators</Menu.Item>
-          <Menu.Item onClick={() => {history.push('/packages')}} disabled={!authenticated}>Packages</Menu.Item>
+          <Menu.Item onClick={() => {history.push('/features')}} disabled={!username}>Features</Menu.Item>
+          <Menu.Item onClick={() => {history.push('/operators')}} disabled={!username}>Operators</Menu.Item>
+          <Menu.Item onClick={() => {history.push('/packages')}} disabled={!username}>Packages</Menu.Item>
           <Menu.Item disabled>Requirements</Menu.Item>
           <Menu.Item disabled>TDocs</Menu.Item>
           <Menu.Menu position='right'>
             {
-              authenticated && role === 'admin' ? (
+              username && role === 'admin' ? (
                 <Menu.Item onClick={() => history.push('/admin')}>Admin</Menu.Item>
               ) : <></>
             }
             {
-              authenticated ? (
+              username ? (
                 <Menu.Item onClick={this.logout}>Logout</Menu.Item>
               ) : (
                 <>
@@ -95,7 +95,7 @@ class Router extends Component<RouteComponentProps, State> {
         <Switch>
           <Route exact path='/'><Landing /></Route>
           <Route exact path='/features'>
-            <Feature onUpdateAuthenticationResult={this.updateAuthenticationResult} role={role} />
+            <Feature onUpdateAuthenticationResult={this.updateAuthenticationResult} username={username} role={role} />
           </Route>
           <Route path='/features'>
             <FeatureDetail onUpdateAuthenticationResult={this.updateAuthenticationResult} />
