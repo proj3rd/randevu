@@ -2,7 +2,7 @@ import axios from "axios";
 import { config } from 'randevu-shared/dist/config';
 import { Component } from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
-import { Button, Container, Dimmer, Form, Header, Loader, Table } from "semantic-ui-react";
+import { Container, Dimmer, Form, Header, Loader, Table } from "semantic-ui-react";
 
 type Props = {
   onUpdateAuthenticationResult: (username: string | undefined, role: string | undefined) => void;
@@ -14,6 +14,7 @@ type State = {
   featureId: string,
   featureName: string,
   owner: string,
+  loadingVersionList: boolean,
   versionList: string[],
 };
 
@@ -26,6 +27,7 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
       featureId: '',
       featureName: '',
       owner: '',
+      loadingVersionList: false,
       versionList: [],
     };
     const { api } = config;
@@ -46,7 +48,8 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
         this.setState({ loading: false, featureId, featureName, owner });
         axios.get(`/features/${featureId}/versions`).then((value) => {
           const { data: versionList } = value;
-          this.setState({ versionList });
+          (versionList as number[]).sort((a, b) => a - b);
+          this.setState({ loadingVersionList: false, versionList });
         }).catch((reason) => {
           console.error(reason);
         });
@@ -69,7 +72,7 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
   }
 
   render() {
-    const { loading, reason, featureId, featureName, versionList } = this.state;
+    const { loading, reason, featureId, featureName, loadingVersionList, versionList } = this.state;
     if (reason) {
       return (
         <Container>
@@ -85,39 +88,59 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
             <Form.Button>Version map</Form.Button>
             <Form.Button>Generate release history</Form.Button>
           </Form.Group>
-          <Form.Field>
-            <label>Version</label>
-            <select>
-              <option value='' />
-              {
-                versionList.map((version) => (
-                  <option key={version} value={version}>{version}</option>
-                ))
-              }
-            </select>
-          </Form.Field>
+          <Dimmer.Dimmable>
+            <Form.Field>
+              <label>Version</label>
+              <select>
+                <option value='' />
+                {
+                  versionList.map((version) => (
+                    <option key={version} value={version}>{version}</option>
+                  ))
+                }
+              </select>
+            </Form.Field>
+            <Dimmer active={loadingVersionList}>
+              <Loader />
+            </Dimmer>
+          </Dimmer.Dimmable>
         </Form>
         <Header as='h2'>Releases</Header>
-        <Table>
-          <Table.Header>
-            <Table.Row>
-              <Table.HeaderCell>Package</Table.HeaderCell>
-              <Table.HeaderCell>Operator</Table.HeaderCell>
-            </Table.Row>
-          </Table.Header>
-        </Table>
+        <Dimmer.Dimmable>
+          <Table>
+            <Table.Header>
+              <Table.Row>
+                <Table.HeaderCell>Package</Table.HeaderCell>
+                <Table.HeaderCell>Operator</Table.HeaderCell>
+              </Table.Row>
+            </Table.Header>
+          </Table>
+          <Dimmer active>
+            <Loader />
+          </Dimmer>
+        </Dimmer.Dimmable>
         <Header as='h2'>Changes</Header>
-        <Table>
-          <Table.Header>
-            <Table.Row>
-              <Table.HeaderCell>Description</Table.HeaderCell>
-              <Table.HeaderCell>Before change</Table.HeaderCell>
-              <Table.HeaderCell>After change</Table.HeaderCell>
-              <Table.HeaderCell>Operators</Table.HeaderCell>
-            </Table.Row>
-          </Table.Header>
-        </Table>
+        <Dimmer.Dimmable>
+          <Table>
+            <Table.Header>
+              <Table.Row>
+                <Table.HeaderCell>Description</Table.HeaderCell>
+                <Table.HeaderCell>Before change</Table.HeaderCell>
+                <Table.HeaderCell>After change</Table.HeaderCell>
+                <Table.HeaderCell>Operators</Table.HeaderCell>
+              </Table.Row>
+            </Table.Header>
+          </Table>
+          <Dimmer active>
+            <Loader />
+          </Dimmer>
+        </Dimmer.Dimmable>
         <Header as='h2'>Requirements</Header>
+        <Dimmer.Dimmable>
+          <Dimmer active>
+            <Loader />
+          </Dimmer>
+        </Dimmer.Dimmable>
         <Dimmer active={loading}>
           <Loader />
         </Dimmer>
