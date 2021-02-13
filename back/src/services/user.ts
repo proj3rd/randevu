@@ -61,7 +61,7 @@ export function serviceUser(app: Express, db: Database) {
                LIMIT 1
               RETURN { username: user.username, role: user.role }
           `,
-          bindVars: { '@collectionUser': COLLECTION_USER, username, password },
+          bindVars: { '@collectionUser': collectionUser.name, username, password },
         }));
         const userFound = await cursorUserFound.all();
         if (!userFound.length) {
@@ -157,22 +157,13 @@ export function serviceUser(app: Express, db: Database) {
       trx = await db.beginTransaction({
         read: collectionUser,
       });
-      const cursorUserFound = await trx.step(() => db.query({
-        query: `
-          FOR user IN @@collectionUser
-            FILTER user.username == @username
-            LIMIT 1
-            RETURN { _id: user._id, username: user.username, role: user.role }
-        `,
-        bindVars: { '@collectionUser': COLLECTION_USER, username }
-      }));
-      const userFound = await cursorUserFound.all();
-      if (!userFound.length) {
+      const user = await findUserByName(db, trx, username);
+      if (!user) {
         await trx.abort();
         return res.status(404).end();
       }
       await trx.commit();
-      return res.json(userFound[0]);
+      return res.json(user);
     } catch (e) {
       if (trx) {
         await trx.abort();
@@ -189,7 +180,7 @@ async function findUserByName(db: Database, trx: Transaction, username: string) 
       FOR user IN @@collectionUser
         FILTER user.username == @username
         LIMIT 1
-        RETURN { username: user.username, role: user.role }
+        RETURN { _id: user._id, username: user.username, role: user.role }
     `,
     bindVars: { '@collectionUser': COLLECTION_USER, username },
   }));
