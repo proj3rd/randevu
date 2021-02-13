@@ -11,7 +11,8 @@ type FeatureInfo = {
 };
 
 type Props = {
-  onUpdateAuthenticationResult: (authenticated: boolean, role: string | undefined) => void;
+  onUpdateAuthenticationResult: (username: string | undefined, role: string | undefined) => void
+  username: string | undefined;
   role: string | undefined;
 };
 
@@ -57,7 +58,7 @@ class Feature extends Component<Props, State> {
       this.setState({ loading: false });
     }).catch((reason) => {
       this.setState({ loading: false });
-      onUpdateAuthenticationResult(false, undefined);
+      onUpdateAuthenticationResult(undefined, undefined);
     });
   }
 
