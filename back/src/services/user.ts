@@ -85,8 +85,8 @@ export function serviceUser(app: Express, db: Database) {
     if (!user) {
       return res.status(400).end();
     }
-    const { role } = user;
-    return res.status(200).json({ role });
+    const { username, role } = user;
+    return res.status(200).json({ username, role });
   });
 
   app.post('/join', async (req, res) => {
@@ -134,8 +134,8 @@ export function serviceUser(app: Express, db: Database) {
         if (err) {
           return next(err);
         }
-        const { role } = user;
-        return res.status(200).json({ role });
+        const { username, role } = user;
+        return res.status(200).json({ username, role });
       });
     })(req, res, next);
   });
