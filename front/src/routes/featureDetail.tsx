@@ -2,7 +2,13 @@ import axios from "axios";
 import { config } from 'randevu-shared/dist/config';
 import { Component } from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
-import { Container, Dimmer, Form, Header, Loader, Table } from "semantic-ui-react";
+import { Container, Dimmer, Form, Header, Icon, Loader, Table } from "semantic-ui-react";
+
+type Change = {
+  description: string,
+  beforeChange: string,
+  afterChange: string,
+};
 
 type Props = {
   onUpdateAuthenticationResult: (username: string | undefined, role: string | undefined) => void;
@@ -15,24 +21,33 @@ type State = {
   featureName: string,
   owner: string,
   loadingVersionList: boolean,
-  versionList: string[],
+  versionList: number[],
+  version: number,
+  loadingChange: boolean,
+  revisionChange: number | undefined,
+  changeList: Change[],
 };
 
 class FeatureDetail extends Component<Props & RouteComponentProps, State> {
   constructor(props: Props & RouteComponentProps) {
     super(props);
     this.state = {
-      loading: false,
+      loading: true,
       reason: '',
       featureId: '',
       featureName: '',
       owner: '',
-      loadingVersionList: false,
+      loadingVersionList: true,
       versionList: [],
+      version: 0,
+      loadingChange: true,
+      revisionChange: undefined,
+      changeList: [],
     };
     const { api } = config;
     axios.defaults.baseURL = `http://${api.host}:${api.port}`;
     axios.defaults.withCredentials = true;
+    this.onChangeVersion = this.onChangeVersion.bind(this);
   }
 
   componentDidMount() {
@@ -40,7 +55,6 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
     const { pathname } = location;
     const lastIndexOfSlash = pathname.lastIndexOf('/');
     const featureId = pathname.substring(lastIndexOfSlash + 1);
-    this.setState({ loading: true });
     axios.get('/authenticate').then(() => {
       axios.get(`/features/${featureId}`).then((value) => {
         const { featureId, featureName, owner } = value.data;
@@ -49,7 +63,15 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
         axios.get(`/features/${featureId}/versions`).then((value) => {
           const { data: versionList } = value;
           (versionList as number[]).sort((a, b) => a - b);
-          this.setState({ loadingVersionList: false, versionList });
+          const versionLast = (versionList as number[])[(versionList as number[]).length - 1];
+          this.setState({ loadingVersionList: false, versionList, version: versionLast });
+          // Parallel: release, changes, requirements, etc.
+          axios.get(`/features/${featureId}/changes/${versionLast}`).then((value) => {
+            const { revision: revisionChange, changeList }  = value.data;
+            this.setState({ loadingChange: false, revisionChange, changeList });
+          }).catch((reason) => {
+            console.error(reason);
+          });
         }).catch((reason) => {
           console.error(reason);
         });
@@ -71,8 +93,13 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
     document.title = 'RANdevU';
   }
 
+  onChangeVersion(e: React.ChangeEvent<HTMLSelectElement>) {
+    const version = +e.target.value;
+    this.setState({ version });
+  }
+
   render() {
-    const { loading, reason, featureId, featureName, loadingVersionList, versionList } = this.state;
+    const { loading, reason, featureId, featureName, loadingVersionList, versionList, version, loadingChange, revisionChange, changeList } = this.state;
     if (reason) {
       return (
         <Container>
@@ -84,28 +111,40 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
       <Container>
         <Header as='h1'>{featureId} {featureName}</Header>
         <Form>
-          <Form.Group>
-            <Form.Button>Version map</Form.Button>
-            <Form.Button>Generate release history</Form.Button>
-          </Form.Group>
           <Dimmer.Dimmable>
-            <Form.Field>
-              <label>Version</label>
-              <select>
-                <option value='' />
-                {
-                  versionList.map((version) => (
-                    <option key={version} value={version}>{version}</option>
-                  ))
-                }
-              </select>
-            </Form.Field>
+            <Form.Group>
+              <Form.Field inline>
+                <label>Version</label>
+                <select value={version} onChange={this.onChangeVersion}>
+                  <option value={0} />
+                  {
+                    versionList.map((version) => (
+                      <option key={version} value={version}>{version}</option>
+                    ))
+                  }
+                </select>
+              </Form.Field>
+              <Form.Button icon labelPosition='left'>
+                <Icon name='code branch' />
+                Version map
+              </Form.Button>
+              <Form.Button icon labelPosition='left'>
+                <Icon name='plus' />
+                Create a new version
+              </Form.Button>
+            </Form.Group>
             <Dimmer active={loadingVersionList}>
               <Loader />
             </Dimmer>
           </Dimmer.Dimmable>
         </Form>
         <Header as='h2'>Releases</Header>
+        <Form>
+          <Form.Button icon labelPosition='left'>
+            <Icon name='list' />
+            Generate release history
+          </Form.Button>
+        </Form>
         <Dimmer.Dimmable>
           <Table>
             <Table.Header>
@@ -120,6 +159,7 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
           </Dimmer>
         </Dimmer.Dimmable>
         <Header as='h2'>Changes</Header>
+        Revision: {revisionChange}
         <Dimmer.Dimmable>
           <Table>
             <Table.Header>
@@ -130,8 +170,22 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
                 <Table.HeaderCell>Operators</Table.HeaderCell>
               </Table.Row>
             </Table.Header>
+            <Table.Body>
+              {
+                changeList.map((change, index) => {
+                  const { description, beforeChange, afterChange } = change;
+                  return (
+                    <Table.Row key={index}>
+                      <Table.Cell>{description}</Table.Cell>
+                      <Table.Cell>{beforeChange}</Table.Cell>
+                      <Table.Cell>{afterChange}</Table.Cell>
+                    </Table.Row>
+                  );
+                })
+              }
+            </Table.Body>
           </Table>
-          <Dimmer active>
+          <Dimmer active={loadingChange}>
             <Loader />
           </Dimmer>
         </Dimmer.Dimmable>
