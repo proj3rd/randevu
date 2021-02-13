@@ -109,6 +109,124 @@ export function serviceFeature(app: Express, db: Database) {
     }
   });
 
+  app.post('/features/:featureId/versions', async (req, res) => {
+    const user = req.user as User;
+    if (!user) {
+      return res.status(403).end();
+    }
+    let trx: Transaction | undefined;
+    try {
+      const collectionChange = db.collection(COLLECTION_CHANGE);
+      const collectionDescribes = db.collection(EDGE_COLLECTION_DESCRIBES);
+      const collectionFeature = db.collection(COLLECTION_FEATURE);
+      const collectionFeatureVersion = db.collection(COLLECTION_FEATURE_VERSION);
+      const collectionForkedFrom = db.collection(EDGE_COLLECTION_FORKED_FROM);
+      const collectionImplements = db.collection(EDGE_COLLECTION_IMPLEMENTS);
+      const collectionOwns = db.collection(EDGE_COLLECTION_OWNS);
+      const collectionUser = db.collection(COLLECTION_USER);
+      trx = await db.beginTransaction({
+        read: [collectionFeature, collectionOwns, collectionUser],
+        write: [collectionChange, collectionDescribes, collectionFeatureVersion, collectionForkedFrom, collectionImplements],
+      });
+      const { username } = user;
+      const { featureId } = req.params;
+      // Find a feature
+      const cursorFeatureFound = await trx.step(() => db.query({
+        query: `
+          FOR feature IN @@collectionFeature
+            FILTER feature.featureId == @featureId
+            LIMIT 1
+            RETURN { _id: feature._id }
+        `,
+        bindVars: { '@collectionFeature': collectionFeature.name, featureId },
+      }));
+      const featureFound = await cursorFeatureFound.all();
+      if (!featureFound.length) {
+        await trx.abort();
+        return res.status(404).end();
+      }
+      const feature_id = featureFound[0]._id;
+      // Find a previous version
+      const previousVersion = +req.body.previousVersion;
+      // TODO: Check if previousVersion is integer
+      const cursorPreviousFeature_idFound = await trx.step(() => db.query({
+        query: `
+          FOR featureVersion IN INBOUND @feature_id @@collectionImplements
+            FILTER featureVersion.version == @previousVersion
+            LIMIT 1
+            RETURN featureVersion._id
+        `,
+        bindVars: {
+          feature_id,
+          '@collectionImplements': collectionImplements.name,
+          previousVersion,
+        },
+      }));
+      const previousFeature_idFound = await cursorPreviousFeature_idFound.all();
+      if (!previousFeature_idFound.length) {
+        await trx.abort();
+        return res.status(400).json({ reason: 'Previous version not found' });
+      }
+      const previousFeature_id = previousFeature_idFound[0];
+      // Check ownership
+      const cursorOwnerFound = await trx.step(() => db.query({
+        query: `
+          FOR user IN INBOUND @feature_id @@collectionOwns
+            FILTER user.username == @username
+            LIMIT 1
+            RETURN true
+        `,
+        bindVars: {
+          feature_id,
+          '@collectionOwns': collectionOwns.name,
+          username,
+        },
+      }));
+      const ownerFound = await cursorOwnerFound.all();
+      if (!ownerFound.length) {
+        await trx.abort();
+        return res.status(403).end();
+      }
+      // Get a list of versions
+      const cursorVersionList = await trx.step(() => db.query({
+        query: `
+          FOR featureVersion IN INBOUND @feature_id @@collectionImplements
+            RETURN featureVersion.version
+        `,
+        bindVars: { feature_id, '@collectionImplements': collectionImplements.name },
+      }));
+      const versionList = await cursorVersionList.all();
+      const version = Math.max(...versionList) + 1;
+      const featureVersion = await trx.step(() => collectionFeatureVersion.save({
+        version,
+      }));
+      await trx.step(() => collectionImplements.save({
+        _from: featureVersion._id,
+        _to: feature_id,
+      }));
+      await trx.step(() => collectionForkedFrom.save({
+        _from: featureVersion._id,
+        _to: previousFeature_id,
+      }));
+      const change = await trx.step(() => collectionChange.save({
+        revision: 0,
+        changeList: [],
+      }));
+      await trx.step(() => collectionDescribes.save({
+        _from: change._id,
+        _to: featureVersion._id,
+      }));
+      await trx.commit();
+      return res.status(200).end();
+    } catch (e) {
+      if (trx) {
+        await trx.abort();
+      }
+      console.error(e);
+      return res.status(500).end();
+    }
+  });
+
   app.get('/features/:featureId', async (req, res) => {
     const user = req.user as User;
     if (!user) {
