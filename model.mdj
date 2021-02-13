@@ -1139,7 +1139,6 @@
 										"$ref": "AAAAAAF3aLmIEn/lsO8="
 									},
 									"visible": false,
-									"lineColor": "#ff0000",
 									"font": "Arial;13;0",
 									"left": -304,
 									"top": 224,
@@ -1156,7 +1155,6 @@
 										"$ref": "AAAAAAF3aLmIEn/mAdI="
 									},
 									"visible": false,
-									"lineColor": "#ff0000",
 									"font": "Arial;13;0",
 									"left": -304,
 									"top": 224,
@@ -1164,7 +1162,6 @@
 									"height": 10
 								}
 							],
-							"lineColor": "#ff0000",
 							"font": "Arial;13;0",
 							"head": {
 								"$ref": "AAAAAAF3aLGPmR9ZQYo="
