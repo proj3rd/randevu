@@ -76,10 +76,12 @@ export function serviceFeature(app: Express, db: Database) {
           FOR feature IN @@collectionFeature
             FILTER feature.featureId == @featureId
             LIMIT 1
-            LET versionList = APPEND([1], (
+            LET versionList = APPEND([
+              { version: 1, previousVersion: null }
+            ], (
               FOR featureVersion IN INBOUND feature @@collectionImplements
                 FOR previousFeatureVersion IN OUTBOUND featureVersion @@collectionForkedFrom
-                  RETURN featureVersion.version
+                  RETURN { version: featureVersion.version, previousVersion: previousFeatureVersion.version }
             ))
             RETURN versionList
         `,

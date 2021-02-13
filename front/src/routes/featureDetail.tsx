@@ -1,5 +1,6 @@
 import axios from "axios";
 import { config } from 'randevu-shared/dist/config';
+import { ApiVersion } from "randevu-shared/dist/types";
 import { Component } from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import { Container, Dimmer, Form, Header, Icon, Loader, Table } from "semantic-ui-react";
@@ -21,7 +22,7 @@ type State = {
   featureName: string,
   owner: string,
   loadingVersionList: boolean,
-  versionList: number[],
+  versionList: ApiVersion[],
   version: number,
   loadingChange: boolean,
   revisionChange: number | undefined,
@@ -61,9 +62,9 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
         document.title = `RANdevU :: ${featureId} ${featureName}`;
         this.setState({ loading: false, featureId, featureName, owner });
         axios.get(`/features/${featureId}/versions`).then((value) => {
-          const { data: versionList } = value;
-          (versionList as number[]).sort((a, b) => a - b);
-          const versionLast = (versionList as number[])[(versionList as number[]).length - 1];
+          const versionList = value.data as ApiVersion[];
+          versionList.sort((a, b) => a.version - b.version);
+          const versionLast = versionList[versionList.length - 1].version;
           this.setState({ loadingVersionList: false, versionList, version: versionLast });
           // Parallel: release, changes, requirements, etc.
           axios.get(`/features/${featureId}/changes/${versionLast}`).then((value) => {
@@ -118,8 +119,8 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
                 <select value={version} onChange={this.onChangeVersion}>
                   <option value={0} />
                   {
-                    versionList.map((version) => (
-                      <option key={version} value={version}>{version}</option>
+                    versionList.map((apiVersin) => (
+                      <option key={apiVersin.version} value={apiVersin.version}>{apiVersin.version}</option>
                     ))
                   }
                 </select>

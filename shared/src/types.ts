@@ -1,19 +1,24 @@
 export type Config = { 
-  api: ApiConfig,
-  db: DbConfig,
+  api: ConfigApi,
+  db: ConfigDb,
 };
 
-type ApiConfig = {
+type ConfigApi = {
   host: string,
   port: number,
 };
 
-type DbConfig = {
+type ConfigDb = {
   host: string,
   port: number,
   username: string,
   password: string,
   database: string,
+};
+
+export type ApiVersion = {
+  version: number;
+  previousVersion: number | null;
 };
 
 export type User = {
