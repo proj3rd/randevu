@@ -94,7 +94,7 @@ class Router extends Component<RouteComponentProps, State> {
         </Menu>
         <Switch>
           <Route exact path='/'><Landing /></Route>
-          <Route path='/features'>
+          <Route exact path='/features'>
             <Feature onUpdateAuthenticationResult={this.updateAuthenticationResult} username={username} role={role} />
           </Route>
           <Route path='/features'>
