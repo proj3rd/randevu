@@ -1,3 +1,4 @@
+export const COLLECTION_CHANGE = 'change';
 export const COLLECTION_CUSTOMER = 'customer';
 export const COLLECTION_DEPLOYMENT_OPTION = 'deploymentOption';
 export const COLLECTION_FEATURE = 'feature';
@@ -12,6 +13,7 @@ export const COLLECTION_USER = 'user';
 
 export const EDGE_COLLECTION_COMMITS = 'commits';
 export const EDGE_COLLECTION_DERIVED_FROM = 'derivedFrom';
+export const EDGE_COLLECTION_DESCRIBES = 'describes';
 export const EDGE_COLLECTION_FORKED_FROM = 'forkedFrom';
 export const EDGE_COLLECTION_IMPLEMENTS = 'implements';
 export const EDGE_COLLECTION_OWNS = 'owns';

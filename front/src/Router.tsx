@@ -10,6 +10,7 @@ import Feature from "./routes/feature";
 import Admin from "./routes/admin";
 import Operator from "./routes/operator";
 import Package from "./routes/package";
+import FeatureDetail from "./routes/featureDetail";
 
 type State = {
   loading: boolean,
@@ -93,8 +94,11 @@ class Router extends Component<RouteComponentProps, State> {
         </Menu>
         <Switch>
           <Route exact path='/'><Landing /></Route>
-          <Route path='/features'>
+          <Route exact path='/features'>
             <Feature onUpdateAuthenticationResult={this.updateAuthenticationResult} username={username} role={role} />
+          </Route>
+          <Route path='/features'>
+            <FeatureDetail onUpdateAuthenticationResult={this.updateAuthenticationResult} />
           </Route>
           <Route path='/operators'>
             <Operator onUpdateAuthenticationResult={this.updateAuthenticationResult} role={role} />

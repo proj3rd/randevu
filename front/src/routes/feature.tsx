@@ -166,7 +166,7 @@ class Feature extends Component<Props, State> {
               role === 'admin' ? (
                 <Table.Row active>
                   <Table.Cell colSpan={3} textAlign='center'>
-                    <Button icon labelPosition='left' size='tiny' onClick={() => this.openModalCreateFeature(true)}>
+                    <Button icon labelPosition='left' onClick={() => this.openModalCreateFeature(true)}>
                       <Icon name='plus' />
                       Create a feature
                     </Button>
@@ -179,8 +179,16 @@ class Feature extends Component<Props, State> {
                 const { featureId, featureName, owner } = featureInfo;
                 return (
                   <Table.Row key={featureId}>
-                    <Table.Cell>{featureId}</Table.Cell>
-                    <Table.Cell>{featureName}</Table.Cell>
+                    <Table.Cell>
+                      <a href={`/features/${featureId}`} target='_blank' rel='noreferrer'>
+                        {featureId}
+                      </a>
+                      </Table.Cell>
+                    <Table.Cell>
+                      <a href={`/features/${featureId}`} target='_blank' rel='noreferrer'>
+                        {featureName}
+                      </a>
+                    </Table.Cell>
                     <Table.Cell>{owner}</Table.Cell>
                   </Table.Row>
                 );
