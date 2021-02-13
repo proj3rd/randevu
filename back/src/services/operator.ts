@@ -4,6 +4,7 @@ import { Express } from 'express';
 import { COLLECTION_OPERATOR, COLLECTION_USER, EDGE_COLLECTION_OWNS } from "../constants";
 import { User } from "randevu-shared/dist/types";
 import { validateString } from "../utils";
+import { findUserByName } from "./user";
 
 export function serviceOperator(app: Express, db: Database) {
   app.get('/operators', async (req, res) => {
@@ -15,9 +16,8 @@ export function serviceOperator(app: Express, db: Database) {
     try {
       const collectionOperator = db.collection(COLLECTION_OPERATOR);
       const collectionOwns = db.collection(EDGE_COLLECTION_OWNS);
-      const collectionUser = db.collection(COLLECTION_USER);
       trx = await db.beginTransaction({
-        read: [collectionOperator, collectionOwns, collectionUser],
+        read: [collectionOperator, collectionOwns],
       });
       const cursorOperatorWithOwnerList = await trx.step(() => db.query({
         query: `
@@ -29,8 +29,8 @@ export function serviceOperator(app: Express, db: Database) {
             }
         `,
         bindVars: {
-          '@collectionOperator': COLLECTION_OPERATOR,
-          '@collectionOwns': EDGE_COLLECTION_OWNS,
+          '@collectionOperator': collectionOperator.name,
+          '@collectionOwns': collectionOwns.name,
         },
       }));
       const operatorWithOwnerList = await cursorOperatorWithOwnerList.all();
@@ -45,7 +45,7 @@ export function serviceOperator(app: Express, db: Database) {
     }
   });
 
-  app.post('/operators',  async (req, res) => {
+  app.post('/operators', async (req, res) => {
     const user = req.user as User;
     if (!user || user.role !== 'admin') {
       return res.status(403).end();
@@ -63,40 +63,19 @@ export function serviceOperator(app: Express, db: Database) {
         read: collectionUser,
         write: [collectionOperator, collectionOwns],
       });
-      const cursorOperatorFound = await trx.step(() => db.query({
-        query: `
-          FOR operator IN @@collectionOperator
-            FILTER operator.operatorName == @operatorName
-            LIMIT 1
-            RETURN operator._id
-        `,
-        bindVars: {
-          '@collectionOperator': COLLECTION_OPERATOR, operatorName,
-        },
-      }));
-      const operatorFound = await cursorOperatorFound.all();
-      if (operatorFound.length) {
+      const operatorExisting = await findOperatorByName(db, trx, operatorName);
+      if (operatorExisting) {
         await trx.abort();
         return res.status(400).json({ reason: `Duplicate operator name` });
       }
       const operator = await trx.step(() => collectionOperator.save({ operatorName }));
-      const cursorUserDocIdFound = await trx.step(() => db.query({
-        query: `
-          FOR user in @@collectionUser
-            FILTER user.username == @username
-            LIMIT 1
-            RETURN user._id
-        `,
-        bindVars: { '@collectionUser': COLLECTION_USER, username },
-      }));
-      const userDocIdFound = await cursorUserDocIdFound.all();
-      if (!userDocIdFound.length) {
+      const userFound = await findUserByName(db, trx, username);
+      if (!userFound) {
         await trx.abort();
         return res.status(400).json({ reason: 'User not found' });
       }
-      const userDocId = userDocIdFound[0];
       await trx.step(() => collectionOwns.save({
-        _from: userDocId,
+        _from: userFound._id,
         _to: operator._id,
       }));
       await trx.commit();
@@ -109,4 +88,18 @@ export function serviceOperator(app: Express, db: Database) {
       return res.status(500).end();
     }
   });
+}
+
+async function findOperatorByName(db: Database, trx: Transaction, operatorName: string) {
+  const cursorOperatorFound = await trx.step(() => db.query({
+    query: `
+      FOR operator IN @@collectionOperator
+        FILTER operator.operatorName == @operatorName
+        LIMIT 1
+        RETURN operator
+    `,
+    bindVars: { '@collectionOperator': COLLECTION_OPERATOR, operatorName },
+  }));
+  const operatorFound = await cursorOperatorFound.all();
+  return operatorFound[0];
 }

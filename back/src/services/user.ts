@@ -174,7 +174,7 @@ export function serviceUser(app: Express, db: Database) {
   });
 }
 
-async function findUserByName(db: Database, trx: Transaction, username: string) {
+export async function findUserByName(db: Database, trx: Transaction, username: string) {
   const cursorUserFound = await trx.step(() => db.query({
     query: `
       FOR user IN @@collectionUser
