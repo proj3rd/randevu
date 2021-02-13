@@ -224,6 +224,7 @@ export function serviceFeature(app: Express, db: Database) {
       }));
       const changeList = await trx.step(() => collectionChange.save({
         revision: 0,
+        changeList: [],
       }));
       await trx.step(() => collectionDescribes.save({
         _from: changeList._id,
