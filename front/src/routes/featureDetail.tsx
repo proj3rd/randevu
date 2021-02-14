@@ -38,7 +38,8 @@ type State = {
   version: number;
   openModalCreateFeatureVersion: boolean;
   loadingChange: boolean;
-  revisionChange: number | undefined;
+  changeRevisionList: number[];
+  changeRevision: number | undefined;
   changeList: Change[];
 };
 
@@ -58,7 +59,8 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
       version: 0,
       openModalCreateFeatureVersion: false,
       loadingChange: true,
-      revisionChange: undefined,
+      changeRevisionList: [],
+      changeRevision: undefined,
       changeList: [],
     };
     const { api } = config;
@@ -90,22 +92,21 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
               .then((value) => {
                 const versionList = value.data as ApiVersion[];
                 versionList.sort((a, b) => a.version - b.version);
-                const versionLast = versionList[versionList.length - 1].version;
+                const { version } = versionList[versionList.length - 1];
                 this.setState({
                   loadingVersionList: false,
                   versionList,
-                  version: versionLast,
+                  version,
                 });
                 // Parallel: release, changes, requirements, etc.
                 axios
-                  .get(`/features/${featureId}/changes/${versionLast}`)
+                  .get(`/features/${featureId}/versions/${version}/changes/`)
                   .then((value) => {
-                    const { revision: revisionChange, changeList } = value.data;
-                    this.setState({
-                      loadingChange: false,
-                      revisionChange,
-                      changeList,
-                    });
+                    const { data: changeRevisionList } = value;
+                    (changeRevisionList as number[]).sort((a, b) => a - b);
+                    const changeRevision = Math.max(...changeRevisionList);
+                    // TODO: Get a list of changes
+                    this.setState({ loadingChange: false, changeRevisionList, changeRevision });
                   })
                   .catch((reason) => {
                     console.error(reason);
@@ -137,6 +138,12 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
     document.title = "RANdevU";
   }
 
+  onChangeChangeRevision(e: React.ChangeEvent<HTMLSelectElement>) {
+    const changeRevision = +e.target.value;
+    // TODO: Get a change list of a given revision
+    this.setState({ changeRevision });
+  }
+
   onChangeVersion(e: React.ChangeEvent<HTMLSelectElement>) {
     const version = +e.target.value;
     this.setState({ version });
@@ -160,7 +167,8 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
       version,
       openModalCreateFeatureVersion,
       loadingChange,
-      revisionChange,
+      changeRevisionList,
+      changeRevision,
       changeList,
     } = this.state;
     if (reason) {
@@ -177,7 +185,6 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
               <Form.Field inline>
                 <label>Version</label>
                 <select value={version} onChange={this.onChangeVersion}>
-                  <option value={0} />
                   {versionList.map((apiVersin) => (
                     <option key={apiVersin.version} value={apiVersin.version}>
                       {apiVersin.version}
@@ -204,13 +211,13 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
           </Dimmer.Dimmable>
         </Form>
         <Header as="h2">Releases</Header>
-        <Form>
-          <Form.Button icon labelPosition="left">
-            <Icon name="list" />
-            Generate release history
-          </Form.Button>
-        </Form>
         <Dimmer.Dimmable>
+          <Form>
+            <Form.Button icon labelPosition="left">
+              <Icon name="list" />
+              Generate release history
+            </Form.Button>
+          </Form>
           <Table>
             <Table.Header>
               <Table.Row>
@@ -224,8 +231,19 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
           </Dimmer>
         </Dimmer.Dimmable>
         <Header as="h2">Changes</Header>
-        Revision: {revisionChange}
         <Dimmer.Dimmable>
+          <Form>
+            <Form.Field inline>
+              <label>Revision</label>
+              <select value={changeRevision} onChange={this.onChangeChangeRevision}>
+                {
+                  changeRevisionList.map((changeRevision) => (
+                    <option key={changeRevision} value={changeRevision}>{changeRevision}</option>
+                  ))
+                }
+              </select>
+            </Form.Field>
+          </Form>
           <Table>
             <Table.Header>
               <Table.Row>
