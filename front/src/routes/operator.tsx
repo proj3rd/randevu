@@ -70,7 +70,7 @@ class Operator extends Component<Props, State> {
           <Icon name='refresh' />
           Refresh
         </Button>
-        <Table celled compact selectable striped>
+        <Table celled selectable>
           <Table.Header>
             <Table.Row>
               <Table.HeaderCell>Operator name</Table.HeaderCell>

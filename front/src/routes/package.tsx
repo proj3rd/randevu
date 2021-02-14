@@ -184,7 +184,7 @@ class Package extends Component<Props, State> {
             </Message>
           ) : <></>
         }
-        <Table celled compact selectable striped>
+        <Table celled selectable>
           <Table.Header>
             <Table.Row>
               <Table.HeaderCell>Package name</Table.HeaderCell>

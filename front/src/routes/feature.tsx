@@ -153,7 +153,7 @@ class Feature extends Component<Props, State> {
             </Message>
           ) : <></>
         }
-        <Table celled compact selectable striped>
+        <Table celled selectable>
           <Table.Header>
             <Table.Row>
               <Table.HeaderCell>Feature ID</Table.HeaderCell>
