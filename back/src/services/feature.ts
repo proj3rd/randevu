@@ -61,6 +61,58 @@ export function serviceFeature(app: Express, db: Database) {
     }
   });
 
+  app.get('/features/:featureId/versions/:version/changes', async (req, res) => {
+    const user = req.user as User;
+    if (!user) {
+      return res.status(403).end();
+    }
+    let trx: Transaction | undefined;
+    try {
+      const collectionChange = db.collection(COLLECTION_CHANGE);
+      const collectionDescribes = db.collection(EDGE_COLLECTION_DESCRIBES);
+      const collectionFeatureVersion = db.collection(COLLECTION_FEATURE_VERSION);
+      trx = await db.beginTransaction({
+        read: [collectionChange, collectionDescribes, collectionFeatureVersion],
+      });
+      console.log(req.params);
+      const { featureId, version: versionString } = req.params;
+      const feature = await findFeatureByFeatureId(db, trx, featureId);
+      if (!feature) {
+        await trx.abort();
+        return res.status(404).json({ reason: 'Feature not found' });
+      }
+      const version = +versionString;
+      const featureVersion = await findFeatureVersion(db, trx, featureId, version);
+      if (!featureVersion) {
+        await trx.abort();
+        return res.status(404).json({ reason: 'Feature version not found' });
+      }
+      const cursorChangeRevisionList = await trx.step(() => db.query({
+        query: `
+          FOR change IN @@collectionChange
+            FOR featureVersion IN OUTBOUND change._id @@collectionDescribes
+              FILTER featureVersion._id == @featureVersion_id
+              LIMIT 1
+              RETURN change.revision
+        `,
+        bindVars: {
+          '@collectionChange': collectionChange.name,
+          '@collectionDescribes': collectionDescribes.name,
+          featureVersion_id: featureVersion._id,
+        },
+      }));
+      const changeRevisionList = await cursorChangeRevisionList.all();
+      await trx.commit();
+      return res.json(changeRevisionList);
+    } catch (e) {
+      if (trx) {
+        await trx.abort();
+      }
+      console.error(e);
+      return res.status(500).end();
+    }
+  });
+
   app.get('/features/:featureId/versions', async (req, res) => {
     const user = req.user as User;
     if (!user) {
