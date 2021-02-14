@@ -4,6 +4,7 @@ import { ApiVersion } from "randevu-shared/dist/types";
 import { Component, createRef, RefObject } from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import {
+  Button,
   Container,
   Dimmer,
   Form,
@@ -26,6 +27,7 @@ type Props = {
     username: string | undefined,
     role: string | undefined
   ) => void;
+  username: string | undefined;
 };
 
 type State = {
@@ -186,11 +188,13 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
   }
 
   render() {
+    const { username } = this.props;
     const {
       loading,
       reason,
       featureId,
       featureName,
+      owner,
       loadingVersionList,
       versionList,
       version,
@@ -225,14 +229,18 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
                 <Icon name="code branch" />
                 Version map
               </Form.Button>
-              <Form.Button
-                icon
-                labelPosition="left"
-                onClick={() => this.openModalCreateFeatureVersion(true)}
-              >
-                <Icon name="plus" />
-                Create a new version
-              </Form.Button>
+              {
+                username === owner ? (
+                  <Form.Button
+                    icon
+                    labelPosition="left"
+                    onClick={() => this.openModalCreateFeatureVersion(true)}
+                  >
+                    <Icon name="plus" />
+                    Create a new version
+                  </Form.Button>
+                ) : <></>
+              }
             </Form.Group>
             <Dimmer active={loadingVersionList}>
               <Loader />
@@ -273,7 +281,7 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
               </select>
             </Form.Field>
           </Form>
-          <Table>
+          <Table celled selectable>
             <Table.Header>
               <Table.Row>
                 <Table.HeaderCell>Description</Table.HeaderCell>
@@ -283,17 +291,31 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
               </Table.Row>
             </Table.Header>
             <Table.Body>
-              {changeList.map((change, index) => {
-                const { description, beforeChange, afterChange, operatorList } = change;
-                return (
-                  <Table.Row key={index}>
-                    <Table.Cell>{description}</Table.Cell>
-                    <Table.Cell>{beforeChange}</Table.Cell>
-                    <Table.Cell>{afterChange}</Table.Cell>
-                    <Table.Cell>{operatorList.sort().join(', ')}</Table.Cell>
+              {
+                username === owner ? (
+                  <Table.Row active>
+                    <Table.Cell colSpan={4} textAlign='center'>
+                      <Button icon labelPosition='left'>
+                        <Icon name='plus' />
+                        Add a change
+                      </Button>
+                    </Table.Cell>
                   </Table.Row>
-                );
-              })}
+                ) : <></>
+              }
+              {
+                changeList.map((change, index) => {
+                  const { description, beforeChange, afterChange, operatorList } = change;
+                  return (
+                    <Table.Row key={index}>
+                      <Table.Cell>{description}</Table.Cell>
+                      <Table.Cell>{beforeChange}</Table.Cell>
+                      <Table.Cell>{afterChange}</Table.Cell>
+                      <Table.Cell>{operatorList.sort().join(', ')}</Table.Cell>
+                    </Table.Row>
+                  );
+                })
+              }
             </Table.Body>
           </Table>
           <Dimmer active={loadingChange}>

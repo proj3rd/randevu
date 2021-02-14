@@ -98,7 +98,7 @@ class Router extends Component<RouteComponentProps, State> {
             <Feature onUpdateAuthenticationResult={this.updateAuthenticationResult} username={username} role={role} />
           </Route>
           <Route path='/features'>
-            <FeatureDetail onUpdateAuthenticationResult={this.updateAuthenticationResult} />
+            <FeatureDetail onUpdateAuthenticationResult={this.updateAuthenticationResult} username={username} />
           </Route>
           <Route path='/operators'>
             <Operator onUpdateAuthenticationResult={this.updateAuthenticationResult} role={role} />
