@@ -4,6 +4,7 @@ import { Express } from 'express';
 import { COLLECTION_CHANGE, COLLECTION_FEATURE, COLLECTION_FEATURE_VERSION, COLLECTION_USER, EDGE_COLLECTION_DESCRIBES, EDGE_COLLECTION_FORKED_FROM, EDGE_COLLECTION_IMPLEMENTS, EDGE_COLLECTION_OWNS } from "../constants";
 import { User } from "randevu-shared/dist/types";
 import { validateString } from "../utils";
+import { findUserByName } from "./user";
 
 export function serviceFeature(app: Express, db: Database) {
   app.get('/features/:featureId/versions/:version/changes/:revision', async(req, res) => {
@@ -353,40 +354,19 @@ export function serviceFeature(app: Express, db: Database) {
         read: collectionUser,
         write: [collectionChange, collectionDescribes, collectionFeature, collectionFeatureVersion, collectionImplements, collectionOwns],
       });
-      const cursorFeatureFound = await trx.step(() => db.query({
-        query: `
-          FOR feature IN @@collectionFeature
-            FILTER feature.featureId == @featureId
-            LIMIT 1
-            RETURN feature._id
-        `,
-        bindVars: {
-          '@collectionFeature': COLLECTION_FEATURE, featureId,
-        },
-      }));
-      const featureFound = await cursorFeatureFound.all();
-      if (featureFound.length) {
+      const featureExisting = await findFeatureByFeatureId(db, trx, featureId);
+      if (featureExisting) {
         await trx.abort();
         return res.status(400).json({ reason: `Duplicate feature ID` });
       }
       const feature = await trx.step(() => collectionFeature.save({ featureId, featureName }));
-      const cursorUserDocIdFound = await trx.step(() => db.query({
-        query: `
-          FOR user in @@collectionUser
-            FILTER user.username == @username
-            LIMIT 1
-            RETURN user._id
-        `,
-        bindVars: { '@collectionUser': COLLECTION_USER, username },
-      }));
-      const userDocIdFound = await cursorUserDocIdFound.all();
-      if (!userDocIdFound.length) {
+      const userFound = await findUserByName(db, trx, username);
+      if (!userFound) {
         await trx.abort();
         return res.status(400).json({ reason: 'User not found' });
       }
-      const userDocId = userDocIdFound[0];
       await trx.step(() => collectionOwns.save({
-        _from: userDocId,
+        _from: userFound._id,
         _to: feature._id,
       }));
       const featureVersion = await trx.step(() => collectionFeatureVersion.save({
@@ -414,4 +394,42 @@ export function serviceFeature(app: Express, db: Database) {
       return res.status(500).end();
     }
   });
+}
+
+async function findFeatureByFeatureId(db: Database, trx: Transaction, featureId: string) {
+  const cursorFeatureFound = await trx.step(() => db.query({
+    query: `
+      FOR feature IN @@collectionFeature
+        FILTER feature.featureId == @featureId
+        LIMIT 1
+        return feature
+    `,
+    bindVars: { '@collectionFeature': COLLECTION_FEATURE, featureId },
+  }));
+  const featureFound = await cursorFeatureFound.all();
+  return featureFound[0];
+}
+
+async function findFeatureVersion(db: Database, trx: Transaction, featureId: string, version: number) {
+  console.log(featureId);
+  console.log(typeof version);
+  console.log(version);
+  const cursorVersionFound = await trx.step(() => db.query({
+    query: `
+      FOR featureVersion IN @@collectionFeatureVersion
+        FILTER featureVersion.version == @version
+        FOR feature IN OUTBOUND featureVersion._id @@collectionImplements
+          FILTER feature.featureId == @featureId
+          LIMIT 1
+          RETURN featureVersion
+    `,
+    bindVars: {
+      '@collectionFeatureVersion': COLLECTION_FEATURE_VERSION,
+      version,
+      '@collectionImplements': EDGE_COLLECTION_IMPLEMENTS,
+      featureId,
+    },
+  }));
+  const versionFound = await cursorVersionFound.all();
+  return versionFound[0];
 }
