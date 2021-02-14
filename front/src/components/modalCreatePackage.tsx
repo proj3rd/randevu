@@ -8,9 +8,9 @@ type Props = {} & ModalProps;
 type State = {
   packageName: string,
   operatorList: Array<{ key: string, value: string, text: string }>,
-  operator: string,
+  operatorName: string,
   packageList: Array<{ key: string, value: string, text: string }>,
-  pkg: string,
+  previousPackageName: string,
   owner: string,
   loading: boolean,
   messageVisible: boolean,
@@ -25,9 +25,9 @@ class ModalCreatePackage extends Component<Props, State> {
     this.state = {
       packageName: '',
       operatorList: [],
-      operator: '',
+      operatorName: '',
       packageList: [],
-      pkg: '',
+      previousPackageName: '',
       owner: '',
       loading: false,
       messageVisible: false,
@@ -38,6 +38,7 @@ class ModalCreatePackage extends Component<Props, State> {
     this.createPackage = this.createPackage.bind(this);
     this.onChangeOperator = this.onChangeOperator.bind(this);
     this.onChangePackageName = this.onChangePackageName.bind(this);
+    this.onChangePreviousPackageName = this.onChangePreviousPackageName.bind(this);
     this.onChangeOwner = this.onChangeOwner.bind(this);
     const { api } = config;
     axios.defaults.baseURL = `http://${api.host}:${api.port}`;
@@ -45,12 +46,12 @@ class ModalCreatePackage extends Component<Props, State> {
   }
 
   createPackage() {
-    const { loading, packageName, owner } = this.state;
+    const { loading, packageName, operatorName, owner } = this.state;
     if (loading) {
       return;
     }
     this.setState({ loading: true });
-    axios.post('/packages/', { packageName, owner }).then((value) => {
+    axios.post('/packages/', { packageName, operatorName, owner }).then((value) => {
       this.setState({ loading: false, messageVisible: true, positive: true, negative: false });
     }).catch((reason) => {
       const messageContent = reason?.response?.data?.reason ?? 'Maybe due to internal server error';
@@ -72,9 +73,9 @@ class ModalCreatePackage extends Component<Props, State> {
   }
 
   onChangeOperator(e: React.ChangeEvent<HTMLSelectElement>) {
-    const { value: operator } = e.target;
-    this.setState({ operator });
-    axios.get('/packages', { params: { operatorNameList: [operator] } }).then((value) => {
+    const { value: operatorName } = e.target;
+    this.setState({ operatorName });
+    axios.get('/packages', { params: { operatorNameList: [operatorName] } }).then((value) => {
       const { data: packageInfoList } = value;
       const packageList = packageInfoList.map((packageInfo : any /* TODO */) => {
         const { packageName } = packageInfo;
@@ -91,6 +92,11 @@ class ModalCreatePackage extends Component<Props, State> {
     this.setState({ packageName });
   }
 
+  onChangePreviousPackageName(e: React.ChangeEvent<HTMLSelectElement>) {
+    const { value: previousPackageName } = e.target;
+    this.setState({ previousPackageName });
+  }
+
   onChangeOwner(e: React.ChangeEvent<HTMLInputElement>) {
     const owner = e.target.value;
     this.setState({ owner });
@@ -98,8 +104,8 @@ class ModalCreatePackage extends Component<Props, State> {
 
   render() {
     const { closeAction, ...modalProps } = this.props;
-    const { packageName, operatorList, operator, packageList, owner, loading, messageVisible, positive, negative, messageContent } = this.state;
-    const disabled = !packageName || !operator || !owner;
+    const { packageName, operatorList, operatorName, packageList, previousPackageName, owner, loading, messageVisible, positive, negative, messageContent } = this.state;
+    const disabled = !packageName || !operatorName || !owner;
     return (
       <Modal {...modalProps} onClose={closeAction}>
         <Modal.Header>Create a package</Modal.Header>
@@ -109,9 +115,9 @@ class ModalCreatePackage extends Component<Props, State> {
               <label>Package name</label>
               <input type='text' value={packageName} onChange={this.onChangePackageName} />
             </Form.Field>
-            <Form.Field error={!operator}>
+            <Form.Field error={!operatorName}>
               <label>Operator</label>
-              <select disabled={!operatorList.length} onChange={this.onChangeOperator}>
+              <select disabled={!operatorList.length} value={operatorName} onChange={this.onChangeOperator}>
                 <option value=''></option>
                 {
                   operatorList.map((operator) => {
@@ -125,7 +131,7 @@ class ModalCreatePackage extends Component<Props, State> {
             </Form.Field>
             <Form.Field>
               <label>Previous package</label>
-              <select disabled={!packageList.length}>
+              <select disabled={!packageList.length} value={previousPackageName} onChange={this.onChangePreviousPackageName}>
                 <option value=''></option>
                 {
                   packageList.map((pkg) => {
