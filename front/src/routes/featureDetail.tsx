@@ -220,7 +220,7 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
             </Table.Header>
           </Table>
           <Dimmer active>
-            <Loader />
+            TBD
           </Dimmer>
         </Dimmer.Dimmable>
         <Header as="h2">Changes</Header>
@@ -255,7 +255,7 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
         <Header as="h2">Requirements</Header>
         <Dimmer.Dimmable>
           <Dimmer active>
-            <Loader />
+            TBD
           </Dimmer>
         </Dimmer.Dimmable>
         <Dimmer active={loading}>
