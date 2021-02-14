@@ -18,6 +18,7 @@ type Change = {
   description: string;
   beforeChange: string;
   afterChange: string;
+  operatorList: string[];
 };
 
 type Props = {
@@ -94,7 +95,12 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
   }
 
   loadFeatureChange(featureId: string, version: number, revision: number) {
-    // TODO
+    axios.get(`/features/${featureId}/versions/${version}/changes/${revision}`).then((value) => {
+      const changeList = value.data;
+      this.setState({ loadingChange: false, changeList });
+    }).catch((reason) => {
+      console.error(reason);
+    });
   }
 
   loadFeatureChangeRevisions(featureId: string, version: number) {
@@ -104,7 +110,7 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
         const { data: changeRevisionList } = value;
         (changeRevisionList as number[]).sort((a, b) => a - b);
         const changeRevision = Math.max(...changeRevisionList);
-        this.setState({ loadingChange: false, changeRevisionList, changeRevision });
+        this.setState({ changeRevisionList, changeRevision });
         this.loadFeatureChange(featureId, version, changeRevision);
       })
       .catch((reason) => {
@@ -134,6 +140,11 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
       });
   }
 
+  loadFeatureVersion(featureId: string, version: number) {
+    // Parallel: release, changes, requirements, etc.
+    this.loadFeatureChangeRevisions(featureId, version);
+  }
+
   loadFeatureVersions(featureId: string) {
     axios
       .get(`/features/${featureId}/versions`)
@@ -146,8 +157,7 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
           versionList,
           version,
         });
-        // Parallel: release, changes, requirements, etc.
-        this.loadFeatureChangeRevisions(featureId, version);
+        this.loadFeatureVersion(featureId, version);
       })
       .catch((reason) => {
         console.error(reason);
@@ -156,13 +166,16 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
 
   onChangeChangeRevision(e: React.ChangeEvent<HTMLSelectElement>) {
     const changeRevision = +e.target.value;
-    // TODO: Get a change list of a given revision
-    this.setState({ changeRevision });
+    const { featureId, version } = this.state;
+    this.setState({ loadingChange: true });
+    this.loadFeatureChange(featureId, version, changeRevision);
   }
 
   onChangeVersion(e: React.ChangeEvent<HTMLSelectElement>) {
     const version = +e.target.value;
-    this.setState({ version });
+    const { featureId } = this.state;
+    this.setState({ loadingChange: true, version });
+    this.loadFeatureVersion(featureId, version);
   }
 
   openModalCreateFeatureVersion(open: boolean) {
@@ -271,12 +284,13 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
             </Table.Header>
             <Table.Body>
               {changeList.map((change, index) => {
-                const { description, beforeChange, afterChange } = change;
+                const { description, beforeChange, afterChange, operatorList } = change;
                 return (
                   <Table.Row key={index}>
                     <Table.Cell>{description}</Table.Cell>
                     <Table.Cell>{beforeChange}</Table.Cell>
                     <Table.Cell>{afterChange}</Table.Cell>
+                    <Table.Cell>{operatorList.sort().join(', ')}</Table.Cell>
                   </Table.Row>
                 );
               })}

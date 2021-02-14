@@ -33,7 +33,7 @@ export function serviceFeature(app: Express, db: Database) {
               FOR feature IN OUTBOUND featureVersion._id @@collectionImplements
                 FILTER feature.featureId == @featureId
                 LIMIT 1
-                RETURN { revision: change.revision, changeList: change.changeList }
+                RETURN change.changeList
         `,
         bindVars: {
           '@collectionChange': collectionChange.name,
