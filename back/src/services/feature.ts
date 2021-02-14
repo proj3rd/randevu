@@ -6,7 +6,7 @@ import { User } from "randevu-shared/dist/types";
 import { validateString } from "../utils";
 
 export function serviceFeature(app: Express, db: Database) {
-  app.get('/features/:featureId/changes/:version', async(req, res) => {
+  app.get('/features/:featureId/versions/:version/changes/:revision', async(req, res) => {
     const user = req.user as User;
     if (!user) {
       return res.status(403).end();
@@ -19,11 +19,13 @@ export function serviceFeature(app: Express, db: Database) {
       trx = await db.beginTransaction({
         read: [collectionChange, collectionDescribes, collectionImplements],
       });
-      const { featureId, version: versionString } = req.params;
+      const { featureId, version: versionString, revision: revisionString } = req.params;
       const version = +versionString;
+      const revision = revisionString ? +revisionString : undefined;
       const cursorChangeListFound = await trx.step(() => db.query({
         query: `
           FOR change IN @@collectionChange
+            FILTER change.revision == @revision
             FOR featureVersion IN OUTBOUND change._id @@collectionDescribes
               FILTER featureVersion.version == @version
               LIMIT 1
@@ -34,6 +36,7 @@ export function serviceFeature(app: Express, db: Database) {
         `,
         bindVars: {
           '@collectionChange': collectionChange.name,
+          revision,
           '@collectionDescribes': collectionDescribes.name,
           version,
           '@collectionImplements': collectionImplements.name,
