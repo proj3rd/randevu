@@ -81,52 +81,7 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
     axios
       .get("/authenticate")
       .then(() => {
-        axios
-          .get(`/features/${featureId}`)
-          .then((value) => {
-            const { featureId, featureName, owner } = value.data;
-            document.title = `RANdevU :: ${featureId} ${featureName}`;
-            this.setState({ loading: false, featureId, featureName, owner });
-            axios
-              .get(`/features/${featureId}/versions`)
-              .then((value) => {
-                const versionList = value.data as ApiVersion[];
-                versionList.sort((a, b) => a.version - b.version);
-                const { version } = versionList[versionList.length - 1];
-                this.setState({
-                  loadingVersionList: false,
-                  versionList,
-                  version,
-                });
-                // Parallel: release, changes, requirements, etc.
-                axios
-                  .get(`/features/${featureId}/versions/${version}/changes/`)
-                  .then((value) => {
-                    const { data: changeRevisionList } = value;
-                    (changeRevisionList as number[]).sort((a, b) => a - b);
-                    const changeRevision = Math.max(...changeRevisionList);
-                    // TODO: Get a list of changes
-                    this.setState({ loadingChange: false, changeRevisionList, changeRevision });
-                  })
-                  .catch((reason) => {
-                    console.error(reason);
-                  });
-              })
-              .catch((reason) => {
-                console.error(reason);
-              });
-          })
-          .catch((e) => {
-            console.error(e);
-            const status = e.response?.status;
-            const reason =
-              status === 403
-                ? "Not authorized to access this feature"
-                : status === 404
-                ? "Feature not found"
-                : "Maybe due to internal server failure";
-            this.setState({ loading: false, reason });
-          });
+        this.loadFeatureDetail(featureId);
       })
       .catch((reason) => {
         this.setState({ loading: false });
@@ -136,6 +91,67 @@ class FeatureDetail extends Component<Props & RouteComponentProps, State> {
 
   componentWillUnmount() {
     document.title = "RANdevU";
+  }
+
+  loadFeatureChange(featureId: string, version: number, revision: number) {
+    // TODO
+  }
+
+  loadFeatureChangeRevisions(featureId: string, version: number) {
+    axios
+      .get(`/features/${featureId}/versions/${version}/changes/`)
+      .then((value) => {
+        const { data: changeRevisionList } = value;
+        (changeRevisionList as number[]).sort((a, b) => a - b);
+        const changeRevision = Math.max(...changeRevisionList);
+        this.setState({ loadingChange: false, changeRevisionList, changeRevision });
+        this.loadFeatureChange(featureId, version, changeRevision);
+      })
+      .catch((reason) => {
+        console.error(reason);
+      });
+  }
+
+  loadFeatureDetail(featureId: string) {
+    axios
+      .get(`/features/${featureId}`)
+      .then((value) => {
+        const { featureId, featureName, owner } = value.data;
+        document.title = `RANdevU :: ${featureId} ${featureName}`;
+        this.setState({ loading: false, featureId, featureName, owner });
+        this.loadFeatureVersions(featureId);
+      })
+      .catch((e) => {
+        console.error(e);
+        const status = e.response?.status;
+        const reason =
+          status === 403
+            ? "Not authorized to access this feature"
+            : status === 404
+            ? "Feature not found"
+            : "Maybe due to internal server failure";
+        this.setState({ loading: false, reason });
+      });
+  }
+
+  loadFeatureVersions(featureId: string) {
+    axios
+      .get(`/features/${featureId}/versions`)
+      .then((value) => {
+        const versionList = value.data as ApiVersion[];
+        versionList.sort((a, b) => a.version - b.version);
+        const { version } = versionList[versionList.length - 1];
+        this.setState({
+          loadingVersionList: false,
+          versionList,
+          version,
+        });
+        // Parallel: release, changes, requirements, etc.
+        this.loadFeatureChangeRevisions(featureId, version);
+      })
+      .catch((reason) => {
+        console.error(reason);
+      });
   }
 
   onChangeChangeRevision(e: React.ChangeEvent<HTMLSelectElement>) {
