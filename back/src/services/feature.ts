@@ -7,60 +7,6 @@ import { validateString } from "../utils";
 import { findUserByName } from "./user";
 
 export function serviceFeature(app: Express, db: Database) {
-  app.get('/features/:featureId/versions/:version/changes/:revision', async(req, res) => {
-    const user = req.user as User;
-    if (!user) {
-      return res.status(403).end();
-    }
-    let trx: Transaction | undefined;
-    try {
-      const collectionChange = db.collection(COLLECTION_CHANGE);
-      const collectionDescribes = db.collection(EDGE_COLLECTION_DESCRIBES);
-      const collectionImplements = db.collection(EDGE_COLLECTION_IMPLEMENTS);
-      trx = await db.beginTransaction({
-        read: [collectionChange, collectionDescribes, collectionImplements],
-      });
-      const { featureId, version: versionString, revision: revisionString } = req.params;
-      const version = +versionString;
-      const revision = revisionString ? +revisionString : undefined;
-      const cursorChangeListFound = await trx.step(() => db.query({
-        query: `
-          FOR change IN @@collectionChange
-            FILTER change.revision == @revision
-            FOR featureVersion IN OUTBOUND change._id @@collectionDescribes
-              FILTER featureVersion.version == @version
-              LIMIT 1
-              FOR feature IN OUTBOUND featureVersion._id @@collectionImplements
-                FILTER feature.featureId == @featureId
-                LIMIT 1
-                RETURN change.changeList
-        `,
-        bindVars: {
-          '@collectionChange': collectionChange.name,
-          revision,
-          '@collectionDescribes': collectionDescribes.name,
-          version,
-          '@collectionImplements': collectionImplements.name,
-          featureId,
-        },
-      }));
-      const changeListFound = await cursorChangeListFound.all();
-      if (!changeListFound.length) {
-        await trx.abort();
-        return res.status(404).end();
-      }
-      await trx.commit();
-      const changeList = changeListFound[0];
-      return res.json(changeList);
-    } catch (e) {
-      if (trx) {
-        await trx.abort();
-      }
-      console.error(e);
-      return res.status(500).end();
-    }
-  });
-
   app.get('/features/:featureId/versions/:version/changes', async (req, res) => {
     const user = req.user as User;
     if (!user) {
@@ -87,23 +33,24 @@ export function serviceFeature(app: Express, db: Database) {
         await trx.abort();
         return res.status(404).json({ reason: 'Feature version not found' });
       }
-      const cursorChangeRevisionList = await trx.step(() => db.query({
+      const cursorChangeListFound = await trx.step(() => db.query ({
         query: `
           FOR change IN @@collectionChange
             FOR featureVersion IN OUTBOUND change._id @@collectionDescribes
-              FILTER featureVersion._id == @featureVersion_id
+              FILTER featureVersion._id == @featureVersionId
               LIMIT 1
-              RETURN change.revision
+              RETURN change
         `,
         bindVars: {
           '@collectionChange': collectionChange.name,
+          featureVersionId: featureVersion._id,
           '@collectionDescribes': collectionDescribes.name,
-          featureVersion_id: featureVersion._id,
         },
       }));
-      const changeRevisionList = await cursorChangeRevisionList.all();
+      const changeListFound = await cursorChangeListFound.all();
+      const changeList = changeListFound[0] || [];
       await trx.commit();
-      return res.json(changeRevisionList);
+      return res.json(changeList);
     } catch (e) {
       if (trx) {
         await trx.abort();
@@ -264,14 +211,6 @@ export function serviceFeature(app: Express, db: Database) {
         _from: featureVersion._id,
         _to: previousFeature_id,
       }));
-      const change = await trx.step(() => collectionChange.save({
-        revision: 0,
-        changeList: [],
-      }));
-      await trx.step(() => collectionDescribes.save({
-        _from: change._id,
-        _to: featureVersion._id,
-      }));
       await trx.commit();
       return res.status(200).end();
     } catch (e) {
@@ -427,14 +366,6 @@ export function serviceFeature(app: Express, db: Database) {
       await trx.step(() => collectionImplements.save({
         _from: featureVersion._id,
         _to: feature._id,
-      }));
-      const changeList = await trx.step(() => collectionChange.save({
-        revision: 0,
-        changeList: [],
-      }));
-      await trx.step(() => collectionDescribes.save({
-        _from: changeList._id,
-        _to: featureVersion._id,
       }));
       await trx.commit();
       return res.status(200).end();
