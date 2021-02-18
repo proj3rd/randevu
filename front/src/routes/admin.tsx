@@ -1,6 +1,7 @@
 import { Component } from "react";
 import { Route, RouteComponentProps, Switch, withRouter } from "react-router-dom";
 import { Container, Header, Tab, TabProps } from "semantic-ui-react";
+import EnumManager from "../components/EnumManager";
 
 const panes = [
   { menuItem: '', path: '' },
@@ -39,7 +40,10 @@ class Admin extends Component<RouteComponentProps> {
           <Route exact path={`${match.path}`}>Admin</Route>
           {
             panes.filter((pane) => pane.path).map((pane) => (
-              <Route key={pane.path} path={`${match.path}${pane.path}`}>{pane.menuItem}</Route>
+              <Route key={pane.path} path={`${match.path}${pane.path}`}>
+                {pane.menuItem}
+                <EnumManager />
+              </Route>
             ))
           }
         </Switch>
