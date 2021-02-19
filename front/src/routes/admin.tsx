@@ -35,7 +35,6 @@ function Admin() {
         {
           panes.filter((pane) => pane.path).map((pane) => (
             <Route key={pane.path} path={`${match.path}${pane.path}`}>
-              {pane.menuItem}
               <EnumManager path={pane.path} />
             </Route>
           ))
