@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { Button, Form, Table } from "semantic-ui-react";
 
-function EnumManager() {
+type CallbackFunction = (enumName: string, setEnumList: React.Dispatch<React.SetStateAction<string[]>>) => Promise<any>;
+
+type Props = {
+  cb: CallbackFunction;
+};
+
+function EnumManager({ cb }: Props) {
   const [enumList, setEnumList] = useState<string[]>(['Enum A', 'Enum B', 'Enum C']);
   const [enumName, setEnumName] = useState('');
 
@@ -9,8 +15,9 @@ function EnumManager() {
     if (enumList.includes(enumName)) {
       return;
     }
-    setEnumList([...enumList, enumName]);
-    setEnumName('');
+    cb(enumName, setEnumList).then(() => {
+      setEnumName('');
+    });
   }
 
   function onChangeEnumName(e: React.ChangeEvent<HTMLInputElement>) {

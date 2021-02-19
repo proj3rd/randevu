@@ -1,5 +1,4 @@
-import { Component } from "react";
-import { Route, RouteComponentProps, Switch, withRouter } from "react-router-dom";
+import { Route, Switch, useHistory, useRouteMatch, withRouter } from "react-router-dom";
 import { Container, Header, Tab, TabProps } from "semantic-ui-react";
 import EnumManager from "../components/EnumManager";
 
@@ -12,44 +11,43 @@ const panes = [
   { menuItem: 'Users', path: '/users' },
 ];
 
-class Admin extends Component<RouteComponentProps> {
-  constructor(props: RouteComponentProps) {
-    super(props);
-    this.onTabChange = this.onTabChange.bind(this);
+function Admin() {
+  const history = useHistory();
+  const match = useRouteMatch();
+
+  function addEnum(path: string, enumName: string, setEnumList: React.Dispatch<React.SetStateAction<string[]>>) {
+    console.log(path);
+    return Promise.reject();
   }
 
-  onTabChange(event: React.MouseEvent<HTMLDivElement, MouseEvent>, data: TabProps) {
+  function onTabChange(event: React.MouseEvent<HTMLDivElement, MouseEvent>, data: TabProps) {
     const { activeIndex } = data;
     if (typeof activeIndex === 'string' || activeIndex === undefined) {
       return;
     }
     const pane = panes[activeIndex];
     if (pane) {
-      const { history, match } = this.props;
       history.push(`${match.path}${pane.path}`);
     }
   }
 
-  render() {
-    const { match } = this.props;
-    return (
-      <Container>
-        <Header as='h1'>Admin</Header>
-        <Tab menu={{ secondary: true, pointing: true }} panes={panes} onTabChange={this.onTabChange} />
-        <Switch>
-          <Route exact path={`${match.path}`}>Admin</Route>
-          {
-            panes.filter((pane) => pane.path).map((pane) => (
-              <Route key={pane.path} path={`${match.path}${pane.path}`}>
-                {pane.menuItem}
-                <EnumManager />
-              </Route>
-            ))
-          }
-        </Switch>
-      </Container>
-    );
-  }
+  return (
+    <Container>
+      <Header as='h1'>Admin</Header>
+      <Tab menu={{ secondary: true, pointing: true }} panes={panes} onTabChange={onTabChange} />
+      <Switch>
+        <Route exact path={`${match.path}`}>Admin</Route>
+        {
+          panes.filter((pane) => pane.path).map((pane) => (
+            <Route key={pane.path} path={`${match.path}${pane.path}`}>
+              {pane.menuItem}
+              <EnumManager cb={(enumName, setEnumList) => addEnum(pane.path, enumName, setEnumList)} />
+            </Route>
+          ))
+        }
+      </Switch>
+    </Container>
+  );
 }
 
 export default withRouter(Admin);
