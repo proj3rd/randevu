@@ -13,8 +13,10 @@ axios.defaults.withCredentials = true;
 
 function EnumManager({ path }: Props) {
   const [loading, setLoading] = useState(false);
-  const [enumList, setEnumList] = useState<string[]>([]);
+  const [enumList, setEnumList] = useState<string[]>([...'ABCDEFG'.split('')]);
   const [enumName, setEnumName] = useState('');
+  const [enumNameNew, setEnumNameNew] = useState('');
+  const [editing, setEditing] = useState<string | null>(null);
 
   useEffect(() => {
     setLoading(true);
@@ -31,11 +33,14 @@ function EnumManager({ path }: Props) {
     if (enumList.includes(enumName)) {
       return;
     }
+    setLoading(true);
     axios.post(path, { enumName }).then(() => {
       setEnumList([...enumList, enumName])
       setEnumName('');
     }).catch((reason) => {
       console.error(reason);
+    }).finally(() => {
+      setLoading(false);
     });
   }
 
@@ -43,15 +48,33 @@ function EnumManager({ path }: Props) {
     setEnumName(e.target.value);
   }
 
+  function onChangeEnumNameNew(e: React.ChangeEvent<HTMLInputElement>) {
+    setEnumNameNew(e.target.value);
+  }
+
   function removeEnum(enumName: string) {
     const index = enumList.indexOf(enumName);
     if (index === -1) {
       return;
     }
+    setLoading(true);
     axios.delete(`${path}/${enumName}`).then(() => {
       setEnumList([...enumList.slice(0, index), ...enumList.slice(index + 1)]);
     }).catch((reason) => {
       console.error(reason);
+    }).finally(() => {
+      setLoading(false);
+    });
+  }
+
+  function renameEnum(enumName: string, enumNameNew: string) {
+    setLoading(true);
+    axios.post(`${path}/${enumName}`, { enumNameNew }).then(() => {
+      // TODO
+    }).catch((reason) => {
+      console.error(reason);
+    }).finally(() => {
+      setLoading(false);
     });
   }
 
@@ -82,11 +105,31 @@ function EnumManager({ path }: Props) {
               enumList.map((enumName) => {
                 return (
                   <Table.Row key={enumName}>
-                    <Table.Cell>{enumName}</Table.Cell>
-                    <Table.Cell>
-                      <Button icon='edit' />
-                      <Button icon='trash' onClick={() => removeEnum(enumName)} />
-                    </Table.Cell>
+                    {
+                      editing !== enumName ? (
+                        <>
+                          <Table.Cell>{enumName}</Table.Cell>
+                          <Table.Cell>
+                            <Button icon='edit' onClick={() => setEditing(enumName)} />
+                            <Button icon='trash' onClick={() => removeEnum(enumName)} />
+                          </Table.Cell>
+                        </>
+                      ) : (
+                        <>
+                          <Table.Cell>
+                            <Form>
+                              <Form.Field>
+                                <input type='text' value={enumNameNew} onChange={onChangeEnumNameNew} />
+                              </Form.Field>
+                            </Form>
+                          </Table.Cell>
+                          <Table.Cell>
+                            <Button icon='check' onClick={() => renameEnum(enumName, enumNameNew)} />
+                            <Button icon='cancel' onClick={() => setEditing(null)} />
+                          </Table.Cell>
+                        </>
+                      )
+                    }
                   </Table.Row>
                 )
               })
