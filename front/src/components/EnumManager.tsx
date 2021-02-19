@@ -70,7 +70,11 @@ function EnumManager({ path }: Props) {
   function renameEnum(enumName: string, enumNameNew: string) {
     setLoading(true);
     axios.post(`${path}/${enumName}`, { enumNameNew }).then(() => {
-      // TODO
+      const index = enumList.indexOf(enumName);
+      if (index === -1) {
+        return;
+      }
+      setEnumList([...enumList.slice(0, index), enumNameNew, ...enumList.slice(index + 1)]);
     }).catch((reason) => {
       console.error(reason);
     }).finally(() => {
