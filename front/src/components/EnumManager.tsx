@@ -1,13 +1,17 @@
+import axios from "axios";
 import { useState } from "react";
 import { Button, Form, Table } from "semantic-ui-react";
-
-type CallbackFunction = (enumName: string, setEnumList: React.Dispatch<React.SetStateAction<string[]>>) => Promise<any>;
+import { config } from 'randevu-shared/dist/config';
 
 type Props = {
-  cb: CallbackFunction;
+  path: string;
 };
 
-function EnumManager({ cb }: Props) {
+const { api } = config;
+axios.defaults.baseURL = `http://${api.host}:${api.port}`;
+axios.defaults.withCredentials = true;
+
+function EnumManager({ path }: Props) {
   const [enumList, setEnumList] = useState<string[]>(['Enum A', 'Enum B', 'Enum C']);
   const [enumName, setEnumName] = useState('');
 
@@ -15,8 +19,11 @@ function EnumManager({ cb }: Props) {
     if (enumList.includes(enumName)) {
       return;
     }
-    cb(enumName, setEnumList).then(() => {
+    axios.post(path, { enumName }).then(() => {
+      setEnumList([...enumList, enumName])
       setEnumName('');
+    }).catch((reason) => {
+      console.error(reason);
     });
   }
 

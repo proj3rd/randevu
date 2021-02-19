@@ -15,11 +15,6 @@ function Admin() {
   const history = useHistory();
   const match = useRouteMatch();
 
-  function addEnum(path: string, enumName: string, setEnumList: React.Dispatch<React.SetStateAction<string[]>>) {
-    console.log(path);
-    return Promise.reject();
-  }
-
   function onTabChange(event: React.MouseEvent<HTMLDivElement, MouseEvent>, data: TabProps) {
     const { activeIndex } = data;
     if (typeof activeIndex === 'string' || activeIndex === undefined) {
@@ -41,7 +36,7 @@ function Admin() {
           panes.filter((pane) => pane.path).map((pane) => (
             <Route key={pane.path} path={`${match.path}${pane.path}`}>
               {pane.menuItem}
-              <EnumManager cb={(enumName, setEnumList) => addEnum(pane.path, enumName, setEnumList)} />
+              <EnumManager path={pane.path} />
             </Route>
           ))
         }
