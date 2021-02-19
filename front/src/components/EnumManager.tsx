@@ -92,13 +92,13 @@ function EnumManager({ path }: Props) {
             <Table.Row>
               <Table.Cell>
                 <Form onSubmit={addEnum}>
-                  <Form.Field>
+                  <Form.Field disabled={!!editing}>
                     <input type='text' value={enumName} onChange={onChangeEnumName} />
                   </Form.Field>
                 </Form>
               </Table.Cell>
               <Table.Cell>
-                <Button icon='plus' onClick={addEnum} />
+                <Button icon='plus' onClick={addEnum} disabled={!!editing} />
               </Table.Cell>
             </Table.Row>
             {
@@ -110,7 +110,10 @@ function EnumManager({ path }: Props) {
                         <>
                           <Table.Cell>{enumName}</Table.Cell>
                           <Table.Cell>
-                            <Button icon='edit' onClick={() => setEditing(enumName)} />
+                            <Button icon='edit' onClick={() => {
+                              setEnumNameNew(enumName);
+                              setEditing(enumName);
+                            }} />
                             <Button icon='trash' onClick={() => removeEnum(enumName)} />
                           </Table.Cell>
                         </>
