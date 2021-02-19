@@ -36,7 +36,11 @@ function EnumManager({ path }: Props) {
     if (index === -1) {
       return;
     }
-    setEnumList([...enumList.slice(0, index), ...enumList.slice(index + 1)]);
+    axios.delete(`${path}/${enumName}`).then(() => {
+      setEnumList([...enumList.slice(0, index), ...enumList.slice(index + 1)]);
+    }).catch((reason) => {
+      console.error(reason);
+    });
   }
 
   return (
