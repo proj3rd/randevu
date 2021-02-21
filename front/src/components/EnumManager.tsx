@@ -118,7 +118,7 @@ function EnumManager({ path }: Props) {
                               setEnumNameNew(enumName);
                               setEditing(enumName);
                             }} />
-                            <Button icon='trash' onClick={() => removeEnum(enumName)} />
+                            <Button icon='trash' onClick={() => removeEnum(enumName)} disabled />
                           </Table.Cell>
                         </>
                       ) : (
