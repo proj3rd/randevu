@@ -13,7 +13,7 @@ axios.defaults.withCredentials = true;
 
 function EnumManager({ path }: Props) {
   const [loading, setLoading] = useState(false);
-  const [enumList, setEnumList] = useState<string[]>([...'ABCDEFG'.split('')]);
+  const [enumList, setEnumList] = useState<string[]>([]);
   const [enumName, setEnumName] = useState('');
   const [enumNameNew, setEnumNameNew] = useState('');
   const [editing, setEditing] = useState<string | null>(null);
@@ -34,7 +34,7 @@ function EnumManager({ path }: Props) {
       return;
     }
     setLoading(true);
-    axios.post(path, { enumName }).then(() => {
+    axios.post(path, { name: enumName }).then(() => {
       setEnumList([...enumList, enumName])
       setEnumName('');
     }).catch((reason) => {
@@ -69,7 +69,7 @@ function EnumManager({ path }: Props) {
 
   function renameEnum(enumName: string, enumNameNew: string) {
     setLoading(true);
-    axios.post(`${path}/${enumName}`, { enumNameNew }).then(() => {
+    axios.post(`${path}/${enumName}`, { nameNew: enumNameNew }).then(() => {
       const index = enumList.indexOf(enumName);
       if (index === -1) {
         return;
@@ -85,7 +85,7 @@ function EnumManager({ path }: Props) {
   return (
     <>
       <Dimmer.Dimmable>
-        <Table>
+        <Table celled selectable>
           <Table.Header>
             <Table.Row>
               <Table.HeaderCell>Name</Table.HeaderCell>
