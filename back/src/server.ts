@@ -5,6 +5,7 @@ import { config } from 'randevu-shared/dist/config';
 import { serviceFeature } from './services/feature';
 import { serviceOperator } from './services/operator';
 import { servicePackage } from './services/package';
+import { serviceRanSharing } from './services/ranSharing';
 import { serviceUser } from './services/user';
 
 if (require.main === module) {
@@ -27,6 +28,7 @@ if (require.main === module) {
   serviceFeature(app, db);
   serviceOperator(app, db);
   servicePackage(app, db);
+  serviceRanSharing(app, db);
   app.listen(api.port, api.host, () => {
     console.log(`randevu-backend listening on ${api.port}...`);
   });
