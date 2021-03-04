@@ -1,0 +1,110 @@
+openapi: 3.0.0
+info:
+  title: RANdevU
+  version: 0.0.0
+servers:
+- url: http://localhost:3699
+paths:
+  /authenticate:
+    get:
+      tags:
+      - User
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  username:
+                    type: string
+                  role:
+                    type: string
+        '400':
+          description: Not authenticated
+  /join:
+    post:
+      tags:
+      - User
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - username
+              - password
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Ok
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: undefined
+                - type: object
+                  properties:
+                    reason:
+                      type: string
+        '500':
+          description: Internal failure
+  /login:
+    post:
+      tags:
+      - User
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type:string
+      responses:
+        '200':
+          description: Ok
+        '401':
+          description: Login failed
+        '500':
+          description: Internal failure
+  /logout:
+    get:
+      tags:
+      - User
+      responses:
+        '200':
+          description: Ok
+  /users/{username}:
+    get:
+      tags:
+      - User
+      responses:
+        '200':
+          description: Ok
+          content:
+            application:json:
+              schema:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                  username:
+                    type: string
+                  role:
+                    type: string
+        '403':
+          description: Unauthorized
+        '404':
+          description: User not found
+        '500':
+          description: Internal failure
