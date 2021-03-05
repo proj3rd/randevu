@@ -26,9 +26,25 @@ paths:
         "400":
           description: Not authenticated
   /deployment-options:
+    get:
+      tags:
+        - Deployment option
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        "403":
+          description: Unauthorized
+        "500":
+          description: Internal failure
     post:
       tags:
-        - Deployment options
+        - Deployment option
       requestBody:
         content:
           application/json:
@@ -53,6 +69,31 @@ paths:
                     type: string
         "403":
           description: Unauthorized
+        "500":
+          description: Internal failure
+  /deployment-options/{name}:
+    post:
+      tags:
+        - Deployment option
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - nameNew
+              properties:
+                nameNew:
+                  type: string
+      responses:
+        "200":
+          description: Ok
+        "400":
+          description: Invalid input
+        "403":
+          description: Unauthorized
+        "404":
+          description: Deployment option not found
         "500":
           description: Internal failure
   /join:
