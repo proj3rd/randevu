@@ -240,6 +240,80 @@ paths:
           description: Deployment option not found
         "500":
           description: Internal failure
+  /radio-access-technologies:
+    get:
+      tags:
+        - Radio access technology
+      summary: Get a list of radio access technologies
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        "403":
+          description: Unauthorized
+        "500":
+          description: Internal failure
+    post:
+      tags:
+        - Radio access technology
+      summary: Add a radio access technology
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+      responses:
+        "200":
+          description: Ok
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reason:
+                    type: string
+        "403":
+          description: Unauthorized
+        "500":
+          description: Internal failure
+  /radio-access-technologies/{name}:
+    post:
+      tags:
+        - Radio access technology
+      summary: Rename a radio access technology
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - nameNew
+              properties:
+                nameNew:
+                  type: string
+      responses:
+        "200":
+          description: Ok
+        "400":
+          description: Invalid input
+        "403":
+          description: Unauthorized
+        "404":
+          description: Deployment option not found
+        "500":
+          description: Internal failure
   /users/{username}:
     get:
       tags:
