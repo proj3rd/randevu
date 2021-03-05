@@ -166,6 +166,80 @@ paths:
       responses:
         "200":
           description: Ok
+  /network-elements:
+    get:
+      tags:
+        - Network element
+      summary: Get a list of network elements
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        "403":
+          description: Unauthorized
+        "500":
+          description: Internal failure
+    post:
+      tags:
+        - Network element
+      summary: Add a network element
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+      responses:
+        "200":
+          description: Ok
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reason:
+                    type: string
+        "403":
+          description: Unauthorized
+        "500":
+          description: Internal failure
+  /network-elements/{name}:
+    post:
+      tags:
+        - Network element
+      summary: Rename a network element
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - nameNew
+              properties:
+                nameNew:
+                  type: string
+      responses:
+        "200":
+          description: Ok
+        "400":
+          description: Invalid input
+        "403":
+          description: Unauthorized
+        "404":
+          description: Deployment option not found
+        "500":
+          description: Internal failure
   /users/{username}:
     get:
       tags:
