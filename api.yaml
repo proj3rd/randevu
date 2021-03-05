@@ -9,6 +9,7 @@ paths:
     get:
       tags:
         - User
+      summary: Check if the current client is logged in
       responses:
         "200":
           description: Ok
@@ -29,6 +30,7 @@ paths:
     get:
       tags:
         - Deployment option
+      summary: Get a list of deployment options
       responses:
         "200":
           description: Ok
@@ -45,6 +47,7 @@ paths:
     post:
       tags:
         - Deployment option
+      summary: Add a deployment option
       requestBody:
         content:
           application/json:
@@ -75,6 +78,7 @@ paths:
     post:
       tags:
         - Deployment option
+      summary: Rename a deployment option
       requestBody:
         content:
           application/json:
@@ -100,6 +104,7 @@ paths:
     post:
       tags:
         - User
+      summary: Join RANdevU
       requestBody:
         content:
           application/json:
@@ -132,6 +137,7 @@ paths:
     post:
       tags:
         - User
+      summary: Login
       requestBody:
         content:
           application/json:
@@ -156,6 +162,7 @@ paths:
     get:
       tags:
         - User
+      summary: Logout
       responses:
         "200":
           description: Ok
@@ -163,6 +170,7 @@ paths:
     get:
       tags:
         - User
+      summary: Get information of a user
       responses:
         "200":
           description: Ok
