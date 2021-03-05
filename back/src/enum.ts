@@ -87,6 +87,7 @@ export async function handleRequestRenameEnum(
     trx = await db.beginTransaction({
       write: collection,
     });
+    // FIXME: Need to check new name is duplicate
     const cursorEnumFound = await trx.step(() =>
       db.query({
         query: `
