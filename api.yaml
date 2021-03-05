@@ -3,98 +3,135 @@ info:
   title: RANdevU
   version: 0.0.0
 servers:
-- url: http://localhost:3699
+  - url: http://localhost:3699
 paths:
   /authenticate:
     get:
       tags:
-      - User
+        - User
       responses:
-        '200':
+        "200":
           description: Ok
           content:
             application/json:
               schema:
                 type: object
+                required:
+                  - username
                 properties:
                   username:
                     type: string
                   role:
                     type: string
-        '400':
+        "400":
           description: Not authenticated
-  /join:
+  /deployment-options:
     post:
       tags:
-      - User
+        - Deployment options
       requestBody:
         content:
           application/json:
             schema:
               type: object
               required:
-              - username
-              - password
+                - name
               properties:
-                username:
-                  type: string
-                password:
+                name:
                   type: string
       responses:
-        '200':
+        "200":
           description: Ok
-        '400':
+        "400":
           description: Invalid input
           content:
             application/json:
               schema:
-                oneOf:
-                - type: undefined
-                - type: object
-                  properties:
-                    reason:
-                      type: string
-        '500':
+                type: object
+                properties:
+                  reason:
+                    type: string
+        "403":
+          description: Unauthorized
+        "500":
           description: Internal failure
-  /login:
+  /join:
     post:
       tags:
-      - User
+        - User
       requestBody:
         content:
           application/json:
             schema:
               type: object
+              required:
+                - username
+                - password
               properties:
                 username:
                   type: string
                 password:
-                  type:string
+                  type: string
       responses:
-        '200':
+        "200":
           description: Ok
-        '401':
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    properties:
+                      reason:
+                        type: string
+        "500":
+          description: Internal failure
+  /login:
+    post:
+      tags:
+        - User
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: Ok
+        "401":
           description: Login failed
-        '500':
+        "500":
           description: Internal failure
   /logout:
     get:
       tags:
-      - User
+        - User
       responses:
-        '200':
+        "200":
           description: Ok
   /users/{username}:
     get:
       tags:
-      - User
+        - User
       responses:
-        '200':
+        "200":
           description: Ok
           content:
             application:json:
               schema:
                 type: object
+                required:
+                  - _id
+                  - username
                 properties:
                   _id:
                     type: string
@@ -102,9 +139,9 @@ paths:
                     type: string
                   role:
                     type: string
-        '403':
+        "403":
           description: Unauthorized
-        '404':
+        "404":
           description: User not found
-        '500':
+        "500":
           description: Internal failure
