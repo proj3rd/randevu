@@ -4,6 +4,30 @@ info:
   version: 0.0.0
 servers:
   - url: http://localhost:3699
+components:
+  schemas:
+    UserCredential:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      required:
+        - username
+        - password
+    UserInformation:
+      type: object
+      properties:
+        _id:
+          type: string
+        username:
+          type: string
+        role:
+          type: string
+      required:
+        - _id
+        - username
 paths:
   /authenticate:
     get:
@@ -16,14 +40,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                required:
-                  - username
-                properties:
-                  username:
-                    type: string
-                  role:
-                    type: string
+                $ref: '#/components/schemas/UserInformation'
         "400":
           description: Not authenticated
   /deployment-options:
@@ -109,15 +126,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - username
-                - password
-              properties:
-                username:
-                  type: string
-                password:
-                  type: string
+              $ref: '#/components/schemas/UserCredential'
       responses:
         "200":
           description: Ok
@@ -142,15 +151,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - username
-                - password
-              properties:
-                username:
-                  type: string
-                password:
-                  type: string
+              $ref: '#/components/schemas/UserCredential'
       responses:
         "200":
           description: Ok
@@ -458,14 +459,7 @@ paths:
           content:
             application:json:
               schema:
-                type: object
-                required:
-                  - username
-                properties:
-                  username:
-                    type: string
-                  role:
-                    type: string
+                $ref: '#/components/schemas/UserInformation'
         "403":
           description: Unauthorized
         "404":
