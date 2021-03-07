@@ -240,6 +240,65 @@ paths:
           description: Deployment option not found
         "500":
           description: Internal failure
+  /operators:
+    get:
+      tags:
+        - Operator
+      summary: Get a list of operators
+      responses:
+        "200":
+          description: Ok
+          content:
+            "application/json":
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    operatorName:
+                      type: string
+                    owner:
+                      type: string
+                  required:
+                    - operatorName
+                    - owner
+        "403":
+          description: Unauthorized
+        "500":
+          description: Internal failure
+    post:
+      tags:
+        - Operator
+      summary: Add an operator
+      requestBody:
+        content:
+          "application/json":
+            schema:
+              type: object
+              required:
+                - operatorName
+                - username
+              properties:
+                operatorName:
+                  type: string
+                username:
+                  type: string
+      responses:
+        "200":
+          description: Ok
+        "400":
+          description: Invalid input
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  reason:
+                    type: string
+        "403":
+          description: Unauthorized
+        "500":
+          description: Internal failure
   /radio-access-technologies:
     get:
       tags:
