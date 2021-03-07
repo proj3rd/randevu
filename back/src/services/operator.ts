@@ -24,7 +24,7 @@ export function serviceOperator(app: Express, db: Database) {
           FOR operator in @@collectionOperator
             FOR owner IN INBOUND operator @@collectionOwns
             RETURN {
-              operatorName: operator.operatorName,
+              name: operator.name,
               owner: owner.username
             }
         `,
@@ -50,8 +50,8 @@ export function serviceOperator(app: Express, db: Database) {
     if (!user || user.role !== 'admin') {
       return res.status(403).end();
     }
-    const { operatorName, username } = req.body;
-    if (!validateString(operatorName) || !validateString(username)) {
+    const { name, owner } = req.body;
+    if (!validateString(name) || !validateString(owner)) {
       return res.status(400).end();
     }
     let trx: Transaction | undefined;
@@ -63,13 +63,13 @@ export function serviceOperator(app: Express, db: Database) {
         read: collectionUser,
         write: [collectionOperator, collectionOwns],
       });
-      const operatorExisting = await findOperatorByName(db, trx, operatorName);
+      const operatorExisting = await findOperatorByName(db, trx, name);
       if (operatorExisting) {
         await trx.abort();
         return res.status(400).json({ reason: `Duplicate operator name` });
       }
-      const operator = await trx.step(() => collectionOperator.save({ operatorName }));
-      const userFound = await findUserByName(db, trx, username);
+      const operator = await trx.step(() => collectionOperator.save({ name }));
+      const userFound = await findUserByName(db, trx, owner);
       if (!userFound) {
         await trx.abort();
         return res.status(400).json({ reason: 'User not found' });
@@ -90,15 +90,15 @@ export function serviceOperator(app: Express, db: Database) {
   });
 }
 
-async function findOperatorByName(db: Database, trx: Transaction, operatorName: string) {
+async function findOperatorByName(db: Database, trx: Transaction, name: string) {
   const cursorOperatorFound = await trx.step(() => db.query({
     query: `
       FOR operator IN @@collectionOperator
-        FILTER operator.operatorName == @operatorName
+        FILTER operator.name == @name
         LIMIT 1
         RETURN operator
     `,
-    bindVars: { '@collectionOperator': COLLECTION_OPERATOR, operatorName },
+    bindVars: { '@collectionOperator': COLLECTION_OPERATOR, name },
   }));
   const operatorFound = await cursorOperatorFound.all();
   return operatorFound[0];

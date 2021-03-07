@@ -255,12 +255,12 @@ paths:
                 items:
                   type: object
                   properties:
-                    operatorName:
+                    name:
                       type: string
                     owner:
                       type: string
                   required:
-                    - operatorName
+                    - name
                     - owner
         "403":
           description: Unauthorized
@@ -276,12 +276,12 @@ paths:
             schema:
               type: object
               required:
-                - operatorName
-                - username
+                - name
+                - owner
               properties:
-                operatorName:
+                name:
                   type: string
-                username:
+                owner:
                   type: string
       responses:
         "200":
@@ -460,11 +460,8 @@ paths:
               schema:
                 type: object
                 required:
-                  - _id
                   - username
                 properties:
-                  _id:
-                    type: string
                   username:
                     type: string
                   role:
