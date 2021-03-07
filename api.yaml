@@ -275,7 +275,15 @@ paths:
                     name:
                       type: string
                     owner:
-                      type: string
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                        username:
+                          type: string
+                      required:
+                        - _id
+                        - username
                   required:
                     - _id
                     - name

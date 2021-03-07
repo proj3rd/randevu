@@ -24,8 +24,12 @@ export function serviceOperator(app: Express, db: Database) {
           FOR operator in @@collectionOperator
             FOR owner IN INBOUND operator @@collectionOwns
             RETURN {
+              _id: operator._id,
               name: operator.name,
-              owner: owner.username
+              owner: {
+                _id: owner._id,
+                username: owner.username
+              }
             }
         `,
         bindVars: {
