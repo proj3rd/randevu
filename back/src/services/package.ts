@@ -22,23 +22,23 @@ export function servicePackage(app: Express, db: Database) {
       trx = await db.beginTransaction({
         read: [collectionPackage, collectionOperator, collectionOwns, collectionTargets, collectionSucceeds, collectionUser],
       });
-      const { packageName, operatorNameList } = req.query;
+      const { name, operatorList } = req.query;
       const filterList = [];
       const bindVarsFilter = {} as any;
-      if (packageName) {
-        if (typeof packageName === 'string') {
-          filterList.push(`package.packageName LIKE CONCAT('%', @packageName, '%')`);
-          bindVarsFilter.packageName = packageName;
+      if (name) {
+        if (typeof name === 'string') {
+          filterList.push(`package.name LIKE CONCAT('%', @name, '%')`);
+          bindVarsFilter.name = name;
         } else {
           await trx.abort();
           return res.status(400).end();
         }
       }
-      if (operatorNameList) {
-        if (operatorNameList instanceof Array) {
-          if (operatorNameList.length) {
-            filterList.push(`POSITION (@operatorNameList, operator.operatorName)`)
-            bindVarsFilter.operatorNameList = operatorNameList;
+      if (operatorList) {
+        if (operatorList instanceof Array) {
+          if (operatorList.length) {
+            filterList.push(`POSITION (@operatorList, operator.name)`)
+            bindVarsFilter.operatorList = operatorList;
           }
         } else {
           await trx.abort();
@@ -52,15 +52,25 @@ export function servicePackage(app: Express, db: Database) {
             FOR operator IN OUTBOUND package @@collectionTargets
               ${filter}
               FOR owner IN INBOUND package @@collectionOwns
-                let previousPackageName = (
+                let previousPackage = (
                   FOR prevPkg IN OUTBOUND package @@collectionSucceeds
-                    RETURN prevPkg.packageName
+                    RETURN prevPkg
                 )[0]
                 RETURN {
-                  packageName: package.packageName,
-                  operatorName: operator.operatorName,
-                  previousPackageName,
-                  owner: owner.username
+                  _id: package._id
+                  name: package.name,
+                  operator: {
+                    _id: operator._id,
+                    name: operator.name
+                  }
+                  previousPackage: {
+                    _id: previousPackage._id,
+                    name: previousPackage.name
+                  },
+                  owner: {
+                    _id: owner._id,
+                    username: owner.username
+                  }
                 }
         `,
         bindVars: {
