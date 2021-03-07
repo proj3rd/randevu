@@ -17,20 +17,23 @@ export function serviceUser(app: Express, db: Database) {
   app.use(passport.session());
 
   passport.serializeUser((user, done) => {
-    const username = (user as User).username;
-    done(null, username);
+    const _id = (user as User)._id;
+    done(null, _id);
   });
 
-  passport.deserializeUser(async (username: string, done) => {
+  passport.deserializeUser(async (_id: string, done) => {
     const collectionUser = db.collection(COLLECTION_USER);
     let trx: Transaction | undefined;
     try {
       trx = await db.beginTransaction({
         read: collectionUser,
       });
-      const userFound = await findUserByName(db, trx, username);
+      const user = await trx.step(() => collectionUser.document(_id));
+      if (user) {
+        delete user.password;
+      }
       await trx.commit();
-      done(null, userFound);
+      done(null, user);
     } catch (e) {
       if (trx) {
         await trx.abort();
@@ -59,7 +62,7 @@ export function serviceUser(app: Express, db: Database) {
               FILTER user.username == @username
                  AND user.password == @password
                LIMIT 1
-              RETURN { username: user.username, role: user.role }
+              RETURN { _id: user._id, username: user.username, role: user.role }
           `,
           bindVars: { '@collectionUser': collectionUser.name, username, password },
         }));
@@ -83,10 +86,9 @@ export function serviceUser(app: Express, db: Database) {
   app.get('/authenticate', (req, res) => {
     const user = req.user as User;
     if (!user) {
-      return res.status(400).end();
+      return res.status(401).end();
     }
-    const { username, role } = user;
-    return res.status(200).json({ username, role });
+    return res.status(200).json(user);
   });
 
   app.post('/join', async (req, res) => {
@@ -134,8 +136,7 @@ export function serviceUser(app: Express, db: Database) {
         if (err) {
           return next(err);
         }
-        const { username, role } = user;
-        return res.status(200).json({ username, role });
+        return res.status(200).json(user);
       });
     })(req, res, next);
   });
@@ -180,10 +181,10 @@ export async function findUserByName(db: Database, trx: Transaction, username: s
       FOR user IN @@collectionUser
         FILTER user.username == @username
         LIMIT 1
-        RETURN { username: user.username, role: user.role }
+        RETURN { _id: user._id, username: user.username, role: user.role }
     `,
     bindVars: { '@collectionUser': COLLECTION_USER, username },
   }));
-  const userFound = await cursorUserFound.all();
+  const userFound = await cursorUserFound.all() as User[];
   return userFound[0];
 }
