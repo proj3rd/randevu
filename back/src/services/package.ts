@@ -7,6 +7,7 @@ import { validateString } from "../utils";
 
 export function servicePackage(app: Express, db: Database) {
   app.get('/packages', async (req, res) => {
+    return res.status(501).end();
     const user = req.user as User;
     if(!user) {
       return res.status(403).end();
@@ -94,6 +95,7 @@ export function servicePackage(app: Express, db: Database) {
   });
 
   app.post('/packages', async (req, res) => {
+    return res.status(501).end();
     const user = req.user as User;
     if (!user || user.role !== 'admin') {
       return res.status(403).end();
