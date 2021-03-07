@@ -56,7 +56,7 @@ function filterCollectionNameList(collectionNameList: string[], collectionMetaLi
   });
 }
 
-async function batchCreateCollection(db: Database, collectionNameList: string[], edge?: boolean) {
+export async function batchCreateCollection(db: Database, collectionNameList: string[], edge?: boolean) {
   for (let i = 0; i < collectionNameList.length; i += 1) {
     const collectionName = collectionNameList[i];
     if (edge) {
