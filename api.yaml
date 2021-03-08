@@ -50,7 +50,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserInformation'
+                $ref: "#/components/schemas/UserInformation"
         "401":
           description: Not authenticated
   /deployment-options:
@@ -66,7 +66,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/EnumInformation'
+                  $ref: "#/components/schemas/EnumInformation"
         "403":
           description: Unauthorized
         "500":
@@ -127,6 +127,80 @@ paths:
           description: Deployment option not found
         "500":
           description: Internal failure
+  /duplex-modes:
+    get:
+      tags:
+        - Duplex mode
+      summary: Get a list of duplex modes
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EnumInformation"
+        "403":
+          description: Unauthorized
+        "500":
+          description: Internal failure
+    post:
+      tags:
+        - Duplex mode
+      summary: Add a duplex mode
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+      responses:
+        "200":
+          description: Ok
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reason:
+                    type: string
+        "403":
+          description: Unauthorized
+        "500":
+          description: Internal failure
+  /duplex-modes/{name}:
+    post:
+      tags:
+        - Duplex mode
+      summary: Rename a duplex mode
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - nameNew
+              properties:
+                nameNew:
+                  type: string
+      responses:
+        "200":
+          description: Ok
+        "400":
+          description: Invalid input
+        "403":
+          description: Unauthorized
+        "404":
+          description: Duplex mode not found
+        "500":
+          description: Internal failure
   /join:
     post:
       tags:
@@ -136,7 +210,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserCredential'
+              $ref: "#/components/schemas/UserCredential"
       responses:
         "200":
           description: Ok
@@ -161,14 +235,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserCredential'
+              $ref: "#/components/schemas/UserCredential"
       responses:
         "200":
           description: Ok
           content:
             "application/json":
               schema:
-                $ref: '#/components/schemas/UserInformation'
+                $ref: "#/components/schemas/UserInformation"
         "401":
           description: Login failed
         "500":
@@ -194,7 +268,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/EnumInformation'
+                  $ref: "#/components/schemas/EnumInformation"
         "403":
           description: Unauthorized
         "500":
@@ -409,7 +483,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/EnumInformation'
+                  $ref: "#/components/schemas/EnumInformation"
         "403":
           description: Unauthorized
         "500":
@@ -483,7 +557,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/EnumInformation'
+                  $ref: "#/components/schemas/EnumInformation"
         "403":
           description: Unauthorized
         "500":
@@ -555,7 +629,7 @@ paths:
           content:
             application:json:
               schema:
-                $ref: '#/components/schemas/UserInformation'
+                $ref: "#/components/schemas/UserInformation"
         "403":
           description: Unauthorized
         "404":

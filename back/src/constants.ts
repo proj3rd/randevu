@@ -1,6 +1,7 @@
 export const COLLECTION_CHANGE = 'change';
 export const COLLECTION_CUSTOMER = 'customer';
 export const COLLECTION_DEPLOYMENT_OPTION = 'deploymentOption';
+export const COLLECTION_DUPLEX_MODE = 'duplexMode';
 export const COLLECTION_FEATURE = 'feature';
 export const COLLECTION_FEATURE_VERSION = 'featureVersion';
 export const COLLECTION_NETWORK_ELEMENT = 'networkElement';

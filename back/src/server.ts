@@ -3,6 +3,7 @@ import cors from 'cors';
 import express from 'express';
 import { config } from 'randevu-shared/dist/config';
 import { serviceDeploymentOption } from './services/deploymentOption';
+import { serviceDuplexMode } from './services/duplexMode';
 import { serviceFeature } from './services/feature';
 import { serviceNetworkElement } from './services/networkElement';
 import { serviceOperator } from './services/operator';
@@ -29,6 +30,7 @@ if (require.main === module) {
   app.use(express.json());
   serviceUser(app, db);
   serviceDeploymentOption(app, db);
+  serviceDuplexMode(app, db);
   serviceFeature(app, db);
   serviceNetworkElement(app, db);
   serviceOperator(app, db);
