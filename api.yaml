@@ -400,6 +400,68 @@ paths:
         "500":
           description: Internal failure
   /packages/:
+    get:
+      tags:
+        - Package
+      summary: Get a list of packages
+      parameters:
+        - name: name
+          description: A list of package names
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+        - name: operator
+          description: A list of operator names
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        "200":
+          description: Ok
+          content:
+            "application/json":
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                    name:
+                      type: string
+                    main:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                        name:
+                          type: string
+                      required:
+                        - _id
+                        - name
+                    operator:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                        name:
+                          type: string
+                      required:
+                        - _id
+                        - name
+                  required:
+                    - _id
+                    - name
+        "400":
+          description: Invalid input
+        "403":
+          description: Unauthorized
+        "500":
+          description: Internal failure
     post:
       tags:
         - Package
