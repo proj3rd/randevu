@@ -399,6 +399,41 @@ paths:
           description: Unauthorized
         "500":
           description: Internal failure
+  /packages/:
+    post:
+      tags:
+        - Package
+      summary: Add a main or sub package
+      requestBody:
+        content:
+          "application/json":
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                main:
+                  type: string
+                  description: >
+                    Document ID of a main package for a sub package to be added.
+                    If absent, the request is considered as adding a main package.
+                operator:
+                  type: string
+                  description: >
+                    Document ID of a target operator for a sub package.
+                    If `main` does not exist, `operator` is ignored.
+                    If `main` exists but `operator` does not exist, the request is considered as failed.
+              required:
+                - name
+      responses:
+        "200":
+          description: Ok
+        "400":
+          description: Invalid input
+        "403":
+          description: Unauthorized
+        "500":
+          description: Internal failure
   /radio-access-technologies:
     get:
       tags:
