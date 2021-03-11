@@ -1,7 +1,7 @@
 import { Database } from "arangojs";
 import { Transaction } from "arangojs/transaction";
 import { Express } from 'express';
-import { COLLECTION_OPERATOR, COLLECTION_PACKAGE, COLLECTION_USER, EDGE_COLLECTION_OWNS, EDGE_COLLECTION_SUCCEEDS, EDGE_COLLECTION_TARGETS } from "../constants";
+import { COLLECTION_OPERATOR, COLLECTION_USER, EDGE_COLLECTION_OWNS, EDGE_COLLECTION_SUCCEEDS, EDGE_COLLECTION_TARGETS } from "../constants";
 import { User } from "randevu-shared/dist/types";
 import { validateString } from "../utils";
 
