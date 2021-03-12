@@ -106,6 +106,12 @@ paths:
       tags:
         - Deployment option
       summary: Rename a deployment option
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
       requestBody:
         content:
           application/json:
@@ -180,6 +186,12 @@ paths:
       tags:
         - Duplex mode
       summary: Rename a duplex mode
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
       requestBody:
         content:
           application/json:
@@ -308,6 +320,12 @@ paths:
       tags:
         - Network element
       summary: Rename a network element
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
       requestBody:
         content:
           application/json:
@@ -334,6 +352,16 @@ paths:
       tags:
         - Operator
       summary: Get a list of operators
+      parameters:
+        - name: include
+          in: query
+          description: Includes related information in a response
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - owner
       responses:
         "200":
           description: Ok
@@ -405,13 +433,6 @@ paths:
         - Package
       summary: Get a list of packages
       parameters:
-        - name: name
-          description: A list of package names
-          in: query
-          schema:
-            type: array
-            items:
-              type: string
         - name: operator
           description: A list of operator names
           in: query
@@ -419,6 +440,16 @@ paths:
             type: array
             items:
               type: string
+        - name: include
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - main
+                - operator
+                - owner
       responses:
         "200":
           description: Ok
@@ -549,6 +580,12 @@ paths:
       tags:
         - Radio access technology
       summary: Rename a radio access technology
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
       requestBody:
         content:
           application/json:
@@ -623,6 +660,12 @@ paths:
       tags:
         - RAN sharing
       summary: Rename a RAN sharing option
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
       requestBody:
         content:
           application/json:
@@ -649,6 +692,12 @@ paths:
       tags:
         - User
       summary: Get information of a user
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         "200":
           description: Ok
