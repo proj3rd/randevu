@@ -687,11 +687,53 @@ paths:
           description: Deployment option not found
         "500":
           description: Internal failure
-  /users/{username}:
+  /users/:
     get:
       tags:
         - User
-      summary: Get information of a user
+      summary: Get a list of user information
+      responses:
+        "200":
+          description: Ok
+          content:
+            application:json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserInformation"
+        "403":
+          description: Unauthorized
+        "500":
+          description: Internal failure  
+  /users/docId/{docId}:
+    get:
+      tags:
+        - User
+      summary: Get information of a user by document ID
+      parameters:
+        - name: docId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Ok
+          content:
+            application:json:
+              schema:
+                $ref: "#/components/schemas/UserInformation"
+        "403":
+          description: Unauthorized
+        "404":
+          description: User not found
+        "500":
+          description: Internal failure
+  /users/username/{username}:
+    get:
+      tags:
+        - User
+      summary: Get information of a user by user name
       parameters:
         - name: username
           in: path
