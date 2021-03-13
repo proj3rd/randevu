@@ -428,7 +428,7 @@ paths:
           description: Unauthorized
         "500":
           description: Internal failure
-  /packages/:
+  /packages:
     get:
       tags:
         - Package
@@ -506,17 +506,26 @@ paths:
               properties:
                 name:
                   type: string
-                main:
-                  type: string
-                  description: >
-                    Document ID of a main package for a sub package to be added.
-                    If absent, the request is considered as adding a main package.
-                operator:
-                  type: string
-                  description: >
-                    Document ID of a target operator for a sub package.
-                    If `main` does not exist, `operator` is ignored.
-                    If `main` exists but `operator` does not exist, the request is considered as failed.
+                sub:
+                    type: object
+                    description: Subpackage information
+                    properties:
+                      main:
+                        type: string
+                        description: Document ID of a main package.
+                      operator:
+                        type: string
+                        description: Document ID of a target operator.
+                      previous:
+                        type: string
+                        description: Document ID of a previous subpackage.
+                      owner:
+                        type: string
+                        description: Document ID of a user.
+                    required:
+                      - main
+                      - operator
+                      - owner
               required:
                 - name
       responses:
