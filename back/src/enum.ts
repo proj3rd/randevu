@@ -87,8 +87,23 @@ export async function handleRequestRenameEnum(
     trx = await db.beginTransaction({
       write: collection,
     });
-    // FIXME: Need to check new name is duplicate
     const cursorEnumFound = await trx.step(() =>
+      db.query({
+        query: `
+          FOR enum IN @@collectionName
+            FILTER enum.name == @nameNew
+            LIMIT 1
+            RETURN enum
+        `,
+        bindVars: { '@collectionName': collection.name, nameNew },
+      })
+    );
+    const enumFound = await cursorEnumFound.all();
+    if (enumFound.length) {
+      await trx.abort();
+      return res.status(400).json({ reason: 'Duplicate name' });
+    }
+    const cursorEnumRenamed = await trx.step(() =>
       db.query({
         query: `
         FOR enum IN @@collectionName
@@ -100,7 +115,7 @@ export async function handleRequestRenameEnum(
         bindVars: { "@collectionName": collection.name, name, nameNew },
       })
     );
-    const enum_ = (await cursorEnumFound.all())[0];
+    const enum_ = (await cursorEnumRenamed.all())[0];
     if (!enum_) {
       await trx.abort();
       return res.status(404).json({ reason: "Name not found" });
