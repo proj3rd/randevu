@@ -3,13 +3,20 @@ import { Transaction } from "arangojs/transaction";
 import { Express } from 'express';
 import { COLLECTION_OPERATOR, COLLECTION_PACKAGE_MAIN, COLLECTION_PACKAGE_SUB, COLLECTION_USER, EDGE_COLLECTION_DERIVED_FROM, EDGE_COLLECTION_OWNS, EDGE_COLLECTION_SUCCEEDS, EDGE_COLLECTION_TARGETS } from "../constants";
 import { User } from "randevu-shared/dist/types";
-import { validateString } from "../utils";
+import { validateString, validateStringList } from "../utils";
 
 export function servicePackage(app: Express, db: Database) {
   app.get('/packages', async (req, res) => {
     const user = req.user as User;
     if(!user) {
       return res.status(403).end();
+    }
+    const { operator: operatorList, include } = req.query;
+    if (operatorList && !validateStringList(operatorList)) {
+      return res.status(400).end();
+    }
+    if (include && !validateStringList(include)) {
+      return res.status(400).end();
     }
     let trx: Transaction | undefined;
     try {
@@ -23,19 +30,11 @@ export function servicePackage(app: Express, db: Database) {
       trx = await db.beginTransaction({
         read: [collectionPackageMain, collectionPackageSub, collectionOperator, collectionOwns, collectionTargets, collectionSucceeds, collectionUser],
       });
-      const { operator: operatorList, include } = req.query;
       const filterList = [];
       const bindVarsFilter = {} as any;
-      if (operatorList) {
-        if (operatorList instanceof Array) {
-          if (operatorList.length) {
-            filterList.push(`POSITION (@operatorList, operator.name)`)
-            bindVarsFilter.operatorList = operatorList;
-          }
-        } else {
-          await trx.abort();
-          return res.status(400).end();
-        }
+      if (operatorList && operatorList.length) {
+        filterList.push(`POSITION (@operatorList, operator.name)`)
+        bindVarsFilter.operatorList = operatorList;
       }
       const filter = filterList.length ? `FILTER ${filterList.join(' AND ')}` : '';
       return res.status(501).end();
