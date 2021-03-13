@@ -2,15 +2,20 @@ import { Database } from "arangojs";
 import { Transaction } from "arangojs/transaction";
 import { Express } from 'express';
 import { COLLECTION_OPERATOR, COLLECTION_USER, EDGE_COLLECTION_OWNS } from "../constants";
-import { User } from "randevu-shared/dist/types";
+import { Operator, User } from "randevu-shared/dist/types";
 import { validateString } from "../utils";
-import { findUserByName } from "./user";
 
 export function serviceOperator(app: Express, db: Database) {
   app.get('/operators', async (req, res) => {
     const user = req.user as User;
     if(!user) {
       return res.status(403).end();
+    }
+    const { includes } = req.query;
+    if (includes
+        && (!(includes instanceof Array)
+            || includes.some((item: any) => !validateString(item)))) {
+      return res.status(400).end();
     }
     let trx: Transaction | undefined;
     try {
@@ -19,27 +24,35 @@ export function serviceOperator(app: Express, db: Database) {
       trx = await db.beginTransaction({
         read: [collectionOperator, collectionOwns],
       });
-      const cursorOperatorWithOwnerList = await trx.step(() => db.query({
+      const cursorOperatorList = await trx.step(() => db.query({
         query: `
-          FOR operator in @@collectionOperator
-            FOR owner IN INBOUND operator @@collectionOwns
-            RETURN {
-              _id: operator._id,
-              name: operator.name,
-              owner: {
-                _id: owner._id,
-                username: owner.username
-              }
-            }
+          FOR operator IN @@collectionOperator
+            RETURN operator
         `,
-        bindVars: {
-          '@collectionOperator': collectionOperator.name,
-          '@collectionOwns': collectionOwns.name,
-        },
+        bindVars: { '@collectionOperator': collectionOperator.name },
       }));
-      const operatorWithOwnerList = await cursorOperatorWithOwnerList.all();
+      const operatorList = (await cursorOperatorList.all()) as Operator[];
+      const operatorIdList = operatorList.map((operator) => operator._id);
+      if (includes && (includes as string[]).includes('owner')) {
+        const cursorOwnerList = await trx.step(() => db.query({
+          query: `
+            FOR id IN @operatorIdList
+              FOR user IN INBOUND id @@collectionOwns
+                RETURN { _id: user._id, username: user.username }
+          `,
+          bindVars: { operatorIdList, '@collectionOwns': collectionOwns.name },
+        }));
+        const ownerList = (await cursorOwnerList.all()) as User[];
+        if (operatorList.length !== ownerList.length) {
+          await trx.abort();
+          return res.status(500).end();
+        }
+        operatorList.forEach((operator, index) => {
+          operator.owner = ownerList[index];
+        })
+      }
       await trx.commit();
-      return res.json(operatorWithOwnerList);
+      return res.json(operatorList);
     } catch (e) {
       if (trx) {
         await trx.abort();
