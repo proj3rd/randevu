@@ -21,6 +21,15 @@ export type ApiVersion = {
   previousVersion: number | null;
 };
 
+export type Operator = {
+  _id: string;
+  name: string;
+  owner?: {
+    _id: string;
+    username: string;
+  };
+};
+
 export type User = {
   _id: string;
   username: string;
