@@ -450,6 +450,7 @@ paths:
               enum:
                 - main
                 - operator
+                - previous
                 - owner
       responses:
         "200":
@@ -465,26 +466,49 @@ paths:
                       type: string
                     name:
                       type: string
-                    main:
+                    sub:
                       type: object
                       properties:
-                        _id:
-                          type: string
-                        name:
-                          type: string
-                      required:
-                        - _id
-                        - name
-                    operator:
-                      type: object
-                      properties:
-                        _id:
-                          type: string
-                        name:
-                          type: string
-                      required:
-                        - _id
-                        - name
+                        main:
+                          type: object
+                          properties:
+                            _id:
+                              type: string
+                            name:
+                              type: string
+                          required:
+                            - _id
+                            - name
+                        operator:
+                          type: object
+                          properties:
+                            _id:
+                              type: string
+                            name:
+                              type: string
+                          required:
+                            - _id
+                            - name
+                        previous:
+                          type: object
+                          properties:
+                            _id:
+                              type: string
+                            name:
+                              type: string
+                          required:
+                            - _id
+                            - name
+                        owner:
+                          type: object
+                          properties:
+                            _id:
+                              type: string
+                            name:
+                              type: string
+                          required:
+                            - _id
+                            - name
                   required:
                     - _id
                     - name
