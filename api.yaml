@@ -411,6 +411,7 @@ paths:
                   type: string
                 owner:
                   type: string
+                  description: A document ID of a user
       responses:
         "200":
           description: Ok

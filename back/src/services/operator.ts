@@ -73,7 +73,7 @@ export function serviceOperator(app: Express, db: Database) {
         return res.status(400).json({ reason: `Duplicate operator name` });
       }
       const operator = await trx.step(() => collectionOperator.save({ name }));
-      const userFound = await findUserByName(db, trx, owner);
+      const userFound = await collectionUser.document(owner);
       if (!userFound) {
         await trx.abort();
         return res.status(400).json({ reason: 'User not found' });
