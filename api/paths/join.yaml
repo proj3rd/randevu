@@ -1,0 +1,24 @@
+post:
+  tags:
+    - User
+  summary: Join RANdevU
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: "#/components/schemas/UserCredential"
+  responses:
+    "200":
+      description: Ok
+    "400":
+      description: Invalid input
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - type: object
+                properties:
+                  reason:
+                    type: string
+    "500":
+      description: Internal failure

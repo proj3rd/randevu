@@ -1,0 +1,132 @@
+get:
+  tags:
+    - Package
+  summary: Get a list of packages
+  parameters:
+    - name: operator
+      description: A list of operator names
+      in: query
+      schema:
+        type: array
+        items:
+          type: string
+    - name: include
+      in: query
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+            - main
+            - operator
+            - previous
+            - owner
+  responses:
+    "200":
+      description: Ok
+      content:
+        "application/json":
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                _id:
+                  type: string
+                name:
+                  type: string
+                sub:
+                  type: object
+                  properties:
+                    main:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                        name:
+                          type: string
+                      required:
+                        - _id
+                        - name
+                    operator:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                        name:
+                          type: string
+                      required:
+                        - _id
+                        - name
+                    previous:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                        name:
+                          type: string
+                      required:
+                        - _id
+                        - name
+                    owner:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                        name:
+                          type: string
+                      required:
+                        - _id
+                        - name
+              required:
+                - _id
+                - name
+    "400":
+      description: Invalid input
+    "403":
+      description: Unauthorized
+    "500":
+      description: Internal failure
+post:
+  tags:
+    - Package
+  summary: Add a main or sub package
+  requestBody:
+    content:
+      "application/json":
+        schema:
+          type: object
+          properties:
+            name:
+              type: string
+            sub:
+              type: object
+              description: Subpackage information
+              properties:
+                main:
+                  type: string
+                  description: Document ID of a main package.
+                operator:
+                  type: string
+                  description: Document ID of a target operator.
+                previous:
+                  type: string
+                  description: Document ID of a previous subpackage.
+                owner:
+                  type: string
+                  description: Document ID of a user.
+              required:
+                - main
+                - operator
+                - owner
+          required:
+            - name
+  responses:
+    "200":
+      description: Ok
+    "400":
+      description: Invalid input
+    "403":
+      description: Unauthorized
+    "500":
+      description: Internal failure

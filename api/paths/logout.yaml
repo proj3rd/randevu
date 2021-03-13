@@ -1,0 +1,7 @@
+get:
+  tags:
+    - User
+  summary: Logout
+  responses:
+    "200":
+      description: Ok

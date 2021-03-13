@@ -1,0 +1,23 @@
+get:
+  tags:
+    - User
+  summary: Get information of a user by document ID
+  parameters:
+    - name: docId
+      in: path
+      required: true
+      schema:
+        type: string
+  responses:
+    "200":
+      description: Ok
+      content:
+        application:json:
+          schema:
+            $ref: "#/components/schemas/UserInformation"
+    "403":
+      description: Unauthorized
+    "404":
+      description: User not found
+    "500":
+      description: Internal failure

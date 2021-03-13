@@ -1,0 +1,47 @@
+get:
+  tags:
+    - RAN sharing
+  summary: Get a list of RAN sharing options
+  responses:
+    "200":
+      description: Ok
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/EnumInformation"
+    "403":
+      description: Unauthorized
+    "500":
+      description: Internal failure
+post:
+  tags:
+    - RAN sharing
+  summary: Add a RAN sharing option
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - name
+          properties:
+            name:
+              type: string
+  responses:
+    "200":
+      description: Ok
+    "400":
+      description: Invalid input
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              reason:
+                type: string
+    "403":
+      description: Unauthorized
+    "500":
+      description: Internal failure

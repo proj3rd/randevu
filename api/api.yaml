@@ -1,0 +1,48 @@
+openapi: 3.0.0
+info:
+  title: RANdevU
+  version: 0.0.0
+servers:
+  - url: http://localhost:3699
+components:
+  schemas:
+    $ref: './schemas.yaml'
+paths:
+  /authenticate:
+    $ref: './paths/authenticate.yaml'
+  /deployment-options:
+    $ref: './paths/deploymentOptions.yaml'
+  /deployment-options/{name}:
+    $ref: './paths/deploymentOption.yaml'
+  /duplex-modes:
+    $ref: './paths/duplexModes.yaml'
+  /duplex-modes/{name}:
+    $ref: './paths/duplexMode.yaml'
+  /join:
+    $ref: './paths/join.yaml'
+  /login:
+    $ref: './paths/login.yaml'
+  /logout:
+    $ref: './paths/logout.yaml'
+  /network-elements:
+    $ref: './paths/networkElements.yaml'
+  /network-elements/{name}:
+    $ref: './paths/networkElement.yaml'
+  /operators:
+    $ref: './paths/operators.yaml'
+  /packages:
+    $ref: './paths/operators.yaml'
+  /radio-access-technologies:
+    $ref: './paths/radioAccessTechnologies.yaml'
+  /radio-access-technologies/{name}:
+    $ref: './paths/radioAccessTechnology.yaml'
+  /ran-sharing:
+    $ref: './paths/ranSharings.yaml'
+  /ran-sharing/{name}:
+    $ref: './paths/ranSharing.yaml'
+  /users/:
+    $ref: './paths/users.yaml'
+  /users/docId/{docId}:
+    $ref: './paths/user_docId.yaml'
+  /users/username/{username}:
+    $ref: './paths/user_username.yaml'

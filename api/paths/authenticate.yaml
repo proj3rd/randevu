@@ -1,0 +1,13 @@
+get:
+  tags:
+    - User
+  summary: Check if the current client is logged in
+  responses:
+    "200":
+      description: Ok
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/UserInformation"
+    "401":
+      description: Not authenticated

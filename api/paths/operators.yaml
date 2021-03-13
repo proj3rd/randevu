@@ -1,0 +1,80 @@
+get:
+  tags:
+    - Operator
+  summary: Get a list of operators
+  parameters:
+    - name: include
+      in: query
+      description: Includes related information in a response
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+            - owner
+  responses:
+    "200":
+      description: Ok
+      content:
+        "application/json":
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                _id:
+                  type: string
+                name:
+                  type: string
+                owner:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                    username:
+                      type: string
+                  required:
+                    - _id
+                    - username
+              required:
+                - _id
+                - name
+                - owner
+    "403":
+      description: Unauthorized
+    "500":
+      description: Internal failure
+post:
+  tags:
+    - Operator
+  summary: Add an operator
+  requestBody:
+    content:
+      "application/json":
+        schema:
+          type: object
+          required:
+            - name
+            - owner
+          properties:
+            name:
+              type: string
+            owner:
+              type: string
+              description: A document ID of a user
+  responses:
+    "200":
+      description: Ok
+    "400":
+      description: Invalid input
+      content:
+        "application/json":
+          schema:
+            type: object
+            properties:
+              reason:
+                type: string
+    "403":
+      description: Unauthorized
+    "500":
+      description: Internal failure

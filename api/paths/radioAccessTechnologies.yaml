@@ -1,0 +1,47 @@
+get:
+  tags:
+    - Radio access technology
+  summary: Get a list of radio access technologies
+  responses:
+    "200":
+      description: Ok
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/EnumInformation"
+    "403":
+      description: Unauthorized
+    "500":
+      description: Internal failure
+post:
+  tags:
+    - Radio access technology
+  summary: Add a radio access technology
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - name
+          properties:
+            name:
+              type: string
+  responses:
+    "200":
+      description: Ok
+    "400":
+      description: Invalid input
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              reason:
+                type: string
+    "403":
+      description: Unauthorized
+    "500":
+      description: Internal failure
