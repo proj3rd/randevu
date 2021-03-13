@@ -146,7 +146,66 @@ export function serviceUser(app: Express, db: Database) {
     return res.status(200).end();
   });
 
-  app.get('/users/:username', async (req, res) => {
+  app.get('/users', async (req, res) => {
+    const user = req.user as User;
+    if (!user) {
+      return res.status(403).end();
+    }
+    let trx: Transaction | undefined;
+    try {
+      const collectionUser = db.collection(COLLECTION_USER);
+      trx = await db.beginTransaction({
+        read: collectionUser,
+      });
+      const cursorUserList = await trx.step(() => db.query({
+        query: `
+          FOR user in @@collectionUser
+            RETURN { _id: user._id, username: user.username, role: user.role }
+        `,
+        bindVars: { '@collectionUser': collectionUser.name },
+      }));
+      const userList = await cursorUserList.all();
+      await trx.commit();
+      return res.json(userList);
+    } catch (e) {
+      if (trx) {
+        await trx.abort();
+      }
+      console.error(e);
+      return res.status(500).end();
+    }
+  });
+
+  app.get('/users/docId/:docId', async (req, res) => {
+    const user = req.user as User;
+    if (!user) {
+      return res.status(403).end();
+    }
+    const { docId } = req.params;
+    let trx: Transaction | undefined;
+    try {
+      const collectionUser = db.collection(COLLECTION_USER);
+      trx = await db.beginTransaction({
+        read: collectionUser,
+      });
+      const user = await trx.step(() => collectionUser.document(docId));
+      if (!user) {
+        await trx.abort();
+        return res.status(404).end();
+      }
+      delete user.password;
+      await trx.commit();
+      return res.json(user);
+    } catch (e) {
+      if (trx) {
+        await trx.abort();
+      }
+      console.error(e);
+      return res.status(500).end();
+    }
+  });
+
+  app.get('/users/username/:username', async (req, res) => {
     const user = req.user as User;
     if (!user) {
       return res.status(403).end();
