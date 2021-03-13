@@ -11,10 +11,10 @@ export function serviceOperator(app: Express, db: Database) {
     if(!user) {
       return res.status(403).end();
     }
-    const { includes } = req.query;
-    if (includes
-        && (!(includes instanceof Array)
-            || includes.some((item: any) => !validateString(item)))) {
+    const { include } = req.query;
+    if (include
+        && (!(include instanceof Array)
+            || include.some((item: any) => !validateString(item)))) {
       return res.status(400).end();
     }
     let trx: Transaction | undefined;
@@ -33,7 +33,7 @@ export function serviceOperator(app: Express, db: Database) {
       }));
       const operatorList = (await cursorOperatorList.all()) as Operator[];
       const operatorIdList = operatorList.map((operator) => operator._id);
-      if (includes && (includes as string[]).includes('owner')) {
+      if (include && (include as string[]).includes('owner')) {
         const cursorOwnerList = await trx.step(() => db.query({
           query: `
             FOR id IN @operatorIdList
