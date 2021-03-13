@@ -1,7 +1,7 @@
 import { Database } from "arangojs";
 import { Transaction } from "arangojs/transaction";
 import { Express } from 'express';
-import { COLLECTION_OPERATOR, COLLECTION_USER, EDGE_COLLECTION_OWNS, EDGE_COLLECTION_SUCCEEDS, EDGE_COLLECTION_TARGETS } from "../constants";
+import { COLLECTION_OPERATOR, COLLECTION_PACKAGE_MAIN, COLLECTION_PACKAGE_SUB, COLLECTION_USER, EDGE_COLLECTION_OWNS, EDGE_COLLECTION_SUCCEEDS, EDGE_COLLECTION_TARGETS } from "../constants";
 import { User } from "randevu-shared/dist/types";
 import { validateString } from "../utils";
 
@@ -95,28 +95,29 @@ export function servicePackage(app: Express, db: Database) {
   });
 
   app.post('/packages', async (req, res) => {
-    return res.status(501).end();
-    // const user = req.user as User;
-    // if (!user || user.role !== 'admin') {
-    //   return res.status(403).end();
-    // }
-    // const { packageName, operatorName, previousPackageName, owner } = req.body;
-    // if (!validateString(packageName) || !validateString(operatorName) || !validateString(owner)) {
-    //   return res.status(400).end();
-    // }
-    // let trx: Transaction | undefined;
-    // try {
-    //   const collectionOperator = db.collection(COLLECTION_OPERATOR);
-    //   const collectionOwns = db.collection(EDGE_COLLECTION_OWNS);
-    //   const collectionPackage = db.collection(COLLECTION_PACKAGE);
-    //   const collectionSucceeds = db.collection(EDGE_COLLECTION_SUCCEEDS);
-    //   const collectionTargets = db.collection(EDGE_COLLECTION_TARGETS);
-    //   const collectionUser = db.collection(COLLECTION_USER);
-    //   trx = await db.beginTransaction({
-    //     read: [collectionOperator, collectionUser],
-    //     write: [collectionPackage, collectionOwns, collectionSucceeds, collectionTargets],
-    //   });
-    //   // Create package document
+    const user = req.user as User;
+    if (!user || user.role !== 'admin') {
+      return res.status(403).end();
+    }
+    const { name, sub } = req.body;
+    if (!validateString(name)) {
+      return res.status(400).end();
+    }
+    let trx: Transaction | undefined;
+    try {
+      const collectionOperator = db.collection(COLLECTION_OPERATOR);
+      const collectionOwns = db.collection(EDGE_COLLECTION_OWNS);
+      const collectionPackageMain = db.collection(COLLECTION_PACKAGE_MAIN);
+      const collectionPackageSub = db.collection(COLLECTION_PACKAGE_SUB);
+      const collectionSucceeds = db.collection(EDGE_COLLECTION_SUCCEEDS);
+      const collectionTargets = db.collection(EDGE_COLLECTION_TARGETS);
+      const collectionUser = db.collection(COLLECTION_USER);
+      trx = await db.beginTransaction({
+        read: [collectionOperator, collectionUser],
+        write: [collectionPackageMain, collectionPackageSub, collectionOwns, collectionSucceeds, collectionTargets],
+      });
+      return res.status(501).end();
+      // Create package document
     //   const cursorPackageFound = await trx.step(() => db.query({
     //     query: `
     //       FOR pacakge IN @@collectionPackage
@@ -203,12 +204,12 @@ export function servicePackage(app: Express, db: Database) {
     //   }
     //   await trx.commit();
     //   return res.status(200).end();
-    // } catch (e) {
-    //   if (trx) {
-    //     await trx.abort();
-    //   }
-    //   console.error(e);
-    //   return res.status(500).end();
-    // }
+    } catch (e) {
+      if (trx) {
+        await trx.abort();
+      }
+      console.error(e);
+      return res.status(500).end();
+    }
   });
 }
