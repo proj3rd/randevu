@@ -57,7 +57,7 @@ export async function handleRequestGetEnumList(
       db.query({
         query: `
         FOR enum IN @@collectionName
-          RETURN enum.name
+          RETURN enum
       `,
         bindVars: { "@collectionName": collection.name },
       })
