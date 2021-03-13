@@ -7,46 +7,38 @@ import { validateString } from "../utils";
 
 export function servicePackage(app: Express, db: Database) {
   app.get('/packages', async (req, res) => {
-    return res.status(501).end();
-    // const user = req.user as User;
-    // if(!user) {
-    //   return res.status(403).end();
-    // }
-    // let trx: Transaction | undefined;
-    // try {
-    //   const collectionOperator = db.collection(COLLECTION_OPERATOR);
-    //   const collectionOwns = db.collection(EDGE_COLLECTION_OWNS);
-    //   const collectionPackage = db.collection(COLLECTION_PACKAGE);
-    //   const collectionSucceeds = db.collection(EDGE_COLLECTION_SUCCEEDS);
-    //   const collectionTargets = db.collection(EDGE_COLLECTION_TARGETS);
-    //   const collectionUser = db.collection(COLLECTION_USER);
-    //   trx = await db.beginTransaction({
-    //     read: [collectionPackage, collectionOperator, collectionOwns, collectionTargets, collectionSucceeds, collectionUser],
-    //   });
-    //   const { name, operatorList } = req.query;
-    //   const filterList = [];
-    //   const bindVarsFilter = {} as any;
-    //   if (name) {
-    //     if (typeof name === 'string') {
-    //       filterList.push(`package.name LIKE CONCAT('%', @name, '%')`);
-    //       bindVarsFilter.name = name;
-    //     } else {
-    //       await trx.abort();
-    //       return res.status(400).end();
-    //     }
-    //   }
-    //   if (operatorList) {
-    //     if (operatorList instanceof Array) {
-    //       if (operatorList.length) {
-    //         filterList.push(`POSITION (@operatorList, operator.name)`)
-    //         bindVarsFilter.operatorList = operatorList;
-    //       }
-    //     } else {
-    //       await trx.abort();
-    //       return res.status(400).end();
-    //     }
-    //   }
-    //   const filter = filterList.length ? `FILTER ${filterList.join(' AND ')}` : '';
+    const user = req.user as User;
+    if(!user) {
+      return res.status(403).end();
+    }
+    let trx: Transaction | undefined;
+    try {
+      const collectionOperator = db.collection(COLLECTION_OPERATOR);
+      const collectionOwns = db.collection(EDGE_COLLECTION_OWNS);
+      const collectionPackageMain = db.collection(COLLECTION_PACKAGE_MAIN);
+      const collectionPackageSub = db.collection(COLLECTION_PACKAGE_SUB);
+      const collectionSucceeds = db.collection(EDGE_COLLECTION_SUCCEEDS);
+      const collectionTargets = db.collection(EDGE_COLLECTION_TARGETS);
+      const collectionUser = db.collection(COLLECTION_USER);
+      trx = await db.beginTransaction({
+        read: [collectionPackageMain, collectionPackageSub, collectionOperator, collectionOwns, collectionTargets, collectionSucceeds, collectionUser],
+      });
+      const { operator: operatorList, include } = req.query;
+      const filterList = [];
+      const bindVarsFilter = {} as any;
+      if (operatorList) {
+        if (operatorList instanceof Array) {
+          if (operatorList.length) {
+            filterList.push(`POSITION (@operatorList, operator.name)`)
+            bindVarsFilter.operatorList = operatorList;
+          }
+        } else {
+          await trx.abort();
+          return res.status(400).end();
+        }
+      }
+      const filter = filterList.length ? `FILTER ${filterList.join(' AND ')}` : '';
+      return res.status(501).end();
     //   const cursorPackageInfoList = await trx.step(() => db.query({
     //     query: `
     //       FOR package in @@collectionPackage
@@ -85,13 +77,13 @@ export function servicePackage(app: Express, db: Database) {
     //   const packageInfoList = await cursorPackageInfoList.all();
     //   await trx.commit();
     //   return res.json(packageInfoList);
-    // } catch (e) {
-    //   if (trx) {
-    //     await trx.abort();
-    //   }
-    //   console.error(e);
-    //   return res.status(500).end();
-    // }
+    } catch (e) {
+      if (trx) {
+        await trx.abort();
+      }
+      console.error(e);
+      return res.status(500).end();
+    }
   });
 
   app.post('/packages', async (req, res) => {
