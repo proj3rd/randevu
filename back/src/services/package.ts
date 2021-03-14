@@ -11,7 +11,10 @@ export function servicePackage(app: Express, db: Database) {
     if(!user) {
       return res.status(403).end();
     }
-    const { operator: operatorList, include } = req.query;
+    const { name: nameList, operator: operatorList, include } = req.query;
+    if (nameList && !validateStringList(nameList)) {
+      return res.status(400).end();
+    }
     if (operatorList && !validateStringList(operatorList)) {
       return res.status(400).end();
     }
