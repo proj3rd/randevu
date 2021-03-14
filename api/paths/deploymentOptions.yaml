@@ -10,7 +10,7 @@ get:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/EnumInformation"
+              $ref: "../schemas/EnumInformation.yaml"
     "403":
       description: Unauthorized
     "500":

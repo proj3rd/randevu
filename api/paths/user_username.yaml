@@ -14,7 +14,7 @@ get:
       content:
         application:json:
           schema:
-            $ref: "#/components/schemas/UserInformation"
+            $ref: "../schemas/UserInformation.yaml"
     "403":
       description: Unauthorized
     "404":

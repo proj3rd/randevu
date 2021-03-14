@@ -6,7 +6,7 @@ post:
     content:
       application/json:
         schema:
-          $ref: "#/components/schemas/UserCredential"
+          $ref: "../schemas/UserCredential.yaml"
   responses:
     "200":
       description: Ok

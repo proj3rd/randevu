@@ -4,9 +4,6 @@ info:
   version: 0.0.0
 servers:
   - url: http://localhost:3699
-components:
-  schemas:
-    $ref: './schemas.yaml'
 paths:
   /authenticate:
     $ref: './paths/authenticate.yaml'
@@ -31,7 +28,7 @@ paths:
   /operators:
     $ref: './paths/operators.yaml'
   /packages:
-    $ref: './paths/operators.yaml'
+    $ref: './paths/packages.yaml'
   /radio-access-technologies:
     $ref: './paths/radioAccessTechnologies.yaml'
   /radio-access-technologies/{name}:

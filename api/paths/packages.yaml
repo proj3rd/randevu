@@ -3,8 +3,15 @@ get:
     - Package
   summary: Get a list of packages
   parameters:
+    - name: name
+      description: A list of package names. Support partial match.
+      in: query
+      schema:
+        type: array
+        items:
+          type: string
     - name: operator
-      description: A list of operator names
+      description: A list of operator names. Support partial match.
       in: query
       schema:
         type: array

@@ -6,14 +6,14 @@ post:
     content:
       application/json:
         schema:
-          $ref: "#/components/schemas/UserCredential"
+          $ref: "../schemas/UserCredential.yaml"
   responses:
     "200":
       description: Ok
       content:
         "application/json":
           schema:
-            $ref: "#/components/schemas/UserInformation"
+            $ref: "../schemas/UserInformation.yaml"
     "401":
       description: Login failed
     "500":
