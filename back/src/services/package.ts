@@ -23,6 +23,7 @@ export function servicePackage(app: Express, db: Database) {
     }
     let trx: Transaction | undefined;
     try {
+      const collectionDerivedFrom = db.collection(EDGE_COLLECTION_DERIVED_FROM);
       const collectionOperator = db.collection(COLLECTION_OPERATOR);
       const collectionOwns = db.collection(EDGE_COLLECTION_OWNS);
       const collectionPackageMain = db.collection(COLLECTION_PACKAGE_MAIN);
@@ -31,11 +32,11 @@ export function servicePackage(app: Express, db: Database) {
       const collectionTargets = db.collection(EDGE_COLLECTION_TARGETS);
       const collectionUser = db.collection(COLLECTION_USER);
       trx = await db.beginTransaction({
-        read: [collectionPackageMain, collectionPackageSub, collectionOperator, collectionOwns, collectionTargets, collectionSucceeds, collectionUser],
+        read: [collectionDerivedFrom, collectionPackageMain, collectionPackageSub, collectionOperator, collectionOwns, collectionTargets, collectionSucceeds, collectionUser],
       });
       const nameFilter = nameList && nameList.length ?
-      'FILTER operatorList[** FILTER CONTAINS(UPPER(package.name), UPPER(CURRENT))].length > 0' : '';
-      const bindVarsFilter = (nameList && nameList.length ? { nameList } : {}) as any;
+      'FILTER @nameList[** FILTER CONTAINS(UPPER(package.name), UPPER(CURRENT))].length > 0' : '';
+      const bindVarsNameFilter = (nameList && nameList.length ? { nameList } : {}) as any;
       // Main packages
       const cursorPackageMainList = await trx.step(() => db.query({
         query: `
@@ -43,55 +44,34 @@ export function servicePackage(app: Express, db: Database) {
             ${nameFilter}
             RETURN package
         `,
-        bindVars: { '@collectionPackageMain': collectionPackageMain.name, ...bindVarsFilter },
+        bindVars: { '@collectionPackageMain': collectionPackageMain.name, ...bindVarsNameFilter },
       }));
       const packageMainList = await cursorPackageMainList.all();
       // Sub packages
-      const filterList = [];
-      if (operatorList && operatorList.length) {
-        filterList.push(`POSITION (@operatorList, operator.name)`)
-        bindVarsFilter.operatorList = operatorList;
-      }
-      const filter = filterList.length ? `FILTER ${filterList.join(' AND ')}` : '';
-      return res.status(501).end();
-    //   const cursorPackageInfoList = await trx.step(() => db.query({
-    //     query: `
-    //       FOR package in @@collectionPackage
-    //         FOR operator IN OUTBOUND package @@collectionTargets
-    //           ${filter}
-    //           FOR owner IN INBOUND package @@collectionOwns
-    //             let previousPackage = (
-    //               FOR prevPkg IN OUTBOUND package @@collectionSucceeds
-    //                 RETURN prevPkg
-    //             )[0]
-    //             RETURN {
-    //               _id: package._id
-    //               name: package.name,
-    //               operator: {
-    //                 _id: operator._id,
-    //                 name: operator.name
-    //               }
-    //               previousPackage: {
-    //                 _id: previousPackage._id,
-    //                 name: previousPackage.name
-    //               },
-    //               owner: {
-    //                 _id: owner._id,
-    //                 username: owner.username
-    //               }
-    //             }
-    //     `,
-    //     bindVars: {
-    //       '@collectionPackage': collectionPackage.name,
-    //       '@collectionTargets': collectionTargets.name,
-    //       '@collectionOwns': collectionOwns.name,
-    //       '@collectionSucceeds': collectionSucceeds.name,
-    //       ...bindVarsFilter,
-    //     },
-    //   }));
-    //   const packageInfoList = await cursorPackageInfoList.all();
-    //   await trx.commit();
-    //   return res.json(packageInfoList);
+      const operatorFilter = operatorList && operatorList.length ?
+        `
+          FOR operator IN OUTBOUND package._id @@collectionTargets
+            FILTER @operatorList[** FILTER CONTAINS(UPPER(operator.name), UPPER(CURRENT))].length > 0
+        ` : '';
+      const bindVarsOperatorFilter = (operatorList && operatorList.length ? { '@collectionTargets': collectionTargets.name, operatorList } : {}) as any;
+      const cursorPackageSubList = await trx.step(() => db.query({
+        query: `
+          FOR package IN @@collectionPackageSub
+            ${nameFilter}
+            ${operatorFilter}
+            FOR packageMain IN OUTBOUND package._id @@collectionDerivedFrom
+              RETURN { _id: package._id, name: package.name, main: packageMain }
+        `,
+        bindVars: {
+          '@collectionPackageSub': collectionPackageSub.name,
+          ...bindVarsNameFilter, ...bindVarsOperatorFilter,
+          '@collectionDerivedFrom': collectionDerivedFrom.name,
+        },
+      }));
+      const packageSubList = await cursorPackageSubList.all();
+      await trx.commit();
+      const packageList = [...packageMainList, ...packageSubList];
+      return res.json(packageList);
     } catch (e) {
       if (trx) {
         await trx.abort();
