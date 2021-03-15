@@ -69,6 +69,37 @@ export function servicePackage(app: Express, db: Database) {
         },
       }));
       const packageSubList = await cursorPackageSubList.all();
+      // Operator
+      const cursorOperatorDocList = await trx.step(() => db.query({
+        query: `
+          FOR id IN @packageIdList
+            FOR operator IN OUTBOUND id @@collectionTargets
+              RETURN { _id: id, operator }
+        `,
+        bindVars: {
+          packageIdList: packageSubList.map((packageSub) => packageSub._id),
+          '@collectionTargets': collectionTargets.name,
+        },
+      }));
+      const operatorDocList = await cursorOperatorDocList.all();
+      // TODO. need to merge based on _id
+      if (packageSubList.length !== operatorDocList.length) {
+        await trx.abort();
+        return res.status(500).end();
+      }
+      packageSubList.forEach((packageSub, index) => {
+        packageSub.operator = operatorDocList[index];
+      });
+      // Owner
+      const ownerList = await trx.step(() => db.query({
+        query: `
+          FOR id IN @packageIdList
+            FOR user IN INBOUND id @@collectionOwns
+              RETURN { _id: id, user }
+        `,
+        bindVars: {},
+      }));
+      // Previous
       await trx.commit();
       const packageList = [...packageMainList, ...packageSubList];
       return res.json(packageList);
