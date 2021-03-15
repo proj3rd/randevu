@@ -33,8 +33,21 @@ export function servicePackage(app: Express, db: Database) {
       trx = await db.beginTransaction({
         read: [collectionPackageMain, collectionPackageSub, collectionOperator, collectionOwns, collectionTargets, collectionSucceeds, collectionUser],
       });
+      const nameFilter = nameList && nameList.length ?
+      'FILTER operatorList[** FILTER CONTAINS(UPPER(package.name), UPPER(CURRENT))].length > 0' : '';
+      const bindVarsFilter = (nameList && nameList.length ? { nameList } : {}) as any;
+      // Main packages
+      const cursorPackageMainList = await trx.step(() => db.query({
+        query: `
+          FOR package IN @@collectionPackageMain
+            ${nameFilter}
+            RETURN package
+        `,
+        bindVars: { '@collectionPackageMain': collectionPackageMain.name, ...bindVarsFilter },
+      }));
+      const packageMainList = await cursorPackageMainList.all();
+      // Sub packages
       const filterList = [];
-      const bindVarsFilter = {} as any;
       if (operatorList && operatorList.length) {
         filterList.push(`POSITION (@operatorList, operator.name)`)
         bindVarsFilter.operatorList = operatorList;
