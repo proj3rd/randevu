@@ -38,11 +38,12 @@ export function serviceOperator(app: Express, db: Database) {
           query: `
             FOR id IN @operatorIdList
               FOR user IN INBOUND id @@collectionOwns
-                RETURN { _id: user._id, username: user.username }
+                RETURN { _id: id, user: { _id: user._id, username: user.username } }
           `,
           bindVars: { operatorIdList, '@collectionOwns': collectionOwns.name },
         }));
         const ownerList = (await cursorOwnerList.all()) as User[];
+        // TODO. need to merge based on _id
         if (operatorList.length !== ownerList.length) {
           await trx.abort();
           return res.status(500).end();
