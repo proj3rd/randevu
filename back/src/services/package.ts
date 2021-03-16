@@ -3,7 +3,7 @@ import { Transaction } from "arangojs/transaction";
 import { Express } from 'express';
 import { COLLECTION_OPERATOR, COLLECTION_PACKAGE_MAIN, COLLECTION_PACKAGE_SUB, COLLECTION_USER, EDGE_COLLECTION_DERIVED_FROM, EDGE_COLLECTION_OWNS, EDGE_COLLECTION_SUCCEEDS, EDGE_COLLECTION_TARGETS } from "../constants";
 import { User } from "randevu-shared/dist/types";
-import { validateString, validateStringList } from "../utils";
+import { mergeObjectList, validateString, validateStringList } from "../utils";
 
 export function servicePackage(app: Express, db: Database) {
   app.get('/packages', async (req, res) => {
@@ -69,6 +69,7 @@ export function servicePackage(app: Express, db: Database) {
         },
       }));
       const packageSubList = await cursorPackageSubList.all();
+      const packageIdList = packageSubList.map((packageSub) => packageSub._id);
       // Operator
       const cursorOperatorDocList = await trx.step(() => db.query({
         query: `
@@ -76,30 +77,32 @@ export function servicePackage(app: Express, db: Database) {
             FOR operator IN OUTBOUND id @@collectionTargets
               RETURN { _id: id, operator }
         `,
-        bindVars: {
-          packageIdList: packageSubList.map((packageSub) => packageSub._id),
-          '@collectionTargets': collectionTargets.name,
-        },
+        bindVars: { packageIdList, '@collectionTargets': collectionTargets.name },
       }));
       const operatorDocList = await cursorOperatorDocList.all();
-      // TODO. need to merge based on _id
-      if (packageSubList.length !== operatorDocList.length) {
-        await trx.abort();
-        return res.status(500).end();
-      }
-      packageSubList.forEach((packageSub, index) => {
-        packageSub.operator = operatorDocList[index];
-      });
+      mergeObjectList(packageSubList, operatorDocList, '_id');
       // Owner
-      const ownerList = await trx.step(() => db.query({
+      const cursorOwnerList = await trx.step(() => db.query({
         query: `
           FOR id IN @packageIdList
             FOR user IN INBOUND id @@collectionOwns
-              RETURN { _id: id, user }
+              RETURN { _id: id, owner: { _id: user._id, username: user.username } }
         `,
-        bindVars: {},
+        bindVars: { packageIdList, '@collectionOwns': collectionOwns.name },
       }));
+      const ownerList = await cursorOwnerList.all();
+      mergeObjectList(packageSubList, ownerList, '_id');
       // Previous
+      const cursorPreviousList = await trx.step(() => db.query({
+        query: `
+          FOR id IN @packageIdList
+            FOR previous IN OUTBOUND id @@collectionSucceeds
+              RETURN { _id: id, previous }
+        `,
+        bindVars: { packageIdList, '@collectionSucceeds': collectionSucceeds.name },
+      }))
+      const previousList = await cursorPreviousList.all();
+      mergeObjectList(packageSubList, previousList, '_id');
       await trx.commit();
       const packageList = [...packageMainList, ...packageSubList];
       return res.json(packageList);
