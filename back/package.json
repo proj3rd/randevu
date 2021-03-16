@@ -16,6 +16,7 @@
     "@types/mocha": "^8.2.1",
     "@types/passport": "^1.0.5",
     "@types/passport-local": "^1.0.33",
+    "axios": "^0.21.1",
     "mocha": "^8.3.2"
   }
 }
