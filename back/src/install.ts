@@ -20,7 +20,7 @@ if (require.main === module) {
   });
 }
 
-async function install(db: Database, reset: boolean) {
+export async function install(db: Database, reset: boolean) {
   if (reset) {
     const collectionList = await db.collections();
     for (let i = 0; i < collectionList.length; i += 1) {
