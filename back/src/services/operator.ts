@@ -3,7 +3,7 @@ import { Transaction } from "arangojs/transaction";
 import { Express } from 'express';
 import { COLLECTION_OPERATOR, COLLECTION_USER, EDGE_COLLECTION_OWNS } from "../constants";
 import { Operator, User } from "randevu-shared/dist/types";
-import { validateString } from "../utils";
+import { mergeObjectList, validateString } from "../utils";
 
 export function serviceOperator(app: Express, db: Database) {
   app.get('/operators', async (req, res) => {
@@ -38,19 +38,12 @@ export function serviceOperator(app: Express, db: Database) {
           query: `
             FOR id IN @operatorIdList
               FOR user IN INBOUND id @@collectionOwns
-                RETURN { _id: id, user: { _id: user._id, username: user.username } }
+                RETURN { _id: id, owner: { _id: user._id, username: user.username } }
           `,
           bindVars: { operatorIdList, '@collectionOwns': collectionOwns.name },
         }));
         const ownerList = (await cursorOwnerList.all()) as User[];
-        // TODO. need to merge based on _id
-        if (operatorList.length !== ownerList.length) {
-          await trx.abort();
-          return res.status(500).end();
-        }
-        operatorList.forEach((operator, index) => {
-          operator.owner = ownerList[index];
-        })
+        mergeObjectList(operatorList, ownerList, '_id');
       }
       await trx.commit();
       return res.json(operatorList);
