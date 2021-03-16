@@ -40,49 +40,46 @@ get:
                   type: string
                 name:
                   type: string
-                sub:
+                main:
                   type: object
                   properties:
-                    main:
-                      type: object
-                      properties:
-                        _id:
-                          type: string
-                        name:
-                          type: string
-                      required:
-                        - _id
-                        - name
-                    operator:
-                      type: object
-                      properties:
-                        _id:
-                          type: string
-                        name:
-                          type: string
-                      required:
-                        - _id
-                        - name
-                    previous:
-                      type: object
-                      properties:
-                        _id:
-                          type: string
-                        name:
-                          type: string
-                      required:
-                        - _id
-                        - name
-                    owner:
-                      type: object
-                      properties:
-                        _id:
-                          type: string
-                        name:
-                          type: string
-                      required:
-                        - _id
-                        - name
+                    _id:
+                      type: string
+                    name:
+                      type: string
+                  required:
+                    - _id
+                    - name
+                operator:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                    name:
+                      type: string
+                  required:
+                    - _id
+                    - name
+                previous:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                    name:
+                      type: string
+                  required:
+                    - _id
+                    - name
+                owner:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                    name:
+                      type: string
+                  required:
+                    - _id
+                    - name
               required:
                 - _id
                 - name
