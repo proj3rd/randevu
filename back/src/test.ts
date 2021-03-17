@@ -1,10 +1,11 @@
 import { Database } from "arangojs";
 import axios from 'axios';
 import { config } from "randevu-shared/dist/config";
+import { COLLECTION_USER } from "./constants";
 import { install } from "./install";
 
 describe('RANdevU test', function() {
-  let db;
+  let db: Database;
   let headers: { cookie?: any } = {};
 
   before(async function() {
@@ -100,8 +101,14 @@ describe('RANdevU test', function() {
   it('Should pass getting a list of users', function(done) {
     axios.get('/users/', {
       headers,
-    }).then((value) => {
-      console.log(value.data);
+    }).then(async (value) => {
+      const userList = value.data;
+      if (userList.length !== 1) {
+        done('Only 1 user should exist');
+      }
+      const { _id } = userList[0];
+      const collectionUser = db.collection(COLLECTION_USER);
+      await collectionUser.update(_id, { role: 'admin '});
       done();
     }).catch((reason) => {
       done(reason);
