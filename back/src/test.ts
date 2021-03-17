@@ -5,7 +5,7 @@ import { install } from "./install";
 
 describe('RANdevU test', function() {
   let db;
-  let headers: any;
+  let headers: { cookie?: any } = {};
 
   before(async function() {
     console.log('Resetting DB...');
