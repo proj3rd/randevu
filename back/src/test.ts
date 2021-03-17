@@ -115,6 +115,18 @@ describe('RANdevU test', function() {
     })
   });
 
+  it('Should pass adding a main package', function(done) {
+    axios.post('/packages', {
+      name: 'Main package A',
+    }, {
+      headers,
+    }).then(() => {
+      done();
+    }).catch((reason) => {
+      done(reason);
+    });
+  });
+
   it('Should pass logging out', function(done) {
     axios.get('/logout', {
       headers,
