@@ -144,7 +144,7 @@ export function servicePackage(app: Express, db: Database) {
       });
       // Check duplicate package name
       const packageFound = await findPackageByName(db, trx, name);
-      if (packageFound.length) {
+      if (packageFound) {
         await trx.abort();
         return res.status(400).json({ reason: 'Duplicate package name '});
       }
@@ -237,7 +237,7 @@ async function findPackageByNameInCollection(db: Database, trx: Transaction, nam
         LIMIT 1
         RETURN package
     `,
-    bindVars: { '@collectionPackage': collectionName, username: name },
+    bindVars: { '@collectionPackage': collectionName, name },
   }));
   const packageFound = await cursorPackageFound.all();
   return packageFound[0];

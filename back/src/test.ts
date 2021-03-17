@@ -108,7 +108,7 @@ describe('RANdevU test', function() {
       }
       const { _id } = userList[0];
       const collectionUser = db.collection(COLLECTION_USER);
-      await collectionUser.update(_id, { role: 'admin '});
+      await collectionUser.update(_id, { role: 'admin'});
       done();
     }).catch((reason) => {
       done(reason);
