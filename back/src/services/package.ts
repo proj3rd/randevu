@@ -11,14 +11,14 @@ export function servicePackage(app: Express, db: Database) {
     if(!user) {
       return res.status(403).end();
     }
-    const { name: nameList, operator: operatorList, include } = req.query;
+    const { name: nameList, operator: operatorList, include: includeList } = req.query;
     if (nameList && !validateStringList(nameList)) {
       return res.status(400).end();
     }
     if (operatorList && !validateStringList(operatorList)) {
       return res.status(400).end();
     }
-    if (include && !validateStringList(include)) {
+    if (includeList && !validateStringList(includeList)) {
       return res.status(400).end();
     }
     let trx: Transaction | undefined;
@@ -82,27 +82,31 @@ export function servicePackage(app: Express, db: Database) {
       const operatorDocList = await cursorOperatorDocList.all();
       mergeObjectList(packageSubList, operatorDocList, '_id');
       // Owner
-      const cursorOwnerList = await trx.step(() => db.query({
-        query: `
-          FOR id IN @packageIdList
-            FOR user IN INBOUND id @@collectionOwns
-              RETURN { _id: id, owner: { _id: user._id, username: user.username } }
-        `,
-        bindVars: { packageIdList, '@collectionOwns': collectionOwns.name },
-      }));
-      const ownerList = await cursorOwnerList.all();
-      mergeObjectList(packageSubList, ownerList, '_id');
+      if (includeList && (includeList as string[]).includes('owner')) {
+        const cursorOwnerList = await trx.step(() => db.query({
+          query: `
+            FOR id IN @packageIdList
+              FOR user IN INBOUND id @@collectionOwns
+                RETURN { _id: id, owner: { _id: user._id, username: user.username } }
+          `,
+          bindVars: { packageIdList, '@collectionOwns': collectionOwns.name },
+        }));
+        const ownerList = await cursorOwnerList.all();
+        mergeObjectList(packageSubList, ownerList, '_id');
+      }
       // Previous
-      const cursorPreviousList = await trx.step(() => db.query({
-        query: `
-          FOR id IN @packageIdList
-            FOR previous IN OUTBOUND id @@collectionSucceeds
-              RETURN { _id: id, previous }
-        `,
-        bindVars: { packageIdList, '@collectionSucceeds': collectionSucceeds.name },
-      }))
-      const previousList = await cursorPreviousList.all();
-      mergeObjectList(packageSubList, previousList, '_id');
+      if (includeList && (includeList as string[]).includes('previous')) {
+        const cursorPreviousList = await trx.step(() => db.query({
+          query: `
+            FOR id IN @packageIdList
+              FOR previous IN OUTBOUND id @@collectionSucceeds
+                RETURN { _id: id, previous }
+          `,
+          bindVars: { packageIdList, '@collectionSucceeds': collectionSucceeds.name },
+        }))
+        const previousList = await cursorPreviousList.all();
+        mergeObjectList(packageSubList, previousList, '_id');
+      }
       await trx.commit();
       const packageList = [...packageMainList, ...packageSubList];
       return res.json(packageList);
