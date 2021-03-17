@@ -5,7 +5,7 @@ import { install } from "./install";
 
 describe('RANdevU test', function() {
   let db;
-  let cookie: any;
+  let headers: any;
 
   before(async function() {
     console.log('Resetting DB...');
@@ -80,7 +80,7 @@ describe('RANdevU test', function() {
     axios.post('/login', {
       username: 'sjeon', password: 'asdf',
     }).then((value) => {
-      cookie = value.headers['set-cookie'];
+      headers.cookie = value.headers['set-cookie'];
       done();
     }).catch((reason) => {
       done(reason);
@@ -89,11 +89,22 @@ describe('RANdevU test', function() {
 
   it('Should pass authenticating', function(done) {
     axios.get('/authenticate', {
-      headers: { cookie }
+      headers,
     }).then(() => {
       done();
     }).catch((reason) => {
       done(reason);
     });
   });
+
+  it('Should pass logging out', function(done) {
+    axios.get('/logout', {
+      headers,
+    }).then(() => {
+      delete headers.cookie;
+      done();
+    }).catch((reason) => {
+      done(reason);
+    })
+  })
 });
