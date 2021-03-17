@@ -97,6 +97,17 @@ describe('RANdevU test', function() {
     });
   });
 
+  it('Should pass getting a list of users', function(done) {
+    axios.get('/users/', {
+      headers,
+    }).then((value) => {
+      console.log(value.data);
+      done();
+    }).catch((reason) => {
+      done(reason);
+    })
+  });
+
   it('Should pass logging out', function(done) {
     axios.get('/logout', {
       headers,
