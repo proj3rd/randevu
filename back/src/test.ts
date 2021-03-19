@@ -19,6 +19,7 @@ describe('RANdevU test', function() {
     await install(db, true);
     console.log('Done');
     axios.defaults.baseURL = `http://${api.host}:${api.port}`;
+    axios.defaults.headers = headers;
   });
 
   it('Should fail logging in with invalid user credential', function(done) {
@@ -89,9 +90,7 @@ describe('RANdevU test', function() {
   });
 
   it('Should pass authenticating', function(done) {
-    axios.get('/authenticate', {
-      headers,
-    }).then(() => {
+    axios.get('/authenticate').then(() => {
       done();
     }).catch((reason) => {
       done(reason);
@@ -99,9 +98,7 @@ describe('RANdevU test', function() {
   });
 
   it('Should pass getting a list of users', function(done) {
-    axios.get('/users/', {
-      headers,
-    }).then(async (value) => {
+    axios.get('/users/').then(async (value) => {
       const userList = value.data;
       if (userList.length !== 1) {
         done('Only 1 user should exist');
@@ -115,11 +112,21 @@ describe('RANdevU test', function() {
     })
   });
 
-  it('Should pass adding a main package', function(done) {
-    axios.post('/packages', {
-      name: 'Main package A',
-    }, {
-      headers,
+  it('Should pass adding duplex modes', function(done) {
+    axios.post('/duplex-modes', {
+      name: 'FDD',
+    }).then(() => {
+      return axios.post('/duplex-modes', {
+        name: 'TDD',
+      });
+    }).then(() => {
+      return axios.post('/duplex-modes', {
+        name: 'SDL',
+      });
+    }).then(() => {
+      return axios.post('/duplex-modes', {
+        name: 'SUL',
+      });
     }).then(() => {
       done();
     }).catch((reason) => {
@@ -127,10 +134,42 @@ describe('RANdevU test', function() {
     });
   });
 
-  it('Should pass logging out', function(done) {
-    axios.get('/logout', {
-      headers,
+  it('Should fail adding a duplicate duplex mode', function(done) {
+    axios.post('/duplex-modes', { name: 'FDD' }).then(() => {
+      done(new Error());
+    }).catch((reason) => {
+      done();
+    });
+  });
+
+  it('Should pass adding RAN sharing options', function(done) {
+    axios.post('/ran-sharing', { name: 'MOCN' }).then(() => {
+      return axios.post('/ran-sharing', { name: 'MORAN' });
     }).then(() => {
+      done();
+    }).catch((reason) => {
+      done(reason);
+    });
+  });
+
+  it('Should fail adding a duplicate RAN sharing option', function(done) {
+    axios.post('/ran-sharing', { name: 'MOCN' }).then(() => {
+      done(new Error());
+    }).catch((reason) => {
+      done();
+    });
+  });
+
+  it('Should pass adding a main package', function(done) {
+    axios.post('/packages', { name: 'Main package A' }).then(() => {
+      done();
+    }).catch((reason) => {
+      done(reason);
+    });
+  });
+
+  it('Should pass logging out', function(done) {
+    axios.get('/logout').then(() => {
       delete headers.cookie;
       done();
     }).catch((reason) => {
