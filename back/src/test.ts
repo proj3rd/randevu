@@ -112,6 +112,50 @@ describe('RANdevU test', function() {
     })
   });
 
+  it('Should pass adding network elements', function(done) {
+    axios.post('/network-elements', {
+      name: 'eNB',
+    }).then(() => {
+      return axios.post('/network-elements', {
+        name: 'gNB',
+      });
+    }).then(() => {
+      done();
+    }).catch((reason) => {
+      done(reason);
+    });
+  });
+
+  it('Should fail adding a duplicate network element', function(done) {
+    axios.post('/network-elements', { name: 'gNB' }).then(() => {
+      done(new Error());
+    }).catch((reason) => {
+      done();
+    });
+  });
+
+  it('Should pass adding radio access technologies', function(done) {
+    axios.post('/radio-access-technologies', {
+      name: 'E-UTRA',
+    }).then(() => {
+      return axios.post('/radio-access-technologies', {
+        name: 'NR',
+      });
+    }).then(() => {
+      done();
+    }).catch((reason) => {
+      done(reason);
+    });
+  });
+
+  it('Should fail adding a duplicate radio access technology', function(done) {
+    axios.post('/radio-access-technologies', { name: 'NR' }).then(() => {
+      done(new Error());
+    }).catch((reason) => {
+      done();
+    });
+  });
+
   it('Should pass adding duplex modes', function(done) {
     axios.post('/duplex-modes', {
       name: 'FDD',
