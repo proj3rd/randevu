@@ -27,7 +27,7 @@ it('Should pass adding operators', function(done) {
   });
 });
 
-it('Should fail adding a duplicate duplex mode', function(done) {
+it('Should fail adding a duplicate operator', function(done) {
   axios.get('/users/username/sjeon').then((value) => {
     return value.data._id;
   }).then((owner: string) => {
