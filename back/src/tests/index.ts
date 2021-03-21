@@ -112,6 +112,7 @@ describe('RANdevU test', function() {
     })
   });
 
+  require('./deploymentOption');
   require('./duplexMode');
   require('./networkElement');
   require('./operator');
