@@ -6,7 +6,6 @@ import { install } from "../install";
 
 describe('RANdevU test', function() {
   let db: Database;
-  let headers: { cookie?: any } = {};
 
   before(async function() {
     console.log('Resetting DB...');
@@ -19,7 +18,6 @@ describe('RANdevU test', function() {
     await install(db, true);
     console.log('Done');
     axios.defaults.baseURL = `http://${api.host}:${api.port}`;
-    axios.defaults.headers = headers;
   });
 
   it('Should fail logging in with invalid user credential', function(done) {
@@ -82,7 +80,7 @@ describe('RANdevU test', function() {
     axios.post('/login', {
       username: 'sjeon', password: 'asdf',
     }).then((value) => {
-      headers.cookie = value.headers['set-cookie'];
+      axios.defaults.headers.cookie = value.headers['set-cookie'];
       done();
     }).catch((reason) => {
       done(reason);
@@ -129,7 +127,7 @@ describe('RANdevU test', function() {
 
   it('Should pass logging out', function(done) {
     axios.get('/logout').then(() => {
-      delete headers.cookie;
+      delete axios.defaults.headers.cookie;
       done();
     }).catch((reason) => {
       done(reason);
