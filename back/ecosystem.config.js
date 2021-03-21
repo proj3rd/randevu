@@ -8,6 +8,7 @@ module.exports = {
     instances: 1,
     autorestart: false,
     watch: ['dist'],
+    ignore_watch: ['dist/tests'],
     max_memory_restart: '1G',
     env: {
       NODE_ENV: 'development'

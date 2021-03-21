@@ -1,8 +1,8 @@
 import { Database } from "arangojs";
 import axios from 'axios';
 import { config } from "randevu-shared/dist/config";
-import { COLLECTION_USER } from "./constants";
-import { install } from "./install";
+import { COLLECTION_USER } from "../constants";
+import { install } from "../install";
 
 describe('RANdevU test', function() {
   let db: Database;
@@ -112,97 +112,10 @@ describe('RANdevU test', function() {
     })
   });
 
-  it('Should pass adding network elements', function(done) {
-    axios.post('/network-elements', {
-      name: 'eNB',
-    }).then(() => {
-      return axios.post('/network-elements', {
-        name: 'gNB',
-      });
-    }).then(() => {
-      done();
-    }).catch((reason) => {
-      done(reason);
-    });
-  });
-
-  it('Should fail adding a duplicate network element', function(done) {
-    axios.post('/network-elements', { name: 'gNB' }).then(() => {
-      done(new Error());
-    }).catch((reason) => {
-      done();
-    });
-  });
-
-  it('Should pass adding radio access technologies', function(done) {
-    axios.post('/radio-access-technologies', {
-      name: 'E-UTRA',
-    }).then(() => {
-      return axios.post('/radio-access-technologies', {
-        name: 'NR',
-      });
-    }).then(() => {
-      done();
-    }).catch((reason) => {
-      done(reason);
-    });
-  });
-
-  it('Should fail adding a duplicate radio access technology', function(done) {
-    axios.post('/radio-access-technologies', { name: 'NR' }).then(() => {
-      done(new Error());
-    }).catch((reason) => {
-      done();
-    });
-  });
-
-  it('Should pass adding duplex modes', function(done) {
-    axios.post('/duplex-modes', {
-      name: 'FDD',
-    }).then(() => {
-      return axios.post('/duplex-modes', {
-        name: 'TDD',
-      });
-    }).then(() => {
-      return axios.post('/duplex-modes', {
-        name: 'SDL',
-      });
-    }).then(() => {
-      return axios.post('/duplex-modes', {
-        name: 'SUL',
-      });
-    }).then(() => {
-      done();
-    }).catch((reason) => {
-      done(reason);
-    });
-  });
-
-  it('Should fail adding a duplicate duplex mode', function(done) {
-    axios.post('/duplex-modes', { name: 'FDD' }).then(() => {
-      done(new Error());
-    }).catch((reason) => {
-      done();
-    });
-  });
-
-  it('Should pass adding RAN sharing options', function(done) {
-    axios.post('/ran-sharing', { name: 'MOCN' }).then(() => {
-      return axios.post('/ran-sharing', { name: 'MORAN' });
-    }).then(() => {
-      done();
-    }).catch((reason) => {
-      done(reason);
-    });
-  });
-
-  it('Should fail adding a duplicate RAN sharing option', function(done) {
-    axios.post('/ran-sharing', { name: 'MOCN' }).then(() => {
-      done(new Error());
-    }).catch((reason) => {
-      done();
-    });
-  });
+  require('./duplexMode');
+  require('./networkElement');
+  require('./radioAccessTechnology');
+  require('./ranSharing');
 
   it('Should pass adding a main package', function(done) {
     axios.post('/packages', { name: 'Main package A' }).then(() => {
