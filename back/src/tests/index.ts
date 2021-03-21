@@ -114,6 +114,7 @@ describe('RANdevU test', function() {
 
   require('./duplexMode');
   require('./networkElement');
+  require('./operator');
   require('./radioAccessTechnology');
   require('./ranSharing');
 
