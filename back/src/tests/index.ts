@@ -116,14 +116,7 @@ describe('RANdevU test', function() {
   require('./operator');
   require('./radioAccessTechnology');
   require('./ranSharing');
-
-  it('Should pass adding a main package', function(done) {
-    axios.post('/packages', { name: 'Main package A' }).then(() => {
-      done();
-    }).catch((reason) => {
-      done(reason);
-    });
-  });
+  require('./package');
 
   it('Should pass logging out', function(done) {
     axios.get('/logout').then(() => {
