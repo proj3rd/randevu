@@ -1,0 +1,39 @@
+post:
+  tags:
+    - Package
+  summary: Update package information
+  requestBody:
+    content:
+      "application/json":
+        schema:
+          type: object
+          properties:
+            name:
+              type: string
+            deploymentOptions:
+              type: array
+              items:
+                type: string
+            networkElements:
+              type: array
+              items:
+                type: string
+            radioAccessTechnologies:
+              type: array
+              items:
+                type: string
+            ranSharing:
+              type: array
+              items:
+                type: string
+  responses:
+    "200":
+      description: Ok
+    "400":
+      description: Invalid input
+    "403":
+      description: Unauthorized
+    "404":
+      description: Package not found
+    "500":
+      description: Internal failure
