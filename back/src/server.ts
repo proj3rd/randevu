@@ -8,6 +8,7 @@ import { serviceFeature } from './services/feature';
 import { serviceNetworkElement } from './services/networkElement';
 import { serviceOperator } from './services/operator';
 import { servicePackage } from './services/package';
+import { serviceProduct } from './services/product';
 import { serviceRadioAccessTech } from './services/radioAccessTechnology';
 import { serviceRanSharing } from './services/ranSharing';
 import { serviceUser } from './services/user';
@@ -35,6 +36,7 @@ if (require.main === module) {
   serviceNetworkElement(app, db);
   serviceOperator(app, db);
   servicePackage(app, db);
+  serviceProduct(app, db);
   serviceRadioAccessTech(app, db);
   serviceRanSharing(app, db);
   app.listen(api.port, api.host, () => {

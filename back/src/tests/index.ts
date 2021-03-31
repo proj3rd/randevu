@@ -117,6 +117,7 @@ describe('RANdevU test', function() {
   require('./radioAccessTechnology');
   require('./ranSharing');
   require('./package');
+  require('./product');
 
   it('Should pass logging out', function(done) {
     axios.get('/logout').then(() => {

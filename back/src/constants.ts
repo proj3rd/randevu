@@ -8,6 +8,7 @@ export const COLLECTION_NETWORK_ELEMENT = 'networkElement';
 export const COLLECTION_OPERATOR = 'operator';
 export const COLLECTION_PACKAGE_MAIN = 'packageMain';
 export const COLLECTION_PACKAGE_SUB = 'packageSub';
+export const COLLECTION_PRODUCTS = 'products';
 export const COLLECTION_RADIO_ACCESS_TECH = 'radioAccessTech';
 export const COLLECTION_RAN_SHARING = 'ranSharing';
 export const COLLECTION_USER = 'user';
@@ -34,6 +35,7 @@ export const docCollectionNameList = [
   COLLECTION_OPERATOR,
   COLLECTION_PACKAGE_MAIN,
   COLLECTION_PACKAGE_SUB,
+  COLLECTION_PRODUCTS,
   COLLECTION_RADIO_ACCESS_TECH,
   COLLECTION_RAN_SHARING,
   COLLECTION_USER,
