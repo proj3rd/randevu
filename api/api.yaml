@@ -31,6 +31,10 @@ paths:
     $ref: './paths/packages.yaml'
   /packages/{docId}:
     $ref: './paths/packages_docId.yaml'
+  /products:
+    $ref: './paths/products.yaml'
+  /products/{name}:
+    $ref: './paths/product.yaml'
   /radio-access-technologies:
     $ref: './paths/radioAccessTechnologies.yaml'
   /radio-access-technologies/{name}:

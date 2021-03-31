@@ -1,0 +1,47 @@
+get:
+  tags:
+    - Product
+  summary: Get a list of product
+  responses:
+    "200":
+      description: Ok
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "../schemas/EnumInformation.yaml"
+    "403":
+      description: Unauthorized
+    "500":
+      description: Internal failure
+post:
+  tags:
+    - Product
+  summary: Add a product
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - name
+          properties:
+            name:
+              type: string
+  responses:
+    "200":
+      description: Ok
+    "400":
+      description: Invalid input
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              reason:
+                type: string
+    "403":
+      description: Unauthorized
+    "500":
+      description: Internal failure

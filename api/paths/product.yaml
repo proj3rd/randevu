@@ -1,0 +1,31 @@
+post:
+  tags:
+    - Product
+  summary: Rename a product
+  parameters:
+    - name: name
+      in: path
+      required: true
+      schema:
+        type: string
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - nameNew
+          properties:
+            nameNew:
+              type: string
+  responses:
+    "200":
+      description: Ok
+    "400":
+      description: Invalid input
+    "403":
+      description: Unauthorized
+    "404":
+      description: Product not found
+    "500":
+      description: Internal failure
