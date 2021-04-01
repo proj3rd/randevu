@@ -1,0 +1,47 @@
+get:
+  tags:
+    - Requirement
+  summary: TODO Get a list of requirements
+post:
+  tags:
+    - Requirement
+  summary: Add a deployment option
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - operator
+            - title
+            - description
+            - reviewers
+          properties:
+            operator:
+              type: string
+              description: Document ID of an operator
+            title:
+              type: string
+            description:
+              type: string
+            reviewers:
+              type: array
+              items:
+                type: string
+              description: Document IDs of reviewers
+  responses:
+    "200":
+      description: Ok
+    "400":
+      description: Invalid input
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              reason:
+                type: string
+    "403":
+      description: Unauthorized
+    "500":
+      description: Internal failure

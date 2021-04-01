@@ -43,6 +43,8 @@ paths:
     $ref: './paths/ranSharings.yaml'
   /ran-sharing/{name}:
     $ref: './paths/ranSharing.yaml'
+  /requirements:
+    $ref: './paths/requirements.yaml'
   /users/:
     $ref: './paths/users.yaml'
   /users/docId/{docId}:
