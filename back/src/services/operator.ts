@@ -3,7 +3,7 @@ import { Transaction } from "arangojs/transaction";
 import { Express } from 'express';
 import { COLLECTION_OPERATOR, COLLECTION_USER, EDGE_COLLECTION_OWNS } from "../constants";
 import { Operator, User } from "randevu-shared/dist/types";
-import { mergeObjectList, validateString } from "../utils";
+import { mergeObjectList, validateString, validateStringList } from "../utils";
 
 export function serviceOperator(app: Express, db: Database) {
   app.get('/operators', async (req, res) => {
@@ -52,6 +52,48 @@ export function serviceOperator(app: Express, db: Database) {
         await trx.abort();
       }
       console.error(e);
+      return res.status(500).end();
+    }
+  });
+
+  app.get('/operators/name/:name', async (req, res) => {
+    const user = req.user as User;
+    if (!user) {
+      return res.status(403).end();
+    }
+    const { name } = req.params;
+    const { include } = req.query;
+    if (include && !validateStringList(include)) {
+      return res.status(400).end();
+    }
+    let trx: Transaction | undefined;
+    try {
+      const collectionOperator = db.collection(COLLECTION_OPERATOR);
+      trx = await db.beginTransaction({
+        read: [collectionOperator],
+      });
+      const cursorOperatorFound = await trx.step(() => db.query({
+        query: `
+          FOR operator IN @@collectionOperator
+            FILTER operator.name == @name
+            LIMIT 1
+            RETURN operator
+        `,
+        bindVars: { '@collectionOperator': collectionOperator.name, name },
+      }));
+      const operatorFound = await cursorOperatorFound.all();
+      if (!operatorFound.length) {
+        await trx.abort();
+        return res.status(404).end();
+      }
+      const operator = operatorFound[0];
+      // TODO: owner
+      await trx.commit();
+      return res.json(operator);
+    } catch (e) {
+      if (trx) {
+        await trx.abort();
+      }
       return res.status(500).end();
     }
   });

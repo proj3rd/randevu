@@ -43,3 +43,12 @@ it('Should fail adding a duplicate operator', function(done) {
     done(reason);
   });
 });
+
+it('Should pass getting information of an operator', function(done) {
+  axios.get('/operators/name/Verizon Wireless').then((value) => {
+    const { name } = value.data;
+    done(name !== 'Verizon Wireless');
+  }).catch((reason) => {
+    done(reason);
+  });
+});
