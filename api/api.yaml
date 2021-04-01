@@ -27,6 +27,8 @@ paths:
     $ref: './paths/networkElement.yaml'
   /operators:
     $ref: './paths/operators.yaml'
+  /operators/name/{name}:
+    $ref: './paths/operators_name.yaml'
   /packages:
     $ref: './paths/packages.yaml'
   /packages/{docId}:
