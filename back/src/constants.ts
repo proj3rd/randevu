@@ -11,6 +11,7 @@ export const COLLECTION_PACKAGE_SUB = 'packageSub';
 export const COLLECTION_PRODUCTS = 'products';
 export const COLLECTION_RADIO_ACCESS_TECH = 'radioAccessTech';
 export const COLLECTION_RAN_SHARING = 'ranSharing';
+export const COLLECTION_REQUIREMENT = 'requirement';
 export const COLLECTION_USER = 'user';
 
 export const EDGE_COLLECTION_COMMITS = 'commits';
@@ -20,6 +21,7 @@ export const EDGE_COLLECTION_FORKED_FROM = 'forkedFrom';
 export const EDGE_COLLECTION_IMPLEMENTS = 'implements';
 export const EDGE_COLLECTION_OWNS = 'owns';
 export const EDGE_COLLECTION_REGISTERS = 'registers';
+export const EDGE_COLLECTION_REQUESTS = 'requests';
 export const EDGE_COLLECTION_REQUIRES = 'requires';
 export const EDGE_COLLECTION_TARGETS = 'targets';
 export const EDGE_COLLECTION_SUCCEEDS = 'succeeds';
@@ -38,6 +40,7 @@ export const docCollectionNameList = [
   COLLECTION_PRODUCTS,
   COLLECTION_RADIO_ACCESS_TECH,
   COLLECTION_RAN_SHARING,
+  COLLECTION_REQUIREMENT,
   COLLECTION_USER,
 ];
 
@@ -49,6 +52,7 @@ export const edgeCollectionNameList = [
   EDGE_COLLECTION_IMPLEMENTS,
   EDGE_COLLECTION_OWNS,
   EDGE_COLLECTION_REGISTERS,
+  EDGE_COLLECTION_REQUESTS,
   EDGE_COLLECTION_REQUIRES,
   EDGE_COLLECTION_SUCCEEDS,
   EDGE_COLLECTION_TARGETS,
