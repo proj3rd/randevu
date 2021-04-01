@@ -7,3 +7,12 @@ it('Should pass adding a main package', function(done) {
     done(reason);
   });
 });
+
+
+it('Should fail adding a duplicate package', function(done) {
+  axios.post('/packages', { name: 'Main package A' }).then(() => {
+    done(new Error());
+  }).catch(() => {
+    done();
+  });
+});
