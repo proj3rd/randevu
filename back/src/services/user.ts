@@ -1,11 +1,14 @@
 import { Database } from 'arangojs';
 import { Transaction } from 'arangojs/transaction';
+import { pbkdf2Sync } from 'crypto';
 import { Express } from 'express';
 import session from 'express-session';
 import passport from 'passport';
 import passportLocal from 'passport-local';
 import { COLLECTION_USER } from '../constants';
 import { User } from 'randevu-shared/dist/types';
+
+const SECRET = 'RANdevU aims to make RAN development easy';
 
 export function serviceUser(app: Express, db: Database) {
   app.use(session({
@@ -64,7 +67,7 @@ export function serviceUser(app: Express, db: Database) {
                LIMIT 1
               RETURN { _id: user._id, username: user.username, role: user.role }
           `,
-          bindVars: { '@collectionUser': collectionUser.name, username, password },
+          bindVars: { '@collectionUser': collectionUser.name, username, password: hash(password) },
         }));
         const userFound = await cursorUserFound.all();
         if (!userFound.length) {
@@ -112,7 +115,7 @@ export function serviceUser(app: Express, db: Database) {
         await trx.abort();
         return res.status(400).json({ reason: 'Duplicate user name' });
       }
-      await trx.step(() => collectionUser.save({ username, password }));
+      await trx.step(() => collectionUser.save({ username, password: hash(password) }));
       await trx.commit();
       return res.status(200).end();
     } catch (e) {
@@ -246,4 +249,8 @@ export async function findUserByName(db: Database, trx: Transaction, username: s
   }));
   const userFound = await cursorUserFound.all() as User[];
   return userFound[0];
+}
+
+function hash(password: string) {
+  return pbkdf2Sync(password, SECRET, 1000, 64, 'sha512').toString('hex');
 }
