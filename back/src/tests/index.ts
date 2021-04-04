@@ -123,11 +123,11 @@ describe('RANdevU test', function() {
   require('./deploymentOption');
   require('./duplexMode');
   require('./networkElement');
-  require('./operator');
   require('./radioAccessTechnology');
   require('./ranSharing');
-  require('./package');
   require('./product');
+  require('./operator');
+  require('./package');
 
   it('Should pass logging out', function(done) {
     axios.get('/logout').then(() => {
