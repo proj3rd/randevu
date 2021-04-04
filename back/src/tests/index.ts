@@ -76,6 +76,16 @@ describe('RANdevU test', function() {
     });
   });
 
+  it('Should fail logging in', function(done) {
+    axios.post('/login', {
+      username: 'admin', password: 'admin',
+    }).then((value) => {
+      done(new Error());
+    }).catch((reason) => {
+      done();
+    });
+  });
+
   it('Should pass logging in', function(done) {
     axios.post('/login', {
       username: 'sjeon', password: 'asdf',
