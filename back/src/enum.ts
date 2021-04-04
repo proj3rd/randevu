@@ -95,7 +95,7 @@ export async function handleRequestRenameEnum(
             LIMIT 1
             RETURN enum
         `,
-        bindVars: { '@collectionName': collection.name, nameNew: name },
+        bindVars: { '@collectionName': collection.name, name },
       })
     );
     const enumFound = await cursorEnumFound.all();
@@ -107,7 +107,7 @@ export async function handleRequestRenameEnum(
       db.query({
         query: `
         FOR enum IN @@collectionName
-          FILTER enum._id == @docId
+          FILTER enum._key == @docId
           LIMIT 1
           UPDATE enum WITH { name: @name } IN @@collectionName
           RETURN enum
