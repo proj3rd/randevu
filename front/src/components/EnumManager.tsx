@@ -75,6 +75,7 @@ function EnumManager({ path }: Props) {
         return;
       }
       setEnumList([...enumList.slice(0, index), enumNameNew, ...enumList.slice(index + 1)]);
+      setEditing(null);
     }).catch((reason) => {
       console.error(reason);
     }).finally(() => {
