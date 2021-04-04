@@ -1,11 +1,11 @@
 import axios from 'axios';
+import { statusCode } from './utils';
 
 it('Should fail adding a main package without name', function(done) {
   axios.post('/packages', {}).then(() => {
     done(new Error());
   }).catch((reason) => {
-    if (reason && reason.response && reason.response.status
-        && reason.response.status === 400) {
+    if (reason && statusCode(reason.response) === 400) {
       done();
     } else {
       done(reason);
@@ -40,8 +40,7 @@ it('Should fail adding a sub package without name', function(done) {
   }).then(() => {
     done(new Error());
   }).catch((reason) => {
-    if (reason && reason.response && reason.response.status
-        && reason.response.status === 400) {
+    if (reason && statusCode(reason.response) === 400) {
       done();
     } else {
       done(reason);
@@ -59,8 +58,7 @@ it('Should fail adding a sub package without main package', function(done) {
   }).then(() => {
     done(new Error());
   }).catch((reason) => {
-    if (reason && reason.response && reason.response.status
-        && reason.response.status === 400) {
+    if (reason && statusCode(reason.response) === 400) {
       done();
     } else {
       done(reason);
