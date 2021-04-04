@@ -6,7 +6,7 @@ import ModalCreatePackage from "../components/modalCreatePackage";
 import produce from "immer";
 
 type OperatorLabel = {
-  operatorName: string,
+  name: string,
   checked: boolean,
 };
 
@@ -66,8 +66,8 @@ class Package extends Component<Props, State> {
       axios.get('/operators').then((value) => {
         const { data: operatorInfoList } = value;
         const operatorLabelList: OperatorLabel[] = operatorInfoList.map((operatorInfo: any /* TODO */) => {
-          const { operatorName } = operatorInfo;
-          return { operatorName, checked: false };
+          const { name } = operatorInfo;
+          return { name, checked: false };
         });
         this.setState({ loading: false, operatorLabelList });
       }).catch((reason) => {
@@ -100,7 +100,7 @@ class Package extends Component<Props, State> {
     const { packageName, operatorLabelList, owner } = this.state;
     const operatorNameList = operatorLabelList.filter((operatorLabel) => {
       return operatorLabel.checked;
-    }).map((operatorLabel) => operatorLabel.operatorName);
+    }).map((operatorLabel) => operatorLabel.name);
     axios.get('/packages', {
       params: { packageName, operatorNameList, owner }
     }).then((value) => {
@@ -112,12 +112,12 @@ class Package extends Component<Props, State> {
     });
   }
 
-  toggleLabel(operatorName: string) {
+  toggleLabel(name: string) {
     const prevState = this.state;
     const nextState = produce(prevState, (draftState) => {
       const { operatorLabelList } = draftState;
       const operatorLabelFound = operatorLabelList.find((operatorLabel) => {
-        return operatorLabel.operatorName === operatorName;
+        return operatorLabel.name === name;
       });
       if (operatorLabelFound) {
         operatorLabelFound.checked = !operatorLabelFound.checked;
@@ -155,13 +155,13 @@ class Package extends Component<Props, State> {
                   <label>Operators</label>
                   {
                     operatorLabelList.map((operatorLabel) => {
-                      const { operatorName, checked } = operatorLabel;
+                      const { name, checked } = operatorLabel;
                       const color = checked ? 'blue' : undefined;
                       const icon = checked ? 'check' : 'minus';
                       return (
-                        <Label as='a' key={operatorName} onClick={() => this.toggleLabel(operatorName)} color={color}>
+                        <Label as='a' key={name} onClick={() => this.toggleLabel(name)} color={color}>
                           <Icon name={icon} />
-                          {operatorName}
+                          {name}
                         </Label>
                     )})
                   }
