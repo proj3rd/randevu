@@ -3,21 +3,9 @@ post:
     - Duplex mode
   summary: Rename a duplex mode
   parameters:
-    - name: name
-      in: path
-      required: true
-      schema:
-        type: string
+    $ref: '../schemas/EnumRenameParameters.yaml'
   requestBody:
-    content:
-      application/json:
-        schema:
-          type: object
-          required:
-            - nameNew
-          properties:
-            nameNew:
-              type: string
+    $ref: '../schemas/EnumRenameRequestBody.yaml'
   responses:
     "200":
       description: Ok

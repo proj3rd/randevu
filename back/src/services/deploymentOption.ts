@@ -17,14 +17,14 @@ export function serviceDeploymentOption(app: Express, db: Database) {
     handleRequestGetEnumList(res, db, COLLECTION_DEPLOYMENT_OPTION);
   });
 
-  app.post("/deployment-options/:name", (req, res) => {
+  app.post("/deployment-options/:docId", (req, res) => {
     const user = req.user as User;
     if (!user || user.role !== "admin") {
       return res.status(403).end();
     }
-    const { name } = req.params;
-    const { nameNew } = req.body;
-    handleRequestRenameEnum(res, db, COLLECTION_DEPLOYMENT_OPTION, name, nameNew);
+    const { docId } = req.params;
+    const { name } = req.body;
+    handleRequestRenameEnum(res, db, COLLECTION_DEPLOYMENT_OPTION, docId, name);
   });
 
   app.post("/deployment-options", (req, res) => {

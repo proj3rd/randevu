@@ -17,14 +17,14 @@ export function serviceRanSharing(app: Express, db: Database) {
     handleRequestGetEnumList(res, db, COLLECTION_RAN_SHARING);
   });
 
-  app.post("/ran-sharing/:name", (req, res) => {
+  app.post("/ran-sharing/:docId", (req, res) => {
     const user = req.user as User;
     if (!user || user.role !== "admin") {
       return res.status(403).end();
     }
-    const { name } = req.params;
-    const { nameNew } = req.body;
-    handleRequestRenameEnum(res, db, COLLECTION_RAN_SHARING, name, nameNew);
+    const { docId } = req.params;
+    const { name } = req.body;
+    handleRequestRenameEnum(res, db, COLLECTION_RAN_SHARING, docId, name);
   });
 
   app.post("/ran-sharing", (req, res) => {

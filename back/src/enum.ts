@@ -78,8 +78,8 @@ export async function handleRequestRenameEnum(
   res: Response,
   db: Database,
   collectionName: string,
-  name: string,
-  nameNew: string
+  docId: string,
+  name: string
 ) {
   let trx: Transaction | undefined;
   try {
@@ -91,11 +91,11 @@ export async function handleRequestRenameEnum(
       db.query({
         query: `
           FOR enum IN @@collectionName
-            FILTER enum.name == @nameNew
+            FILTER enum.name == @name
             LIMIT 1
             RETURN enum
         `,
-        bindVars: { '@collectionName': collection.name, nameNew },
+        bindVars: { '@collectionName': collection.name, nameNew: name },
       })
     );
     const enumFound = await cursorEnumFound.all();
@@ -107,12 +107,12 @@ export async function handleRequestRenameEnum(
       db.query({
         query: `
         FOR enum IN @@collectionName
-          FILTER enum.name == @name
+          FILTER enum._id == @docId
           LIMIT 1
-          UPDATE enum WITH { name: @nameNew } IN @@collectionName
+          UPDATE enum WITH { name: @name } IN @@collectionName
           RETURN enum
       `,
-        bindVars: { "@collectionName": collection.name, name, nameNew },
+        bindVars: { "@collectionName": collection.name, docId, name },
       })
     );
     const enum_ = (await cursorEnumRenamed.all())[0];

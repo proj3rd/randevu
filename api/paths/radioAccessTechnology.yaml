@@ -3,21 +3,9 @@ post:
     - Radio access technology
   summary: Rename a radio access technology
   parameters:
-    - name: name
-      in: path
-      required: true
-      schema:
-        type: string
+    $ref: '../schemas/EnumRenameParameters.yaml'
   requestBody:
-    content:
-      application/json:
-        schema:
-          type: object
-          required:
-            - nameNew
-          properties:
-            nameNew:
-              type: string
+    $ref: '../schemas/EnumRenameRequestBody.yaml'
   responses:
     "200":
       description: Ok
@@ -26,6 +14,6 @@ post:
     "403":
       description: Unauthorized
     "404":
-      description: Deployment option not found
+      description: Radio access technology not found
     "500":
       description: Internal failure
