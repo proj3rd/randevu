@@ -108,34 +108,28 @@ it('Should pass adding a sub package', function(done) {
   let owner: any;
 
   axios.get('/packages').then((value) => {
-    return value.data;
-  }).then((packageList) => {
+    const { data: packageList } = value;
     const packageFound = packageList.find((pkg: any) => pkg.name === 'Main package A');
     if (!packageFound) {
       throw new Error('Package not found');
     }
     pkg = packageFound;
-  }).then(() => {
     return axios.get('/operators');
   }).then((value) => {
-    return value.data;
-  }).then((operatorList) => {
+    const { data: operatorList } = value;
     const operatorFound = operatorList.find((operator: any) => operator.name === 'Verizon Wireless');
     if (!operatorFound) {
       throw new Error('Operator not found');
     }
     operator = operatorFound;
-  }).then(() => {
     return axios.get('/users');
   }).then((value) => {
-    return value.data;
-  }).then((userList) => {
+    const { data: userList } = value;
     const userFound = userList.find((user: any) => user.username === 'sjeon');
     if (!userFound) {
       throw new Error('User not found');
     }
     owner = userFound;
-  }).then(() => {
     return axios.post('/packages', {
       name: 'Sub package A',
       sub: {
