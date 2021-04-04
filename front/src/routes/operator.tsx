@@ -5,8 +5,12 @@ import { config } from 'randevu-shared/dist/config';
 import ModalRegisterOperator from "../components/modalRegisterOperator";
 
 type OperatorInfo = {
-  operatorName: string,
-  owner: string,
+  _id: string;
+  name: string
+  owner: {
+    _id: string;
+    username: string;
+  };
 };
 
 type Props = {
@@ -47,7 +51,7 @@ class Operator extends Component<Props, State> {
 
   getOperatorList() {
     this.setState({ loading: true });
-    axios.get('/operators').then((value) => {
+    axios.get('/operators?include[]=owner').then((value) => {
       const { data: operatorList } = value;
       this.setState({ operatorList, loading: false });
     }).catch((reason) => {
@@ -92,11 +96,11 @@ class Operator extends Component<Props, State> {
             }
             {
               operatorList.map((operator) => {
-                const { operatorName, owner } = operator;
+                const { name, owner } = operator;
                 return (
-                <Table.Row key={operatorName}>
-                  <Table.Cell>{operatorName}</Table.Cell>
-                  <Table.Cell>{owner}</Table.Cell>
+                <Table.Row key={name}>
+                  <Table.Cell>{name}</Table.Cell>
+                  <Table.Cell>{owner.username}</Table.Cell>
                 </Table.Row>
                 );
               })
