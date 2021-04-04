@@ -146,7 +146,7 @@ export function servicePackage(app: Express, db: Database) {
       const packageFound = await findPackageByName(db, trx, name);
       if (packageFound) {
         await trx.abort();
-        return res.status(400).json({ reason: 'Duplicate package name '});
+        return res.status(400).json({ reason: 'Duplicate package name'});
       }
       if (!sub) {
         // Create a main package
