@@ -21,7 +21,7 @@ function EnumManager({ path }: Props) {
   useEffect(() => {
     setLoading(true);
     axios.get(path).then((value) => {
-      setEnumList(value.data);
+      setEnumList(value.data.map((item: any) => item.name));
     }).catch((reason) => {
       console.error(reason);
     }).finally(() => {

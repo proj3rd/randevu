@@ -11,9 +11,20 @@ type OperatorLabel = {
 };
 
 type PackageInfo = {
-  packageName: string,
-  operatorName: string,
-  owner: string,
+  _id: string;
+  name: string,
+  main?: {
+    _id: string;
+    name: string;
+  };
+  operator?: {
+    _id: string;
+    name: string;
+  };
+  owner?: {
+    _id: string;
+    username: string;
+  };
 };
 
 type Props = {
@@ -101,7 +112,7 @@ class Package extends Component<Props, State> {
     const operatorNameList = operatorLabelList.filter((operatorLabel) => {
       return operatorLabel.checked;
     }).map((operatorLabel) => operatorLabel.name);
-    axios.get('/packages', {
+    axios.get('/packages?include[]=operator&include[]=owner', {
       params: { packageName, operatorNameList, owner }
     }).then((value) => {
       const packageInfoList = value.data;
@@ -207,12 +218,12 @@ class Package extends Component<Props, State> {
             }
             {
               packageInfoList.map((packageInfo) => {
-                const { packageName, operatorName, owner } = packageInfo;
+                const { name: packageName, operator, owner } = packageInfo;
                 return (
                   <Table.Row key={packageName}>
                     <Table.Cell>{packageName}</Table.Cell>
-                    <Table.Cell>{operatorName}</Table.Cell>
-                    <Table.Cell>{owner}</Table.Cell>
+                    <Table.Cell>{operator ? operator.name : ''}</Table.Cell>
+                    <Table.Cell>{owner ? owner.username : ''}</Table.Cell>
                   </Table.Row>
                 );
               })

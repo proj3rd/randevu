@@ -42,7 +42,7 @@ export function servicePackage(app: Express, db: Database) {
         query: `
           FOR package IN @@collectionPackageMain
             ${nameFilter}
-            RETURN package
+            RETURN { _id: package._id, name: package.name }
         `,
         bindVars: { '@collectionPackageMain': collectionPackageMain.name, ...bindVarsNameFilter },
       }));
@@ -60,7 +60,7 @@ export function servicePackage(app: Express, db: Database) {
             ${nameFilter}
             ${operatorFilter}
             FOR packageMain IN OUTBOUND package._id @@collectionDerivedFrom
-              RETURN { _id: package._id, name: package.name, main: packageMain }
+              RETURN { _id: package._id, name: package.name, main: { _id: packageMain._id, name: packageMain.name } }
         `,
         bindVars: {
           '@collectionPackageSub': collectionPackageSub.name,
@@ -75,7 +75,7 @@ export function servicePackage(app: Express, db: Database) {
         query: `
           FOR id IN @packageIdList
             FOR operator IN OUTBOUND id @@collectionTargets
-              RETURN { _id: id, operator }
+              RETURN { _id: id, operator: { _id: operator._id, name: operator.name } }
         `,
         bindVars: { packageIdList, '@collectionTargets': collectionTargets.name },
       }));
@@ -100,7 +100,7 @@ export function servicePackage(app: Express, db: Database) {
           query: `
             FOR id IN @packageIdList
               FOR previous IN OUTBOUND id @@collectionSucceeds
-                RETURN { _id: id, previous }
+                RETURN { _id: id, previous: { _id: previous._id, name: previous.name } }
           `,
           bindVars: { packageIdList, '@collectionSucceeds': collectionSucceeds.name },
         }))

@@ -24,6 +24,7 @@ get:
         items:
           type: string
           enum:
+            - operator
             - previous
             - owner
   responses:
