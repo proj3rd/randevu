@@ -5,6 +5,7 @@ import EnumManager from "../components/EnumManager";
 const panes = [
   { menuItem: '', path: '' },
   { menuItem: 'Deployment options', path: '/deployment-options' },
+  { menuItem: 'Duplex modes', path: '/duplex-modes' },
   { menuItem: 'Network elements', path: '/network-elements' },
   { menuItem: 'Products', path: '/products' },
   { menuItem: 'Radio access technologies', path: '/radio-access-technologies' },
