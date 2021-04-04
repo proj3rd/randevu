@@ -20,18 +20,18 @@ export function serviceUser(app: Express, db: Database) {
   app.use(passport.session());
 
   passport.serializeUser((user, done) => {
-    const _id = (user as User)._id;
-    done(null, _id);
+    const _key = (user as User)._key;
+    done(null, _key);
   });
 
-  passport.deserializeUser(async (_id: string, done) => {
+  passport.deserializeUser(async (_key: string, done) => {
     const collectionUser = db.collection(COLLECTION_USER);
     let trx: Transaction | undefined;
     try {
       trx = await db.beginTransaction({
         read: collectionUser,
       });
-      const user = await trx.step(() => collectionUser.document(_id));
+      const user = await trx.step(() => collectionUser.document(_key));
       if (user) {
         delete user.password;
       }
@@ -65,7 +65,7 @@ export function serviceUser(app: Express, db: Database) {
               FILTER user.username == @username
                  AND user.password == @password
                LIMIT 1
-              RETURN { _id: user._id, username: user.username, role: user.role }
+              RETURN { _key: user._key, username: user.username, role: user.role }
           `,
           bindVars: { '@collectionUser': collectionUser.name, username, password: hash(password) },
         }));
@@ -163,7 +163,7 @@ export function serviceUser(app: Express, db: Database) {
       const cursorUserList = await trx.step(() => db.query({
         query: `
           FOR user in @@collectionUser
-            RETURN { _id: user._id, username: user.username, role: user.role }
+            RETURN { _key: user._key, username: user.username, role: user.role }
         `,
         bindVars: { '@collectionUser': collectionUser.name },
       }));
@@ -179,19 +179,19 @@ export function serviceUser(app: Express, db: Database) {
     }
   });
 
-  app.get('/users/docId/:docId', async (req, res) => {
+  app.get('/users/docKey/:docKey', async (req, res) => {
     const user = req.user as User;
     if (!user) {
       return res.status(403).end();
     }
-    const { docId } = req.params;
+    const { docKey } = req.params;
     let trx: Transaction | undefined;
     try {
       const collectionUser = db.collection(COLLECTION_USER);
       trx = await db.beginTransaction({
         read: collectionUser,
       });
-      const user = await trx.step(() => collectionUser.document(docId));
+      const user = await trx.step(() => collectionUser.document(docKey));
       if (!user) {
         await trx.abort();
         return res.status(404).end();
@@ -243,7 +243,7 @@ export async function findUserByName(db: Database, trx: Transaction, username: s
       FOR user IN @@collectionUser
         FILTER user.username == @username
         LIMIT 1
-        RETURN { _id: user._id, username: user.username, role: user.role }
+        RETURN { _key: user._key, username: user.username, role: user.role }
     `,
     bindVars: { '@collectionUser': COLLECTION_USER, username },
   }));

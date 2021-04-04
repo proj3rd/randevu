@@ -11,18 +11,18 @@ type OperatorLabel = {
 };
 
 type PackageInfo = {
-  _id: string;
+  _key: string;
   name: string,
   main?: {
-    _id: string;
+    _key: string;
     name: string;
   };
   operator?: {
-    _id: string;
+    _key: string;
     name: string;
   };
   owner?: {
-    _id: string;
+    _key: string;
     username: string;
   };
 };

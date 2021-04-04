@@ -15,7 +15,7 @@ export function serviceRequirement(app: Express, db: Database) {
     // TODO
   });
 
-  app.post("/requirements/:docId", (req, res) => {
+  app.post("/requirements/:docKey", (req, res) => {
     const user = req.user as User;
     if (!user) {
       return res.status(403).end();

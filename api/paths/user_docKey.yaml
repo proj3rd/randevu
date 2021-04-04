@@ -1,9 +1,9 @@
 get:
   tags:
     - User
-  summary: Get information of a user by document ID
+  summary: Get information of a user by document key
   parameters:
-    - name: docId
+    - name: docKey
       in: path
       required: true
       schema:

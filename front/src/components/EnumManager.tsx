@@ -2,7 +2,6 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { Button, Dimmer, Form, Loader, Table } from "semantic-ui-react";
 import { config } from 'randevu-shared/dist/config';
-import { getDocId } from "../utils";
 
 type Props = {
   path: string;
@@ -31,7 +30,7 @@ function EnumManager({ path }: Props) {
   }, [path]);
 
   function addEnum() {
-    if (enumList.includes(enumName)) {
+    if (enumList.find((enumItem) => enumItem.name === enumName)) {
       return;
     }
     setLoading(true);
@@ -55,13 +54,13 @@ function EnumManager({ path }: Props) {
     setEnumNameNew(e.target.value);
   }
 
-  function removeEnum(enumName: string) {
-    const index = enumList.indexOf(enumName);
+  function removeEnum(docKey: string) {
+    const index = enumList.findIndex((enumItem) => enumItem._key === docKey);
     if (index === -1) {
       return;
     }
     setLoading(true);
-    axios.delete(`${path}/${enumName}`).then(() => {
+    axios.delete(`${path}/${docKey}`).then(() => {
       return axios.get(path);
     }).then((value) => {
       setEnumList(value.data);
@@ -72,10 +71,10 @@ function EnumManager({ path }: Props) {
     });
   }
 
-  function renameEnum(docId: string, name: string) {
+  function renameEnum(docKey: string, name: string) {
     setLoading(true);
-    axios.post(`${path}/${getDocId(docId)}`, { name }).then(() => {
-      const index = enumList.indexOf(docId);
+    axios.post(`${path}/${docKey}`, { name }).then(() => {
+      const index = enumList.indexOf(docKey);
       if (index === -1) {
         return;
       }
@@ -117,17 +116,17 @@ function EnumManager({ path }: Props) {
             {
               enumList.map((enumItem) => {
                 return (
-                  <Table.Row key={enumItem._id}>
+                  <Table.Row key={enumItem._key}>
                     {
-                      editing !== enumItem._id ? (
+                      editing !== enumItem._key ? (
                         <>
                           <Table.Cell>{enumItem.name}</Table.Cell>
                           <Table.Cell>
                             <Button icon='edit' onClick={() => {
                               setEnumNameNew(enumItem.name);
-                              setEditing(enumItem._id);
+                              setEditing(enumItem._key);
                             }} />
-                            <Button icon='trash' onClick={() => removeEnum(enumItem._id)} disabled />
+                            <Button icon='trash' onClick={() => removeEnum(enumItem._key)} disabled />
                           </Table.Cell>
                         </>
                       ) : (
@@ -140,7 +139,7 @@ function EnumManager({ path }: Props) {
                             </Form>
                           </Table.Cell>
                           <Table.Cell>
-                            <Button icon='check' onClick={() => renameEnum(enumItem._id, enumNameNew)} />
+                            <Button icon='check' onClick={() => renameEnum(enumItem._key, enumNameNew)} />
                             <Button icon='cancel' onClick={() => setEditing(null)} />
                           </Table.Cell>
                         </>

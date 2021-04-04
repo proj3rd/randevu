@@ -357,7 +357,7 @@ export function serviceFeature(app: Express, db: Database) {
         return res.status(400).json({ reason: 'User not found' });
       }
       await trx.step(() => collectionOwns.save({
-        _from: userFound._id,
+        _from: (userFound as any)._id,
         _to: feature._id,
       }));
       const featureVersion = await trx.step(() => collectionFeatureVersion.save({

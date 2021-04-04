@@ -19,7 +19,7 @@ post:
           properties:
             operator:
               type: string
-              description: Document ID of an operator
+              description: Document key of an operator
             title:
               type: string
             description:

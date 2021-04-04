@@ -1,4 +1,4 @@
-- name: docId
+- name: docKey
   in: path
   required: true
   schema:

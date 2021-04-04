@@ -108,16 +108,16 @@ post:
               properties:
                 main:
                   type: string
-                  description: Document ID of a main package.
+                  description: Document key of a main package.
                 operator:
                   type: string
-                  description: Document ID of a target operator.
+                  description: Document key of a target operator.
                 previous:
                   type: string
-                  description: Document ID of a previous subpackage.
+                  description: Document key of a previous subpackage.
                 owner:
                   type: string
-                  description: Document ID of a user.
+                  description: Document key of a user.
               required:
                 - main
                 - operator

@@ -78,7 +78,7 @@ export async function handleRequestRenameEnum(
   res: Response,
   db: Database,
   collectionName: string,
-  docId: string,
+  docKey: string,
   name: string
 ) {
   let trx: Transaction | undefined;
@@ -107,12 +107,12 @@ export async function handleRequestRenameEnum(
       db.query({
         query: `
         FOR enum IN @@collectionName
-          FILTER enum._key == @docId
+          FILTER enum._key == @docKey
           LIMIT 1
           UPDATE enum WITH { name: @name } IN @@collectionName
           RETURN enum
       `,
-        bindVars: { "@collectionName": collection.name, docId, name },
+        bindVars: { "@collectionName": collection.name, docKey, name },
       })
     );
     const enum_ = (await cursorEnumRenamed.all())[0];

@@ -42,7 +42,7 @@ export function servicePackage(app: Express, db: Database) {
         query: `
           FOR package IN @@collectionPackageMain
             ${nameFilter}
-            RETURN { _id: package._id, name: package.name }
+            RETURN package
         `,
         bindVars: { '@collectionPackageMain': collectionPackageMain.name, ...bindVarsNameFilter },
       }));
@@ -60,7 +60,7 @@ export function servicePackage(app: Express, db: Database) {
             ${nameFilter}
             ${operatorFilter}
             FOR packageMain IN OUTBOUND package._id @@collectionDerivedFrom
-              RETURN { _id: package._id, name: package.name, main: { _id: packageMain._id, name: packageMain.name } }
+              RETURN { _id: package._id, _key: package._key, name: package.name, main: packageMain }
         `,
         bindVars: {
           '@collectionPackageSub': collectionPackageSub.name,
@@ -75,7 +75,7 @@ export function servicePackage(app: Express, db: Database) {
         query: `
           FOR id IN @packageIdList
             FOR operator IN OUTBOUND id @@collectionTargets
-              RETURN { _id: id, operator: { _id: operator._id, name: operator.name } }
+              RETURN { _id: id, operator }
         `,
         bindVars: { packageIdList, '@collectionTargets': collectionTargets.name },
       }));
@@ -87,7 +87,7 @@ export function servicePackage(app: Express, db: Database) {
           query: `
             FOR id IN @packageIdList
               FOR user IN INBOUND id @@collectionOwns
-                RETURN { _id: id, owner: { _id: user._id, username: user.username } }
+                RETURN { _id: id, owner: { _id: user._id, _key: user._key, username: user.username } }
           `,
           bindVars: { packageIdList, '@collectionOwns': collectionOwns.name },
         }));
@@ -100,7 +100,7 @@ export function servicePackage(app: Express, db: Database) {
           query: `
             FOR id IN @packageIdList
               FOR previous IN OUTBOUND id @@collectionSucceeds
-                RETURN { _id: id, previous: { _id: previous._id, name: previous.name } }
+                RETURN { _id: id, previous }
           `,
           bindVars: { packageIdList, '@collectionSucceeds': collectionSucceeds.name },
         }))

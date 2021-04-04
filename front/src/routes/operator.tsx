@@ -5,10 +5,10 @@ import { config } from 'randevu-shared/dist/config';
 import ModalRegisterOperator from "../components/modalRegisterOperator";
 
 type OperatorInfo = {
-  _id: string;
+  _key: string;
   name: string
   owner: {
-    _id: string;
+    _key: string;
     username: string;
   };
 };

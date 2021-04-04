@@ -27,7 +27,7 @@ export function serviceOperator(app: Express, db: Database) {
       const cursorOperatorList = await trx.step(() => db.query({
         query: `
           FOR operator IN @@collectionOperator
-            RETURN { _id: operator._id, name: operator.name }
+            RETURN operator
         `,
         bindVars: { '@collectionOperator': collectionOperator.name },
       }));
@@ -38,7 +38,7 @@ export function serviceOperator(app: Express, db: Database) {
           query: `
             FOR id IN @operatorIdList
               FOR user IN INBOUND id @@collectionOwns
-                RETURN { _id: id, owner: { _id: user._id, username: user.username } }
+                RETURN { _id: id, owner: { _key: user._key, username: user.username } }
           `,
           bindVars: { operatorIdList, '@collectionOwns': collectionOwns.name },
         }));

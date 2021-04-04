@@ -33,9 +33,9 @@ it('Should fail adding a duplicate package', function(done) {
 it('Should fail adding a sub package without name', function(done) {
   axios.post('/packages', {
     sub: {
-      main: 'Document ID of main package',
-      operator: 'Document ID of operator',
-      owner: 'Document ID of user',
+      main: 'Document key of main package',
+      operator: 'Document key of operator',
+      owner: 'Document key of user',
     },
   }).then(() => {
     done(new Error());
@@ -52,8 +52,8 @@ it('Should fail adding a sub package without main package', function(done) {
   axios.post('/packages', {
     name: 'Sub package A',
     sub: {
-      operator: 'Document ID of operator',
-      owner: 'Document ID of user',
+      operator: 'Document key of operator',
+      owner: 'Document key of user',
     },
   }).then(() => {
     done(new Error());
@@ -70,8 +70,8 @@ it('Should fail adding a sub package without operator', function(done) {
   axios.post('/packages', {
     name: 'Sub package A',
     sub: {
-      main: 'Document ID of main package',
-      owner: 'Document ID of user',
+      main: 'Document key of main package',
+      owner: 'Document key of user',
     },
   }).then(() => {
     done(new Error());
@@ -88,8 +88,8 @@ it('Should fail adding a sub package without owner', function(done) {
   axios.post('/packages', {
     name: 'Sub package A',
     sub: {
-      main: 'Document ID of main package',
-      operator: 'Document ID of operator',
+      main: 'Document key of main package',
+      operator: 'Document key of operator',
     },
   }).then(() => {
     done(new Error());
@@ -133,9 +133,9 @@ it('Should pass adding a sub package', function(done) {
     return axios.post('/packages', {
       name: 'Sub package A',
       sub: {
-        main: pkg._id,
-        operator: operator._id,
-        owner: owner._id,
+        main: pkg._key,
+        operator: operator._key,
+        owner: owner._key,
       },
     });
   }).then(() => {
@@ -177,9 +177,9 @@ it('Should fail adding a duplicate sub package', function(done) {
     return axios.post('/packages', {
       name: 'Sub package A',
       sub: {
-        main: pkg._id,
-        operator: operator._id,
-        owner: owner._id,
+        main: pkg._key,
+        operator: operator._key,
+        owner: owner._key,
       },
     });
   }).then(() => {
