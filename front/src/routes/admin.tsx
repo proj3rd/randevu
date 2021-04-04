@@ -6,6 +6,7 @@ const panes = [
   { menuItem: '', path: '' },
   { menuItem: 'Deployment options', path: '/deployment-options' },
   { menuItem: 'Network elements', path: '/network-elements' },
+  { menuItem: 'Products', path: '/products' },
   { menuItem: 'Radio access technologies', path: '/radio-access-technologies' },
   { menuItem: 'RAN sharing', path: '/ran-sharing' },
   { menuItem: 'Users', path: '/users' },
