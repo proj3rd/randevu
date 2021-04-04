@@ -2,6 +2,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { Button, Dimmer, Form, Loader, Table } from "semantic-ui-react";
 import { config } from 'randevu-shared/dist/config';
+import { getDocId } from "../utils";
 
 type Props = {
   path: string;
@@ -13,7 +14,7 @@ axios.defaults.withCredentials = true;
 
 function EnumManager({ path }: Props) {
   const [loading, setLoading] = useState(false);
-  const [enumList, setEnumList] = useState<string[]>([]);
+  const [enumList, setEnumList] = useState<any/* TODO */[]>([]);
   const [enumName, setEnumName] = useState('');
   const [enumNameNew, setEnumNameNew] = useState('');
   const [editing, setEditing] = useState<string | null>(null);
@@ -21,7 +22,7 @@ function EnumManager({ path }: Props) {
   useEffect(() => {
     setLoading(true);
     axios.get(path).then((value) => {
-      setEnumList(value.data.map((item: any) => item.name));
+      setEnumList(value.data);
     }).catch((reason) => {
       console.error(reason);
     }).finally(() => {
@@ -35,7 +36,9 @@ function EnumManager({ path }: Props) {
     }
     setLoading(true);
     axios.post(path, { name: enumName }).then(() => {
-      setEnumList([...enumList, enumName])
+      return axios.get(path);
+    }).then((value) => {
+      setEnumList(value.data);
       setEnumName('');
     }).catch((reason) => {
       console.error(reason);
@@ -59,7 +62,9 @@ function EnumManager({ path }: Props) {
     }
     setLoading(true);
     axios.delete(`${path}/${enumName}`).then(() => {
-      setEnumList([...enumList.slice(0, index), ...enumList.slice(index + 1)]);
+      return axios.get(path);
+    }).then((value) => {
+      setEnumList(value.data);
     }).catch((reason) => {
       console.error(reason);
     }).finally(() => {
@@ -67,14 +72,17 @@ function EnumManager({ path }: Props) {
     });
   }
 
-  function renameEnum(enumName: string, enumNameNew: string) {
+  function renameEnum(docId: string, name: string) {
     setLoading(true);
-    axios.post(`${path}/${enumName}`, { nameNew: enumNameNew }).then(() => {
-      const index = enumList.indexOf(enumName);
+    axios.post(`${path}/${getDocId(docId)}`, { name }).then(() => {
+      const index = enumList.indexOf(docId);
       if (index === -1) {
         return;
       }
-      setEnumList([...enumList.slice(0, index), enumNameNew, ...enumList.slice(index + 1)]);
+    }).then(() => {
+      return axios.get(path);
+    }).then((value) => {
+      setEnumList(value.data);
       setEditing(null);
     }).catch((reason) => {
       console.error(reason);
@@ -107,19 +115,19 @@ function EnumManager({ path }: Props) {
               </Table.Cell>
             </Table.Row>
             {
-              enumList.map((enumName) => {
+              enumList.map((enumItem) => {
                 return (
-                  <Table.Row key={enumName}>
+                  <Table.Row key={enumItem._id}>
                     {
-                      editing !== enumName ? (
+                      editing !== enumItem._id ? (
                         <>
-                          <Table.Cell>{enumName}</Table.Cell>
+                          <Table.Cell>{enumItem.name}</Table.Cell>
                           <Table.Cell>
                             <Button icon='edit' onClick={() => {
-                              setEnumNameNew(enumName);
-                              setEditing(enumName);
+                              setEnumNameNew(enumItem.name);
+                              setEditing(enumItem._id);
                             }} />
-                            <Button icon='trash' onClick={() => removeEnum(enumName)} disabled />
+                            <Button icon='trash' onClick={() => removeEnum(enumItem._id)} disabled />
                           </Table.Cell>
                         </>
                       ) : (
@@ -132,7 +140,7 @@ function EnumManager({ path }: Props) {
                             </Form>
                           </Table.Cell>
                           <Table.Cell>
-                            <Button icon='check' onClick={() => renameEnum(enumName, enumNameNew)} />
+                            <Button icon='check' onClick={() => renameEnum(enumItem._id, enumNameNew)} />
                             <Button icon='cancel' onClick={() => setEditing(null)} />
                           </Table.Cell>
                         </>
