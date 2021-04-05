@@ -120,6 +120,31 @@ describe('RANdevU test', function() {
     })
   });
 
+  it('Should return zero user', function(done) {
+    axios.get('/users/?username=asdf').then(async (value) => {
+      const userList = value.data;
+      if (userList.length !== 0) {
+        done('No user should be returned');
+      }
+      done();
+    }).catch((reason) => {
+      done(reason);
+    })
+  });
+
+  it('Should return one user', function(done) {
+    axios.get('/users/?username=jeon').then(async (value) => {
+      const userList = value.data;
+      if (userList.length !== 1) {
+        console.error(userList);
+        done('1 user should exist');
+      }
+      done();
+    }).catch((reason) => {
+      done(reason);
+    })
+  });
+
   require('./deploymentOption');
   require('./duplexMode');
   require('./networkElement');

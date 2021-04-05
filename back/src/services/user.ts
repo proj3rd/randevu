@@ -160,12 +160,16 @@ export function serviceUser(app: Express, db: Database) {
       trx = await db.beginTransaction({
         read: collectionUser,
       });
+      const { username } = req.query;
+      const usernameFilter = username ? 'FILTER CONTAINS(UPPER(user), UPPER(@username))' : '';
+      const bindVarsUsernameFilter = username ? { username } : {};
       const cursorUserList = await trx.step(() => db.query({
         query: `
           FOR user in @@collectionUser
+            ${usernameFilter}
             RETURN { _key: user._key, username: user.username, role: user.role }
         `,
-        bindVars: { '@collectionUser': collectionUser.name },
+        bindVars: { '@collectionUser': collectionUser.name, ...bindVarsUsernameFilter },
       }));
       const userList = await cursorUserList.all();
       await trx.commit();
@@ -179,7 +183,7 @@ export function serviceUser(app: Express, db: Database) {
     }
   });
 
-  app.get('/users/docKey/:docKey', async (req, res) => {
+  app.get('/users/:docKey', async (req, res) => {
     const user = req.user as User;
     if (!user) {
       return res.status(403).end();

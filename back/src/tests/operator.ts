@@ -1,8 +1,13 @@
 import axios from "axios";
 
 it('Should pass adding operators', function(done) {
-  axios.get('/users/username/sjeon').then((value) => {
-    return value.data._key;
+  axios.get('/users/?username=sjeon').then((value) => {
+    const { data: userList } = value;
+    const userFound = userList.find((user: any) => user.username === 'sjeon');
+    if (!userFound) {
+      throw new Error('user not found');
+    }
+    return userFound._key;
   }).then((owner: string) => {
       axios.post('/operators', {
         name: 'Verizon Wireless',
@@ -28,8 +33,13 @@ it('Should pass adding operators', function(done) {
 });
 
 it('Should fail adding a duplicate operator', function(done) {
-  axios.get('/users/username/sjeon').then((value) => {
-    return value.data._key;
+  axios.get('/users/?username=sjeon').then((value) => {
+    const { data: userList } = value;
+    const userFound = userList.find((user: any) => user.username === 'sjeon');
+    if (!userFound) {
+      throw new Error('user not found');
+    }
+    return userFound._key;
   }).then((owner: string) => {
     axios.post('/operators', {
       name: 'Verizon Wireless',

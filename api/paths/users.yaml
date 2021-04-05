@@ -2,6 +2,12 @@ get:
   tags:
     - User
   summary: Get a list of user information
+  parameters:
+    - name: username
+      description: A list of package names. Case insensitive and support partial match.
+      in: query
+      schema:
+        type: string
   responses:
     "200":
       description: Ok

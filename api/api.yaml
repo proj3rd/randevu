@@ -49,7 +49,5 @@ paths:
     $ref: './paths/requirements.yaml'
   /users/:
     $ref: './paths/users.yaml'
-  /users/docKey/{docKey}:
+  /users/{docKey}:
     $ref: './paths/user_docKey.yaml'
-  /users/username/{username}:
-    $ref: './paths/user_username.yaml'
