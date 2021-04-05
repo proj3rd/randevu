@@ -10,22 +10,20 @@ post:
           properties:
             name:
               type: string
+            previous:
+              type: string
+              description: Document key of a previous subpackage.
+            owner:
+              type: string
+              description: Document key of a user.
             deploymentOptions:
-              type: array
-              items:
-                type: string
+              $ref: '../schemas/DeploymentOptions.yaml'
             products:
-              type: array
-              items:
-                type: string
+              $ref: '../schemas/Products.yaml'
             radioAccessTechnologies:
-              type: array
-              items:
-                type: string
+              $ref: '../schemas/RadioAccessTechnologies.yaml'
             ranSharing:
-              type: array
-              items:
-                type: string
+              $ref: '../schemas/RanSharing.yaml'
   responses:
     "200":
       description: Ok

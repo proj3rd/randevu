@@ -1,0 +1,4 @@
+type: array
+dscription: Array of document key of deployment options.
+items:
+  type: string

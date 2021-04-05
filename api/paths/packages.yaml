@@ -81,6 +81,54 @@ get:
                   required:
                     - _id
                     - name
+                deploymentOptions:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      name:
+                        type: string
+                    required:
+                      - _id
+                      - name
+                products:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      name:
+                        type: string
+                    required:
+                      - _id
+                      - name
+                radioAccessTechnologies:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      name:
+                        type: string
+                    required:
+                      - _id
+                      - name
+                ranSharing:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      name:
+                        type: string
+                    required:
+                      - _id
+                      - name
               required:
                 - _id
                 - name
@@ -119,25 +167,13 @@ post:
                   type: string
                   description: Document key of a user.
                 deploymentOptions:
-                  type: array
-                  dscription: Array of document key of deployment options.
-                  items:
-                    type: string
+                  $ref: '../schemas/DeploymentOptions.yaml'
                 products:
-                  type: array
-                  dscription: Array of document key of products.
-                  items:
-                    type: string
+                  $ref: '../schemas/Products.yaml'
                 radioAccessTechnologies:
-                  type: array
-                  dscription: Array of document key of radio access technologies.
-                  items:
-                    type: string
+                  $ref: '../schemas/RadioAccessTechnologies.yaml'
                 ranSharing:
-                  type: array
-                  dscription: Array of document key of RAN sharing.
-                  items:
-                    type: string
+                  $ref: '../schemas/RanSharing.yaml'
               required:
                 - main
                 - operator
