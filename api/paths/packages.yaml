@@ -118,6 +118,26 @@ post:
                 owner:
                   type: string
                   description: Document key of a user.
+                deploymentOptions:
+                  type: array
+                  dscription: Array of document key of deployment options.
+                  items:
+                    type: string
+                products:
+                  type: array
+                  dscription: Array of document key of products.
+                  items:
+                    type: string
+                radioAccessTechnologies:
+                  type: array
+                  dscription: Array of document key of radio access technologies.
+                  items:
+                    type: string
+                ranSharing:
+                  type: array
+                  dscription: Array of document key of RAN sharing.
+                  items:
+                    type: string
               required:
                 - main
                 - operator
