@@ -121,6 +121,7 @@ export function servicePackage(app: Express, db: Database) {
 
   app.post('/packages', async (req, res) => {
     const user = req.user as User;
+    // TODO: Allow operator owner to create sub package
     if (!user || user.role !== 'admin') {
       return res.status(403).end();
     }
