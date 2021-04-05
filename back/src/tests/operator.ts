@@ -55,9 +55,37 @@ it('Should fail adding a duplicate operator', function(done) {
 });
 
 it('Should pass getting information of an operator', function(done) {
-  axios.get('/operators/name/Verizon Wireless').then((value) => {
-    const { name } = value.data;
-    done(name !== 'Verizon Wireless');
+  axios.get('/operators').then((value) => {
+    const { data: operatorList } = value;
+    if (operatorList.length !== 3) {
+      done('3 operator should exist');
+    }
+    done();
+  }).catch((reason) => {
+    done(reason);
+  });
+});
+
+it('Should return zero operator', function(done) {
+  axios.get('/operators/?name=DISH').then((value) => {
+    const { data: operatorList } = value;
+    if (operatorList.length !== 0) {
+      done('No operator should be returned');
+    }
+    done();
+  }).catch((reason) => {
+    done(reason);
+  });
+});
+
+it('Should pass getting information of an operator', function(done) {
+  axios.get('/operators/?name=zon Wire').then((value) => {
+    const { data: operatorList } = value;
+    const operatorFound = operatorList.find((operator: any) => operator.name === 'Verizon Wireless');
+    if (!operatorFound) {
+      done('operator not found');
+    }
+    done();
   }).catch((reason) => {
     done(reason);
   });

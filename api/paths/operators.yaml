@@ -3,6 +3,11 @@ get:
     - Operator
   summary: Get a list of operators
   parameters:
+    - name: name
+      in: query
+      description: Operator name. Case insensitive and support partial match.
+      schema:
+        type: string
     - name: include
       in: query
       description: Includes related information in a response

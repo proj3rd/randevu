@@ -24,12 +24,16 @@ export function serviceOperator(app: Express, db: Database) {
       trx = await db.beginTransaction({
         read: [collectionOperator, collectionOwns],
       });
+      const { name } = req.query;
+      const nameFilter = name ? 'FILTER CONTAINS(UPPER(operator.name), UPPER(@name))' : '';
+      const bindVarsNameFilter = name ? { name } : {};
       const cursorOperatorList = await trx.step(() => db.query({
         query: `
           FOR operator IN @@collectionOperator
+            ${nameFilter}
             RETURN operator
         `,
-        bindVars: { '@collectionOperator': collectionOperator.name },
+        bindVars: { '@collectionOperator': collectionOperator.name, ...bindVarsNameFilter },
       }));
       const operatorList = (await cursorOperatorList.all()) as Operator[];
       const operatorIdList = operatorList.map((operator) => operator._id);
@@ -52,48 +56,6 @@ export function serviceOperator(app: Express, db: Database) {
         await trx.abort();
       }
       console.error(e);
-      return res.status(500).end();
-    }
-  });
-
-  app.get('/operators/name/:name', async (req, res) => {
-    const user = req.user as User;
-    if (!user) {
-      return res.status(403).end();
-    }
-    const { name } = req.params;
-    const { include } = req.query;
-    if (include && !validateStringList(include)) {
-      return res.status(400).end();
-    }
-    let trx: Transaction | undefined;
-    try {
-      const collectionOperator = db.collection(COLLECTION_OPERATOR);
-      trx = await db.beginTransaction({
-        read: [collectionOperator],
-      });
-      const cursorOperatorFound = await trx.step(() => db.query({
-        query: `
-          FOR operator IN @@collectionOperator
-            FILTER operator.name == @name
-            LIMIT 1
-            RETURN operator
-        `,
-        bindVars: { '@collectionOperator': collectionOperator.name, name },
-      }));
-      const operatorFound = await cursorOperatorFound.all();
-      if (!operatorFound.length) {
-        await trx.abort();
-        return res.status(404).end();
-      }
-      const operator = operatorFound[0];
-      // TODO: owner
-      await trx.commit();
-      return res.json(operator);
-    } catch (e) {
-      if (trx) {
-        await trx.abort();
-      }
       return res.status(500).end();
     }
   });
