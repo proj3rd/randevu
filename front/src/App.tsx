@@ -26,16 +26,20 @@ function App() {
 
   function logout() {
     axios.get('/logout').then((response) => {
-      setAuthenticated(false);
+      onLogout();
     }).catch((reason) => {
       console.error(reason);
-      setAuthenticated(false);
-    })
+    });
   }
 
   function onLogin(user: User) {
     setAuthenticated(true);
     setUser(user);
+  }
+
+  function onLogout() {
+    setAuthenticated(false);
+    setUser(undefined);
   }
 
   return (
