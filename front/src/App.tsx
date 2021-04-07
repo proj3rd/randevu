@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { config } from 'randevu-shared/dist/config';
+import { User } from 'randevu-shared/dist/types';
 import { useEffect, useState } from 'react';
 import 'semantic-ui-css/semantic.min.css';
 import { Dimmer, Loader, Menu } from 'semantic-ui-react';
@@ -11,6 +12,7 @@ axios.defaults.withCredentials = true;
 
 function App() {
   const [authenticated, setAuthenticated] = useState<boolean | undefined>(undefined);
+  const [user, setUser] = useState<User | undefined>(undefined);
 
   useEffect(() => {
     axios.get('/authenticate').then((response) => {
@@ -31,6 +33,11 @@ function App() {
     })
   }
 
+  function onLogin(user: User) {
+    setAuthenticated(true);
+    setUser(user);
+  }
+
   return (
     <div className="App">
       <Dimmer.Dimmable dimmed={authenticated === undefined} blurring={true}>
@@ -46,7 +53,7 @@ function App() {
           </Menu>
         </div>
       </Dimmer.Dimmable>
-      <ModalJoinLogin open={authenticated === false} />
+      <ModalJoinLogin open={authenticated === false} onLogin={onLogin} />
     </div>
   );
 }
