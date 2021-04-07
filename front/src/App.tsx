@@ -51,7 +51,16 @@ function App() {
         <div style={{ minHeight: '100vh' }}>
           <Menu>
             <Menu.Item header>RANdevU</Menu.Item>
+            <Menu.Item>Feature</Menu.Item>
+            <Menu.Item>Operator</Menu.Item>
+            <Menu.Item>Package</Menu.Item>
+            <Menu.Item>Requirement</Menu.Item>
             <Menu.Menu position='right'>
+              {
+                user && user.role === 'admin' ? (
+                  <Menu.Item>Admin</Menu.Item>
+                ) : (<></>)
+              }
               <Menu.Item onClick={logout}>Logout</Menu.Item>
             </Menu.Menu>
           </Menu>
