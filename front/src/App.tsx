@@ -17,8 +17,9 @@ function App() {
 
   useEffect(() => {
     axios.get('/authenticate').then((response) => {
-      console.log(response.data);
+      const { data: user } = response;
       setAuthenticated(true);
+      setUser(user);
     }).catch((reason) => {
       console.error(reason);
       setAuthenticated(false);
