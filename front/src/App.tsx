@@ -2,6 +2,7 @@ import axios from 'axios';
 import { config } from 'randevu-shared/dist/config';
 import { User } from 'randevu-shared/dist/types';
 import { useEffect, useState } from 'react';
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import 'semantic-ui-css/semantic.min.css';
 import { Dimmer, Loader, Menu } from 'semantic-ui-react';
 import ModalJoinLogin from './components/ModalJoinLogin';
@@ -49,21 +50,28 @@ function App() {
           <Loader size='massive' />
         </Dimmer>
         <div style={{ minHeight: '100vh' }}>
-          <Menu>
-            <Menu.Item header>RANdevU</Menu.Item>
-            <Menu.Item>Feature</Menu.Item>
-            <Menu.Item>Operator</Menu.Item>
-            <Menu.Item>Package</Menu.Item>
-            <Menu.Item>Requirement</Menu.Item>
-            <Menu.Menu position='right'>
-              {
-                user && user.role === 'admin' ? (
-                  <Menu.Item>Admin</Menu.Item>
-                ) : (<></>)
-              }
-              <Menu.Item onClick={logout}>Logout</Menu.Item>
-            </Menu.Menu>
-          </Menu>
+          <BrowserRouter>
+            <Menu>
+              <Menu.Item header>RANdevU</Menu.Item>
+              <Menu.Item>Feature</Menu.Item>
+              <Menu.Item>Operator</Menu.Item>
+              <Menu.Item>Package</Menu.Item>
+              <Menu.Item>Requirement</Menu.Item>
+              <Menu.Menu position='right'>
+                {
+                  user && user.role === 'admin' ? (
+                    <Menu.Item>Admin</Menu.Item>
+                  ) : (<></>)
+                }
+                <Menu.Item onClick={logout}>Logout</Menu.Item>
+              </Menu.Menu>
+            </Menu>
+            <Switch>
+              <Route exact path='/'>
+                /
+              </Route>
+            </Switch>
+          </BrowserRouter>
         </div>
       </Dimmer.Dimmable>
       <ModalJoinLogin open={authenticated === false} onLogin={onLogin} />
