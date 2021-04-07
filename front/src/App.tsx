@@ -4,7 +4,7 @@ import { User } from 'randevu-shared/dist/types';
 import { useEffect, useState } from 'react';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import 'semantic-ui-css/semantic.min.css';
-import { Dimmer, Loader, Menu } from 'semantic-ui-react';
+import { Dimmer, Dropdown, Label, Loader, Menu } from 'semantic-ui-react';
 import ModalJoinLogin from './components/ModalJoinLogin';
 
 const { api } = config;
@@ -58,7 +58,24 @@ function App() {
               <Menu.Item>Operator</Menu.Item>
               <Menu.Item>Package</Menu.Item>
               <Menu.Item>Requirement</Menu.Item>
+              <Dropdown item text='Collection' simple>
+                <Dropdown.Menu>
+                  <Dropdown.Item>Deployment option</Dropdown.Item>
+                  <Dropdown.Item>Duplex mode</Dropdown.Item>
+                  <Dropdown.Item>Network element</Dropdown.Item>
+                  <Dropdown.Item>Product</Dropdown.Item>
+                  <Dropdown.Item>Radio access technology</Dropdown.Item>
+                  <Dropdown.Item>RAN sharing</Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
               <Menu.Menu position='right'>
+                {
+                  user ? (
+                    <Menu.Item>
+                      <Label size='tiny'>0</Label>
+                    </Menu.Item>
+                  ) : (<></>)
+                }
                 {
                   user && user.role === 'admin' ? (
                     <Menu.Item>Admin</Menu.Item>
