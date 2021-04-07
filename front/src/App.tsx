@@ -6,6 +6,7 @@ import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import 'semantic-ui-css/semantic.min.css';
 import { Dimmer, Dropdown, Label, Loader, Menu } from 'semantic-ui-react';
 import ModalJoinLogin from './components/ModalJoinLogin';
+import CollectionManager from './routes/CollectionManager';
 
 const { api } = config;
 axios.defaults.baseURL = `http://${api.host}:${api.port}`;
@@ -88,6 +89,12 @@ function App() {
               <Route exact path='/'>
                 /
               </Route>
+              <Route path='/deployment-options' render={() => <CollectionManager title='Deployment option' path='/deployment-options' />} />
+              <Route path='/duplex-modes' render={() => <CollectionManager title='Duplex mode' path='/duplex-modes' />} />
+              <Route path='/network-elements' render={() => <CollectionManager title='Network element' path='/network-elements' />} />
+              <Route path='/products' render={() => <CollectionManager title='Product' path='/products' />} />
+              <Route path='/radio-access-technologies' render={() => <CollectionManager title='Radio access technology' path='/radio-access-technologies' />} />
+              <Route path='/ran-sharing' render={() => <CollectionManager title='RAN sharing' path='/ran-sharing' />} />
             </Switch>
           </BrowserRouter>
         </div>
