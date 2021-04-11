@@ -1,4 +1,4 @@
 type: array
-dscription: Array of document key of radio access technologies.
+dscription: Array of document ID of radio access technologies.
 items:
   type: string

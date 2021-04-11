@@ -156,16 +156,16 @@ post:
               properties:
                 main:
                   type: string
-                  description: Document key of a main package.
+                  description: Document ID of a main package.
                 operator:
                   type: string
-                  description: Document key of a target operator.
+                  description: Document ID of a target operator.
                 previous:
                   type: string
-                  description: Document key of a previous subpackage.
+                  description: Document ID of a previous subpackage.
                 owner:
                   type: string
-                  description: Document key of a user.
+                  description: Document ID of a user.
                 deploymentOptions:
                   $ref: '../schemas/DeploymentOptions.yaml'
                 products:

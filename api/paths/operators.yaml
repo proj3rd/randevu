@@ -33,7 +33,7 @@ get:
                   type: string
                 owner:
                   type: string
-                  description: Document key of an user
+                  description: Document ID of an user
               required:
                 - _id
                 - name

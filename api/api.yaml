@@ -9,11 +9,11 @@ paths:
     $ref: './paths/authenticate.yaml'
   /deployment-options:
     $ref: './paths/deploymentOptions.yaml'
-  /deployment-options/{docKey}:
+  /deployment-options/{seqVal}:
     $ref: './paths/deploymentOption.yaml'
   /duplex-modes:
     $ref: './paths/duplexModes.yaml'
-  /duplex-modes/{docKey}:
+  /duplex-modes/{seqVal}:
     $ref: './paths/duplexMode.yaml'
   /join:
     $ref: './paths/join.yaml'
@@ -23,29 +23,29 @@ paths:
     $ref: './paths/logout.yaml'
   /network-elements:
     $ref: './paths/networkElements.yaml'
-  /network-elements/{docKey}:
+  /network-elements/{seqVal}:
     $ref: './paths/networkElement.yaml'
   /operators:
     $ref: './paths/operators.yaml'
   /packages:
     $ref: './paths/packages.yaml'
-  /packages/{docKey}:
+  /packages/{seqVal}:
     $ref: './paths/packages_docId.yaml'
   /products:
     $ref: './paths/products.yaml'
-  /products/{docKey}:
+  /products/{seqVal}:
     $ref: './paths/product.yaml'
   /radio-access-technologies:
     $ref: './paths/radioAccessTechnologies.yaml'
-  /radio-access-technologies/{docKey}:
+  /radio-access-technologies/{seqVal}:
     $ref: './paths/radioAccessTechnology.yaml'
   /ran-sharing:
     $ref: './paths/ranSharings.yaml'
-  /ran-sharing/{docKey}:
+  /ran-sharing/{seqVal}:
     $ref: './paths/ranSharing.yaml'
   /requirements:
     $ref: './paths/requirements.yaml'
   /users/:
     $ref: './paths/users.yaml'
-  /users/{docKey}:
+  /users/{seqVal}:
     $ref: './paths/user_docKey.yaml'

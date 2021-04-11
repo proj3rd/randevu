@@ -1,9 +1,9 @@
 get:
   tags:
     - User
-  summary: Get information of a user by document key
+  summary: Get information of a user by sequence value
   parameters:
-    - name: docKey
+    - name: seqVal
       in: path
       required: true
       schema:

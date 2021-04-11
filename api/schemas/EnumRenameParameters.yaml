@@ -1,4 +1,4 @@
-- name: docKey
+- name: seqVal
   in: path
   required: true
   schema:
