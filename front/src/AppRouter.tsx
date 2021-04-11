@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { config } from 'randevu-shared/dist/config';
-import { User } from 'randevu-shared/dist/types';
+import { DocUser } from 'randevu-shared/dist/types';
 import { Fragment, useEffect, useState } from 'react';
 import { Route, Switch, useHistory } from 'react-router-dom';
 import 'semantic-ui-css/semantic.min.css';
@@ -16,7 +16,7 @@ axios.defaults.withCredentials = true;
 export default function AppRouter() {
   const history = useHistory();
 
-  const [user, setUser] = useState<User | undefined>(undefined);
+  const [user, setUser] = useState<DocUser | undefined>(undefined);
 
   useEffect(() => {
     axios.get('/authenticate').then((response) => {
@@ -35,7 +35,7 @@ export default function AppRouter() {
     });
   }
 
-  function onLogin(user: User) {
+  function onLogin(user: DocUser) {
     setUser(user);
   }
 

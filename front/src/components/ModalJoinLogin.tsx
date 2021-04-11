@@ -1,6 +1,6 @@
 import axios from "axios";
 import { config } from 'randevu-shared/dist/config';
-import { User } from "randevu-shared/dist/types";
+import { DocUser } from "randevu-shared/dist/types";
 import { useState } from "react";
 import { Button, Form, Message, Modal } from "semantic-ui-react";
 
@@ -10,7 +10,7 @@ axios.defaults.withCredentials = true;
 
 type Props = {
   open?: boolean;
-  onLogin?: (user: User) => void;
+  onLogin?: (user: DocUser) => void;
 };
 
 export default function ModalJoinLogin({ open, onLogin }: Props) {

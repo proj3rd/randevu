@@ -1,10 +1,10 @@
 import axios from "axios";
-import { DocOperator, User } from "randevu-shared/dist/types";
+import { DocOperator, DocUser } from "randevu-shared/dist/types";
 import { useEffect, useState } from "react";
 import { Container, Dimmer, Header, Loader, Table } from "semantic-ui-react";
 
 type Props = {
-  user: User | undefined;
+  user: DocUser | undefined;
   onLogout?: () => void;
 };
 

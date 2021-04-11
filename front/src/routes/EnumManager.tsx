@@ -1,13 +1,13 @@
 import axios from "axios";
 import { config} from 'randevu-shared/dist/config';
-import { DocEnum, User } from "randevu-shared/dist/types";
+import { DocEnum, DocUser } from "randevu-shared/dist/types";
 import { useEffect, useState } from "react";
 import { Button, Container, Dimmer, Form, Header, Loader, Message, Table } from "semantic-ui-react";
 
 type Props = {
   title: string;
   path: string;
-  user: User | undefined;
+  user: DocUser | undefined;
   onLogout?: () => void;
 };
 
