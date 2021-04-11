@@ -1,0 +1,11 @@
+{
+  "name": "randevu",
+  "scripts": {
+    "shared": "cd shared && tsc && cd ../back && yarn add file:../shared && cd ../front && yarn add file:../shared"
+  },
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:proj3rd/randevu",
+  "author": "Seokseong Jeon <sjeon87@gmail.com>",
+  "license": "MIT"
+}
