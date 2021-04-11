@@ -22,20 +22,18 @@ export type ApiVersion = {
 };
 
 export type DocEnum = {
-  _key: string;
+  _id: string;
   name: string;
 };
 
 export type DocOperator = {
   _id: string;
-  _key: string;
   name: string;
   owner?: string;
 };
 
 export type DocUser = {
   _id: string;
-  _key: string;
   username: string;
   role?: string;
 };
