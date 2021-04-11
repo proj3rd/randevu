@@ -21,6 +21,11 @@ export type ApiVersion = {
   previousVersion: number | null;
 };
 
+export type DocEnum = {
+  _key: string;
+  name: string;
+};
+
 export type Operator = {
   _id: string;
   name: string;
