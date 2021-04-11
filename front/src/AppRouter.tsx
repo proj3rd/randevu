@@ -39,6 +39,7 @@ export default function AppRouter() {
   }
 
   function onLogout() {
+    history.push('/');
     setUser(undefined);
   }
 
