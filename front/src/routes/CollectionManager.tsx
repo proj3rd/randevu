@@ -8,28 +8,33 @@ type Props = {
   title: string;
   path: string;
   user: User | undefined;
+  onLogout?: () => void;
 };
 
 const { api } = config;
 axios.defaults.baseURL =`http://${api.host}:${api.port}`;
 axios.defaults.withCredentials = true;
 
-export default function CollectionManager({ title, path, user }: Props) {
+export default function CollectionManager({ title, path, user, onLogout }: Props) {
   const [enumName, setEnumName] = useState('');
   const [waiting, setWaiting] = useState(false);
   const [enumList, setEnumList] = useState<DocEnum[]>([]);
 
   useEffect(() => {
     setWaiting(true);
-    axios.get(path).then((response) => {
-      const { data: enumList } = response;
-      setEnumList(enumList);
+    axios.get('/authenticate').then((response) => {
+      axios.get(path).then((response) => {
+        const { data: enumList } = response;
+        setEnumList(enumList);
+      }).catch((reason) => {
+        console.error(reason);
+      }).finally(() => {
+        setWaiting(false);
+      });
     }).catch((reason) => {
-      console.error(reason);
-    }).finally(() => {
-      setWaiting(false);
+      onLogout && onLogout();
     });
-  }, [path]);
+  }, [path, onLogout]);
 
   return (
     <Container>

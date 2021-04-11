@@ -84,12 +84,12 @@ export default function AppRouter() {
             </Menu>
             <Switch>
               <Route exact path='/' />
-              <Route path='/deployment-options' render={() => <CollectionManager title='Deployment option' path='/deployment-options' user={user} />} />
-              <Route path='/duplex-modes' render={() => <CollectionManager title='Duplex mode' path='/duplex-modes' user={user} />} />
-              <Route path='/network-elements' render={() => <CollectionManager title='Network element' path='/network-elements' user={user} />} />
-              <Route path='/products' render={() => <CollectionManager title='Product' path='/products' user={user} />} />
-              <Route path='/radio-access-technologies' render={() => <CollectionManager title='Radio access technology' path='/radio-access-technologies' user={user} />} />
-              <Route path='/ran-sharing' render={() => <CollectionManager title='RAN sharing' path='/ran-sharing' user={user} />} />
+              <Route path='/deployment-options' render={() => <CollectionManager title='Deployment option' path='/deployment-options' user={user} onLogout={onLogout} />} />
+              <Route path='/duplex-modes' render={() => <CollectionManager title='Duplex mode' path='/duplex-modes' user={user} onLogout={onLogout} />} />
+              <Route path='/network-elements' render={() => <CollectionManager title='Network element' path='/network-elements' user={user} onLogout={onLogout} />} />
+              <Route path='/products' render={() => <CollectionManager title='Product' path='/products' user={user} onLogout={onLogout} />} />
+              <Route path='/radio-access-technologies' render={() => <CollectionManager title='Radio access technology' path='/radio-access-technologies' user={user} onLogout={onLogout} />} />
+              <Route path='/ran-sharing' render={() => <CollectionManager title='RAN sharing' path='/ran-sharing' user={user} onLogout={onLogout} />} />
             </Switch>
         </div>
       </Dimmer.Dimmable>
