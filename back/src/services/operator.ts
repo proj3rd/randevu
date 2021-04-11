@@ -2,7 +2,7 @@ import { Database } from "arangojs";
 import { Transaction } from "arangojs/transaction";
 import { Express } from 'express';
 import { COLLECTION_OPERATOR, COLLECTION_USER, EDGE_COLLECTION_OWNS } from "../constants";
-import { Operator, User } from "randevu-shared/dist/types";
+import { DocOperator, User } from "randevu-shared/dist/types";
 import { mergeObjectList, validateString, validateStringList } from "../utils";
 
 export function serviceOperator(app: Express, db: Database) {
@@ -42,7 +42,7 @@ export function serviceOperator(app: Express, db: Database) {
           query: `
             FOR id IN @operatorIdList
               FOR user IN INBOUND id @@collectionOwns
-                RETURN { _id: id, owner: { _key: user._key, username: user.username } }
+                RETURN { _id: id, owner: user._key }
           `,
           bindVars: { operatorIdList, '@collectionOwns': collectionOwns.name },
         }));

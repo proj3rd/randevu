@@ -26,13 +26,10 @@ export type DocEnum = {
   name: string;
 };
 
-export type Operator = {
-  _id: string;
+export type DocOperator = {
+  _key: string;
   name: string;
-  owner?: {
-    _id: string;
-    username: string;
-  };
+  owner?: string;
 };
 
 export type User = {

@@ -27,24 +27,16 @@ get:
             items:
               type: object
               properties:
-                _id:
+                _key:
                   type: string
                 name:
                   type: string
                 owner:
-                  type: object
-                  properties:
-                    _id:
-                      type: string
-                    username:
-                      type: string
-                  required:
-                    - _id
-                    - username
+                  type: string
+                  description: Document key of an user
               required:
                 - _id
                 - name
-                - owner
     "403":
       description: Unauthorized
     "500":
