@@ -54,6 +54,7 @@ export default function EnumManager({ title, path, user, onLogout }: Props) {
         setWaiting(false);
       });
     }).catch((reason) => {
+      console.error(reason);
       onLogout && onLogout();
     });
   }, [path, onLogout]);
