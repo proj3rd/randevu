@@ -6,7 +6,7 @@ import { Route, Switch, useHistory } from 'react-router-dom';
 import 'semantic-ui-css/semantic.min.css';
 import { Dimmer, Dropdown, Label, Loader, Menu } from 'semantic-ui-react';
 import ModalJoinLogin from './components/ModalJoinLogin';
-import CollectionManager from './routes/CollectionManager';
+import EnumManager from './routes/EnumManager';
 
 const { api } = config;
 axios.defaults.baseURL = `http://${api.host}:${api.port}`;
@@ -84,12 +84,12 @@ export default function AppRouter() {
             </Menu>
             <Switch>
               <Route exact path='/' />
-              <Route path='/deployment-options' render={() => <CollectionManager title='Deployment option' path='/deployment-options' user={user} onLogout={onLogout} />} />
-              <Route path='/duplex-modes' render={() => <CollectionManager title='Duplex mode' path='/duplex-modes' user={user} onLogout={onLogout} />} />
-              <Route path='/network-elements' render={() => <CollectionManager title='Network element' path='/network-elements' user={user} onLogout={onLogout} />} />
-              <Route path='/products' render={() => <CollectionManager title='Product' path='/products' user={user} onLogout={onLogout} />} />
-              <Route path='/radio-access-technologies' render={() => <CollectionManager title='Radio access technology' path='/radio-access-technologies' user={user} onLogout={onLogout} />} />
-              <Route path='/ran-sharing' render={() => <CollectionManager title='RAN sharing' path='/ran-sharing' user={user} onLogout={onLogout} />} />
+              <Route path='/deployment-options' render={() => <EnumManager title='Deployment option' path='/deployment-options' user={user} onLogout={onLogout} />} />
+              <Route path='/duplex-modes' render={() => <EnumManager title='Duplex mode' path='/duplex-modes' user={user} onLogout={onLogout} />} />
+              <Route path='/network-elements' render={() => <EnumManager title='Network element' path='/network-elements' user={user} onLogout={onLogout} />} />
+              <Route path='/products' render={() => <EnumManager title='Product' path='/products' user={user} onLogout={onLogout} />} />
+              <Route path='/radio-access-technologies' render={() => <EnumManager title='Radio access technology' path='/radio-access-technologies' user={user} onLogout={onLogout} />} />
+              <Route path='/ran-sharing' render={() => <EnumManager title='RAN sharing' path='/ran-sharing' user={user} onLogout={onLogout} />} />
             </Switch>
         </div>
       </Dimmer.Dimmable>

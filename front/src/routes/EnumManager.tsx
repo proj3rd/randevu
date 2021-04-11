@@ -15,7 +15,7 @@ const { api } = config;
 axios.defaults.baseURL =`http://${api.host}:${api.port}`;
 axios.defaults.withCredentials = true;
 
-export default function CollectionManager({ title, path, user, onLogout }: Props) {
+export default function EnumManager({ title, path, user, onLogout }: Props) {
   const [enumName, setEnumName] = useState('');
   const [waiting, setWaiting] = useState(false);
   const [enumList, setEnumList] = useState<DocEnum[]>([]);
