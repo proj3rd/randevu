@@ -15,17 +15,14 @@ axios.defaults.withCredentials = true;
 export default function AppRouter() {
   const history = useHistory();
 
-  const [authenticated, setAuthenticated] = useState<boolean | undefined>(undefined);
   const [user, setUser] = useState<User | undefined>(undefined);
 
   useEffect(() => {
     axios.get('/authenticate').then((response) => {
       const { data: user } = response;
-      setAuthenticated(true);
       setUser(user);
     }).catch((reason) => {
       console.error(reason);
-      setAuthenticated(false);
     });
   }, []);
 
@@ -38,19 +35,17 @@ export default function AppRouter() {
   }
 
   function onLogin(user: User) {
-    setAuthenticated(true);
     setUser(user);
   }
 
   function onLogout() {
-    setAuthenticated(false);
     setUser(undefined);
   }
 
   return (
     <Fragment>
-      <Dimmer.Dimmable dimmed={authenticated === undefined} blurring={true}>
-        <Dimmer active={authenticated === undefined}>
+      <Dimmer.Dimmable dimmed={user === undefined} blurring={true}>
+        <Dimmer active={user === undefined}>
           <Loader size='massive' />
         </Dimmer>
         <div style={{ minHeight: '100vh' }}>
@@ -97,7 +92,7 @@ export default function AppRouter() {
             </Switch>
         </div>
       </Dimmer.Dimmable>
-      <ModalJoinLogin open={authenticated === false} onLogin={onLogin} />
+      <ModalJoinLogin open={user === undefined} onLogin={onLogin} />
     </Fragment>
   );
 }
