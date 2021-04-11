@@ -63,7 +63,7 @@ export function serviceRequirement(app: Express, db: Database) {
           FOR user IN INBOUND @operatorId @@collectionOwns
             FILTER user.username === @username
             LIMIT 1
-            RETURN user
+            RETURN UNSET(user, "password")
         `,
         bindVars: {
           operatorId: operatorFound._id,

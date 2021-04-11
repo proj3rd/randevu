@@ -164,7 +164,7 @@ export function serviceUser(app: Express, db: Database) {
         query: `
           FOR user in @@collectionUser
             ${usernameFilter}
-            RETURN UNSET(user, "password");
+            RETURN UNSET(user, "password")
         `,
         bindVars: { '@collectionUser': collectionUser.name, ...bindVarsUsernameFilter },
       }));
