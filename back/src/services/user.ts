@@ -247,7 +247,7 @@ export async function findUserByName(db: Database, trx: Transaction, username: s
       FOR user IN @@collectionUser
         FILTER user.username == @username
         LIMIT 1
-        RETURN { _key: user._key, username: user.username, role: user.role }
+        RETURN { _id: user._id, _key: user._key, username: user.username, role: user.role }
     `,
     bindVars: { '@collectionUser': COLLECTION_USER, username },
   }));
