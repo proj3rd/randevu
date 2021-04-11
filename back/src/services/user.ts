@@ -32,9 +32,6 @@ export function serviceUser(app: Express, db: Database) {
         read: collectionUser,
       });
       const user = await trx.step(() => collectionUser.document(_key));
-      if (user) {
-        delete user.password;
-      }
       await trx.commit();
       done(null, user);
     } catch (e) {
@@ -65,7 +62,7 @@ export function serviceUser(app: Express, db: Database) {
               FILTER user.username == @username
                  AND user.password == @password
                LIMIT 1
-              RETURN { _key: user._key, username: user.username, role: user.role }
+              RETURN UNSET(user, "password")
           `,
           bindVars: { '@collectionUser': collectionUser.name, username, password: hash(password) },
         }));
@@ -167,7 +164,7 @@ export function serviceUser(app: Express, db: Database) {
         query: `
           FOR user in @@collectionUser
             ${usernameFilter}
-            RETURN { _key: user._key, username: user.username, role: user.role }
+            RETURN UNSET(user, "password");
         `,
         bindVars: { '@collectionUser': collectionUser.name, ...bindVarsUsernameFilter },
       }));
@@ -200,7 +197,6 @@ export function serviceUser(app: Express, db: Database) {
         await trx.abort();
         return res.status(404).end();
       }
-      delete user.password;
       await trx.commit();
       return res.json(user);
     } catch (e) {
@@ -247,7 +243,7 @@ export async function findUserByName(db: Database, trx: Transaction, username: s
       FOR user IN @@collectionUser
         FILTER user.username == @username
         LIMIT 1
-        RETURN { _id: user._id, _key: user._key, username: user.username, role: user.role }
+        RETURN UNSET(user, "password")
     `,
     bindVars: { '@collectionUser': COLLECTION_USER, username },
   }));
