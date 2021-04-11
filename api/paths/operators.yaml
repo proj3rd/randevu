@@ -58,7 +58,7 @@ post:
               type: string
             owner:
               type: string
-              description: A document key of a user
+              description: A document ID of a user
   responses:
     "200":
       description: Ok
