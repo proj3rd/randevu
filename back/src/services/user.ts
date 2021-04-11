@@ -180,47 +180,20 @@ export function serviceUser(app: Express, db: Database) {
     }
   });
 
-  app.get('/users/:docKey', async (req, res) => {
+  app.get('/users/:seqVal', async (req, res) => {
     const user = req.user as DocUser;
     if (!user) {
       return res.status(403).end();
     }
-    const { docKey } = req.params;
+    const { seqVal } = req.params;
     let trx: Transaction | undefined;
     try {
       const collectionUser = db.collection(COLLECTION_USER);
       trx = await db.beginTransaction({
         read: collectionUser,
       });
-      const user = await trx.step(() => collectionUser.document(docKey));
-      if (!user) {
-        await trx.abort();
-        return res.status(404).end();
-      }
-      await trx.commit();
-      return res.json(user);
-    } catch (e) {
-      if (trx) {
-        await trx.abort();
-      }
-      console.error(e);
-      return res.status(500).end();
-    }
-  });
-
-  app.get('/users/username/:username', async (req, res) => {
-    const user = req.user as DocUser;
-    if (!user) {
-      return res.status(403).end();
-    }
-    const { username } = req.params;
-    let trx: Transaction | undefined;
-    try {
-      const collectionUser = db.collection(COLLECTION_USER);
-      trx = await db.beginTransaction({
-        read: collectionUser,
-      });
-      const user = await findUserByName(db, trx, username);
+      const _id = `${collectionUser.name}/${seqVal}`;
+      const user = await trx.step(() => collectionUser.document(_id));
       if (!user) {
         await trx.abort();
         return res.status(404).end();
