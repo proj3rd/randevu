@@ -1,19 +1,20 @@
 import axios from "axios";
 import { config} from 'randevu-shared/dist/config';
-import { DocEnum } from "randevu-shared/dist/types";
+import { DocEnum, User } from "randevu-shared/dist/types";
 import { useEffect, useState } from "react";
-import { Button, Container, Dimmer, Header, Loader, Table } from "semantic-ui-react";
+import { Button, Container, Dimmer, Form, Header, Loader, Table } from "semantic-ui-react";
 
 type Props = {
   title: string;
   path: string;
+  user: User | undefined;
 };
 
 const { api } = config;
 axios.defaults.baseURL =`http://${api.host}:${api.port}`;
 axios.defaults.withCredentials = true;
 
-export default function CollectionManager({ title, path }: Props) {
+export default function CollectionManager({ title, path, user }: Props) {
   const [enumName, setEnumName] = useState('');
   const [waiting, setWaiting] = useState(false);
   const [enumList, setEnumList] = useState<DocEnum[]>([]);
@@ -41,6 +42,22 @@ export default function CollectionManager({ title, path }: Props) {
             </Table.Row>
           </Table.Header>
           <Table.Body>
+            {
+              user && user.role === 'admin' ? (
+                <Table.Row>
+                  <Table.Cell>
+                    <Form>
+                      <Form.Field>
+                        <input value={enumName} onChange={(e) => setEnumName(e.target.value)} />
+                      </Form.Field>
+                    </Form>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Button icon='plus' disabled={!enumName} />
+                  </Table.Cell>
+                </Table.Row>
+              ) : (<></>)
+            }
             {
               enumList.map((enumItem) => (
                 <Table.Row key={enumItem._key}>

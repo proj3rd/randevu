@@ -84,12 +84,12 @@ export default function AppRouter() {
             </Menu>
             <Switch>
               <Route exact path='/' />
-              <Route path='/deployment-options' render={() => <CollectionManager title='Deployment option' path='/deployment-options' />} />
-              <Route path='/duplex-modes' render={() => <CollectionManager title='Duplex mode' path='/duplex-modes' />} />
-              <Route path='/network-elements' render={() => <CollectionManager title='Network element' path='/network-elements' />} />
-              <Route path='/products' render={() => <CollectionManager title='Product' path='/products' />} />
-              <Route path='/radio-access-technologies' render={() => <CollectionManager title='Radio access technology' path='/radio-access-technologies' />} />
-              <Route path='/ran-sharing' render={() => <CollectionManager title='RAN sharing' path='/ran-sharing' />} />
+              <Route path='/deployment-options' render={() => <CollectionManager title='Deployment option' path='/deployment-options' user={user} />} />
+              <Route path='/duplex-modes' render={() => <CollectionManager title='Duplex mode' path='/duplex-modes' user={user} />} />
+              <Route path='/network-elements' render={() => <CollectionManager title='Network element' path='/network-elements' user={user} />} />
+              <Route path='/products' render={() => <CollectionManager title='Product' path='/products' user={user} />} />
+              <Route path='/radio-access-technologies' render={() => <CollectionManager title='Radio access technology' path='/radio-access-technologies' user={user} />} />
+              <Route path='/ran-sharing' render={() => <CollectionManager title='RAN sharing' path='/ran-sharing' user={user} />} />
             </Switch>
         </div>
       </Dimmer.Dimmable>
