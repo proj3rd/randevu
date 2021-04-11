@@ -42,9 +42,9 @@ export default function Operators({ user, onLogout }: Props) {
           <Table.Body>
             {
               operatorList.map((operator) => {
-                const { _key, name } = operator;
+                const { _id, name } = operator;
                 return (
-                  <Table.Row key={_key}>
+                  <Table.Row key={_id}>
                     <Table.Cell colSpan={2}>{name}</Table.Cell>
                   </Table.Row>
                 );

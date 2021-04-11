@@ -17,14 +17,14 @@ export function serviceNetworkElement(app: Express, db: Database) {
     handleRequestGetEnumList(res, db, COLLECTION_NETWORK_ELEMENT);
   });
 
-  app.post("/network-elements/:docKey", (req, res) => {
+  app.post("/network-elements/:seqlVal", (req, res) => {
     const user = req.user as DocUser;
     if (!user || user.role !== "admin") {
       return res.status(403).end();
     }
-    const { docKey } = req.params;
+    const { seqlVal } = req.params;
     const { name } = req.body;
-    handleRequestRenameEnum(res, db, COLLECTION_NETWORK_ELEMENT, docKey, name);
+    handleRequestRenameEnum(res, db, COLLECTION_NETWORK_ELEMENT, seqlVal, name);
   });
 
   app.post("/network-elements", (req, res) => {

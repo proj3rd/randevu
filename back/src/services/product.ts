@@ -17,14 +17,14 @@ export function serviceProduct(app: Express, db: Database) {
     handleRequestGetEnumList(res, db, COLLECTION_PRODUCTS);
   });
 
-  app.post("/products/:name", (req, res) => {
+  app.post("/products/:seqVal", (req, res) => {
     const user = req.user as DocUser;
     if (!user || user.role !== "admin") {
       return res.status(403).end();
     }
-    const { name } = req.params;
+    const { seqVal } = req.params;
     const { nameNew } = req.body;
-    handleRequestRenameEnum(res, db, COLLECTION_PRODUCTS, name, nameNew);
+    handleRequestRenameEnum(res, db, COLLECTION_PRODUCTS, seqVal, nameNew);
   });
 
   app.post("/products", (req, res) => {

@@ -111,9 +111,9 @@ describe('RANdevU test', function() {
       if (userList.length !== 1) {
         done('Only 1 user should exist');
       }
-      const { _key } = userList[0];
+      const { _id } = userList[0];
       const collectionUser = db.collection(COLLECTION_USER);
-      await collectionUser.update(_key, { role: 'admin'});
+      await collectionUser.update(_id, { role: 'admin'});
       done();
     }).catch((reason) => {
       done(reason);

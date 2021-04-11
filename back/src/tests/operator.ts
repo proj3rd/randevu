@@ -7,7 +7,7 @@ it('Should pass adding operators', function(done) {
     if (!userFound) {
       throw new Error('user not found');
     }
-    return userFound._key;
+    return userFound._id;
   }).then((owner: string) => {
       axios.post('/operators', {
         name: 'Verizon Wireless',
@@ -39,7 +39,7 @@ it('Should fail adding a duplicate operator', function(done) {
     if (!userFound) {
       throw new Error('user not found');
     }
-    return userFound._key;
+    return userFound._id;
   }).then((owner: string) => {
     axios.post('/operators', {
       name: 'Verizon Wireless',

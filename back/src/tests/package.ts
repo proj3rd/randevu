@@ -133,9 +133,9 @@ it('Should pass adding a sub package', function(done) {
     return axios.post('/packages', {
       name: 'Sub package A',
       sub: {
-        main: pkg._key,
-        operator: operator._key,
-        owner: owner._key,
+        main: pkg._id,
+        operator: operator._id,
+        owner: owner._id,
       },
     });
   }).then(() => {
@@ -177,9 +177,9 @@ it('Should fail adding a duplicate sub package', function(done) {
     return axios.post('/packages', {
       name: 'Sub package A',
       sub: {
-        main: pkg._key,
-        operator: operator._key,
-        owner: owner._key,
+        main: pkg._id,
+        operator: operator._id,
+        owner: owner._id,
       },
     });
   }).then(() => {

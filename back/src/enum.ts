@@ -78,7 +78,7 @@ export async function handleRequestRenameEnum(
   res: Response,
   db: Database,
   collectionName: string,
-  docKey: string,
+  seqVal: string,
   name: string
 ) {
   let trx: Transaction | undefined;
@@ -103,16 +103,17 @@ export async function handleRequestRenameEnum(
       await trx.abort();
       return res.status(400).json({ reason: 'Duplicate name' });
     }
+    const _id = `${collectionName}/${seqVal}`;
     const cursorEnumRenamed = await trx.step(() =>
       db.query({
         query: `
         FOR enum IN @@collectionName
-          FILTER enum._key == @docKey
+          FILTER enum._id == @_id
           LIMIT 1
           UPDATE enum WITH { name: @name } IN @@collectionName
           RETURN enum
       `,
-        bindVars: { "@collectionName": collection.name, docKey, name },
+        bindVars: { "@collectionName": collection.name, _id, name },
       })
     );
     const enum_ = (await cursorEnumRenamed.all())[0];

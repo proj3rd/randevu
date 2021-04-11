@@ -20,18 +20,18 @@ export function serviceUser(app: Express, db: Database) {
   app.use(passport.session());
 
   passport.serializeUser((user, done) => {
-    const _key = (user as DocUser)._key;
-    done(null, _key);
+    const _id = (user as DocUser)._id;
+    done(null, _id);
   });
 
-  passport.deserializeUser(async (_key: string, done) => {
+  passport.deserializeUser(async (_id: string, done) => {
     const collectionUser = db.collection(COLLECTION_USER);
     let trx: Transaction | undefined;
     try {
       trx = await db.beginTransaction({
         read: collectionUser,
       });
-      const user = await trx.step(() => collectionUser.document(_key));
+      const user = await trx.step(() => collectionUser.document(_id));
       await trx.commit();
       done(null, user);
     } catch (e) {

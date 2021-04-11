@@ -15,7 +15,7 @@ export function serviceRequirement(app: Express, db: Database) {
     // TODO
   });
 
-  app.post("/requirements/:docKey", (req, res) => {
+  app.post("/requirements/:seqVal", (req, res) => {
     const user = req.user as DocUser;
     if (!user) {
       return res.status(403).end();

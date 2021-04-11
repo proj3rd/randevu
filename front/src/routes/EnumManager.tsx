@@ -93,7 +93,7 @@ export default function EnumManager({ title, path, user, onLogout }: Props) {
             }
             {
               enumList.map((enumItem) => (
-                <Table.Row key={enumItem._key}>
+                <Table.Row key={enumItem._id}>
                   <Table.Cell colSpan={2}>{enumItem.name}</Table.Cell>
                 </Table.Row>
               ))

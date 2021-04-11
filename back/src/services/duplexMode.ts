@@ -17,14 +17,14 @@ export function serviceDuplexMode(app: Express, db: Database) {
     handleRequestGetEnumList(res, db, COLLECTION_DUPLEX_MODE);
   });
 
-  app.post("/duplex-modes/:docKey", (req, res) => {
+  app.post("/duplex-modes/:seqVal", (req, res) => {
     const user = req.user as DocUser;
     if (!user || user.role !== "admin") {
       return res.status(403).end();
     }
-    const { docKey } = req.params;
+    const { seqVal } = req.params;
     const { name } = req.body;
-    handleRequestRenameEnum(res, db, COLLECTION_DUPLEX_MODE, docKey, name);
+    handleRequestRenameEnum(res, db, COLLECTION_DUPLEX_MODE, seqVal, name);
   });
 
   app.post("/duplex-modes", (req, res) => {

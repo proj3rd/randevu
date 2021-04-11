@@ -42,7 +42,7 @@ export function serviceOperator(app: Express, db: Database) {
           query: `
             FOR id IN @operatorIdList
               FOR user IN INBOUND id @@collectionOwns
-                RETURN { _id: id, owner: user._key }
+                RETURN { _id: id, owner: user._id }
           `,
           bindVars: { operatorIdList, '@collectionOwns': collectionOwns.name },
         }));
