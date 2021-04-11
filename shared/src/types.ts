@@ -27,6 +27,7 @@ export type DocEnum = {
 };
 
 export type DocOperator = {
+  _id: string;
   _key: string;
   name: string;
   owner?: string;
