@@ -1,6 +1,6 @@
 import { Database } from "arangojs";
 import { Express } from "express";
-import { User } from "randevu-shared/dist/types";
+import { DocUser } from "randevu-shared/dist/types";
 import { COLLECTION_PRODUCTS } from "../constants";
 import {
   handleRequestAddEnum,
@@ -10,7 +10,7 @@ import {
 
 export function serviceProduct(app: Express, db: Database) {
   app.get("/products", async (req, res) => {
-    const user = req.user as User;
+    const user = req.user as DocUser;
     if (!user) {
       return res.status(403).end();
     }
@@ -18,7 +18,7 @@ export function serviceProduct(app: Express, db: Database) {
   });
 
   app.post("/products/:name", (req, res) => {
-    const user = req.user as User;
+    const user = req.user as DocUser;
     if (!user || user.role !== "admin") {
       return res.status(403).end();
     }
@@ -28,7 +28,7 @@ export function serviceProduct(app: Express, db: Database) {
   });
 
   app.post("/products", (req, res) => {
-    const user = req.user as User;
+    const user = req.user as DocUser;
     if (!user || user.role !== "admin") {
       return res.status(403).end();
     }

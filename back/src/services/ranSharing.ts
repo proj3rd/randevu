@@ -1,6 +1,6 @@
 import { Database } from "arangojs";
 import { Express } from "express";
-import { User } from "randevu-shared/dist/types";
+import { DocUser } from "randevu-shared/dist/types";
 import { COLLECTION_RAN_SHARING } from "../constants";
 import {
   handleRequestAddEnum,
@@ -10,7 +10,7 @@ import {
 
 export function serviceRanSharing(app: Express, db: Database) {
   app.get("/ran-sharing", async (req, res) => {
-    const user = req.user as User;
+    const user = req.user as DocUser;
     if (!user) {
       return res.status(403).end();
     }
@@ -18,7 +18,7 @@ export function serviceRanSharing(app: Express, db: Database) {
   });
 
   app.post("/ran-sharing/:docKey", (req, res) => {
-    const user = req.user as User;
+    const user = req.user as DocUser;
     if (!user || user.role !== "admin") {
       return res.status(403).end();
     }
@@ -28,7 +28,7 @@ export function serviceRanSharing(app: Express, db: Database) {
   });
 
   app.post("/ran-sharing", (req, res) => {
-    const user = req.user as User;
+    const user = req.user as DocUser;
     if (!user || user.role !== "admin") {
       return res.status(403).end();
     }

@@ -2,13 +2,13 @@ import { Database } from "arangojs";
 import { Transaction } from "arangojs/transaction";
 import { Express } from 'express';
 import { COLLECTION_CHANGE, COLLECTION_FEATURE, COLLECTION_FEATURE_VERSION, COLLECTION_USER, EDGE_COLLECTION_DESCRIBES, EDGE_COLLECTION_FORKED_FROM, EDGE_COLLECTION_IMPLEMENTS, EDGE_COLLECTION_OWNS } from "../constants";
-import { User } from "randevu-shared/dist/types";
+import { DocUser } from "randevu-shared/dist/types";
 import { validateString } from "../utils";
 import { findUserByName } from "./user";
 
 export function serviceFeature(app: Express, db: Database) {
   app.get('/features/:featureId/versions/:version/changes', async (req, res) => {
-    const user = req.user as User;
+    const user = req.user as DocUser;
     if (!user) {
       return res.status(403).end();
     }
@@ -61,7 +61,7 @@ export function serviceFeature(app: Express, db: Database) {
   });
 
   app.get('/features/:featureId/versions', async (req, res) => {
-    const user = req.user as User;
+    const user = req.user as DocUser;
     if (!user) {
       return res.status(403).end();
     }
@@ -113,7 +113,7 @@ export function serviceFeature(app: Express, db: Database) {
   });
 
   app.post('/features/:featureId/versions', async (req, res) => {
-    const user = req.user as User;
+    const user = req.user as DocUser;
     if (!user) {
       return res.status(403).end();
     }
@@ -223,7 +223,7 @@ export function serviceFeature(app: Express, db: Database) {
   });
 
   app.get('/features/:featureId', async (req, res) => {
-    const user = req.user as User;
+    const user = req.user as DocUser;
     if (!user) {
       return res.status(403).end();
     }
@@ -266,7 +266,7 @@ export function serviceFeature(app: Express, db: Database) {
   });
 
   app.get('/features', async (req, res) => {
-    const user = req.user as User;
+    const user = req.user as DocUser;
     if(!user) {
       return res.status(403).end();
     }
@@ -324,7 +324,7 @@ export function serviceFeature(app: Express, db: Database) {
   });
 
   app.post('/features',  async (req, res) => {
-    const user = req.user as User;
+    const user = req.user as DocUser;
     if (!user || user.role !== 'admin') {
       return res.status(403).end();
     }

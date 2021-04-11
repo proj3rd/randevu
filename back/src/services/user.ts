@@ -6,7 +6,7 @@ import session from 'express-session';
 import passport from 'passport';
 import passportLocal from 'passport-local';
 import { COLLECTION_USER } from '../constants';
-import { User } from 'randevu-shared/dist/types';
+import { DocUser } from 'randevu-shared/dist/types';
 
 const SECRET = 'RANdevU aims to make RAN development easy';
 
@@ -20,7 +20,7 @@ export function serviceUser(app: Express, db: Database) {
   app.use(passport.session());
 
   passport.serializeUser((user, done) => {
-    const _key = (user as User)._key;
+    const _key = (user as DocUser)._key;
     done(null, _key);
   });
 
@@ -87,7 +87,7 @@ export function serviceUser(app: Express, db: Database) {
   ));
 
   app.get('/authenticate', (req, res) => {
-    const user = req.user as User;
+    const user = req.user as DocUser;
     if (!user) {
       return res.status(401).end();
     }
@@ -128,7 +128,7 @@ export function serviceUser(app: Express, db: Database) {
   });
 
   app.post('/login', (req, res, next) => {
-    passport.authenticate('local', (err, user: User, info) => {
+    passport.authenticate('local', (err, user: DocUser, info) => {
       if (err) {
         return next(err);
       }
@@ -150,7 +150,7 @@ export function serviceUser(app: Express, db: Database) {
   });
 
   app.get('/users', async (req, res) => {
-    const user = req.user as User;
+    const user = req.user as DocUser;
     if (!user) {
       return res.status(403).end();
     }
@@ -184,7 +184,7 @@ export function serviceUser(app: Express, db: Database) {
   });
 
   app.get('/users/:docKey', async (req, res) => {
-    const user = req.user as User;
+    const user = req.user as DocUser;
     if (!user) {
       return res.status(403).end();
     }
@@ -213,7 +213,7 @@ export function serviceUser(app: Express, db: Database) {
   });
 
   app.get('/users/username/:username', async (req, res) => {
-    const user = req.user as User;
+    const user = req.user as DocUser;
     if (!user) {
       return res.status(403).end();
     }
@@ -251,7 +251,7 @@ export async function findUserByName(db: Database, trx: Transaction, username: s
     `,
     bindVars: { '@collectionUser': COLLECTION_USER, username },
   }));
-  const userFound = await cursorUserFound.all() as User[];
+  const userFound = await cursorUserFound.all() as DocUser[];
   return userFound[0];
 }
 

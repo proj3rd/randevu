@@ -2,12 +2,12 @@ import { Database } from "arangojs";
 import { Transaction } from "arangojs/transaction";
 import { Express } from 'express';
 import { COLLECTION_OPERATOR, COLLECTION_PACKAGE_MAIN, COLLECTION_PACKAGE_SUB, COLLECTION_USER, EDGE_COLLECTION_DERIVED_FROM, EDGE_COLLECTION_OWNS, EDGE_COLLECTION_SUCCEEDS, EDGE_COLLECTION_TARGETS } from "../constants";
-import { User } from "randevu-shared/dist/types";
+import { DocUser } from "randevu-shared/dist/types";
 import { mergeObjectList, validateString, validateStringList } from "../utils";
 
 export function servicePackage(app: Express, db: Database) {
   app.get('/packages', async (req, res) => {
-    const user = req.user as User;
+    const user = req.user as DocUser;
     if(!user) {
       return res.status(403).end();
     }
@@ -120,7 +120,7 @@ export function servicePackage(app: Express, db: Database) {
   });
 
   app.post('/packages', async (req, res) => {
-    const user = req.user as User;
+    const user = req.user as DocUser;
     // TODO: Allow operator owner to create sub package
     if (!user || user.role !== 'admin') {
       return res.status(403).end();

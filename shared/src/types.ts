@@ -32,8 +32,9 @@ export type DocOperator = {
   owner?: string;
 };
 
-export type User = {
+export type DocUser = {
   _id: string;
+  _key: string;
   username: string;
   role?: string;
 };

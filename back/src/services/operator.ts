@@ -2,12 +2,12 @@ import { Database } from "arangojs";
 import { Transaction } from "arangojs/transaction";
 import { Express } from 'express';
 import { COLLECTION_OPERATOR, COLLECTION_USER, EDGE_COLLECTION_OWNS } from "../constants";
-import { DocOperator, User } from "randevu-shared/dist/types";
+import { DocOperator, DocUser } from "randevu-shared/dist/types";
 import { mergeObjectList, validateString, validateStringList } from "../utils";
 
 export function serviceOperator(app: Express, db: Database) {
   app.get('/operators', async (req, res) => {
-    const user = req.user as User;
+    const user = req.user as DocUser;
     if(!user) {
       return res.status(403).end();
     }
@@ -35,7 +35,7 @@ export function serviceOperator(app: Express, db: Database) {
         `,
         bindVars: { '@collectionOperator': collectionOperator.name, ...bindVarsNameFilter },
       }));
-      const operatorList = (await cursorOperatorList.all()) as Operator[];
+      const operatorList = (await cursorOperatorList.all()) as DocOperator[];
       const operatorIdList = operatorList.map((operator) => operator._id);
       if (include && (include as string[]).includes('owner')) {
         const cursorOwnerList = await trx.step(() => db.query({
@@ -46,7 +46,7 @@ export function serviceOperator(app: Express, db: Database) {
           `,
           bindVars: { operatorIdList, '@collectionOwns': collectionOwns.name },
         }));
-        const ownerList = (await cursorOwnerList.all()) as User[];
+        const ownerList = (await cursorOwnerList.all()) as DocUser[];
         mergeObjectList(operatorList, ownerList, '_id');
       }
       await trx.commit();
@@ -61,7 +61,7 @@ export function serviceOperator(app: Express, db: Database) {
   });
 
   app.post('/operators', async (req, res) => {
-    const user = req.user as User;
+    const user = req.user as DocUser;
     if (!user || user.role !== 'admin') {
       return res.status(403).end();
     }

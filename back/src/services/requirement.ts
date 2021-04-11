@@ -1,14 +1,14 @@
 import { Database } from "arangojs";
 import { Transaction } from "arangojs/transaction";
 import { Express } from "express";
-import { User } from "randevu-shared/dist/types";
+import { DocUser } from "randevu-shared/dist/types";
 import { COLLECTION_OPERATOR, COLLECTION_REQUIREMENT, COLLECTION_USER, EDGE_COLLECTION_OWNS, EDGE_COLLECTION_REGISTERS, EDGE_COLLECTION_REQUESTS, EDGE_COLLECTION_REQUIRES } from "../constants";
 import { validateString, validateStringList } from "../utils";
 import { findUserByName } from "./user";
 
 export function serviceRequirement(app: Express, db: Database) {
   app.get("/requirements", async (req, res) => {
-    const user = req.user as User;
+    const user = req.user as DocUser;
     if (!user) {
       return res.status(403).end();
     }
@@ -16,7 +16,7 @@ export function serviceRequirement(app: Express, db: Database) {
   });
 
   app.post("/requirements/:docKey", (req, res) => {
-    const user = req.user as User;
+    const user = req.user as DocUser;
     if (!user) {
       return res.status(403).end();
     }
@@ -24,7 +24,7 @@ export function serviceRequirement(app: Express, db: Database) {
   });
 
   app.post("/requirements", async (req, res) => {
-    const user = req.user as User;
+    const user = req.user as DocUser;
     if (!user) {
       return res.status(403).end();
     }
