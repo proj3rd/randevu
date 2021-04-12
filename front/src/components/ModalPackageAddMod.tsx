@@ -1,13 +1,15 @@
 import axios from "axios";
 import { DocOperator, DocPackage, DocUser } from "randevu-shared/dist/types";
 import { useEffect, useState } from "react";
-import { Button, Dimmer, Divider, DropdownItemProps, DropdownProps, Form, Loader, Modal, ModalProps, Select } from "semantic-ui-react";
+import { Button, Dimmer, Divider, DropdownItemProps, DropdownProps, Form, Loader, Message, Modal, ModalProps, Select } from "semantic-ui-react";
 import { EnumItem } from "../types";
 import EnumSelector from "./EnumSelector";
 
-type Props = {} & ModalProps;
+type Props = {
+  onAdd?: () => void;
+} & ModalProps;
 
-export default function ModalPackageAddMod({ ...modalProps }: Props) {
+export default function ModalPackageAddMod({ onAdd, ...modalProps }: Props) {
   const { onClose } = modalProps;
 
   const [waiting, setWaiting] = useState(false);
@@ -25,7 +27,10 @@ export default function ModalPackageAddMod({ ...modalProps }: Props) {
   const [packageMain, setPackageMain] = useState('');
   const [operator, setOperator] = useState('');
   const [owner, setOwner] = useState('');
-  const [packageSub, setPackageSub] = useState('');
+  const [packagePrevious, setPackagePrevious] = useState('');
+
+  const [messageVisible, setMessageVisible] = useState(false);
+  const [messageContent, setMessageContent] = useState('');
 
   useEffect(() => {
     setWaiting(true);
@@ -47,6 +52,33 @@ export default function ModalPackageAddMod({ ...modalProps }: Props) {
       setWaiting(false);
     });
   }, []);
+
+  function addPackage() {
+    if (disabled()) {
+      return;
+    }
+    setWaiting(true);
+    const deploymentOptions = deploymentOptionList.filter((deploymentOption) => deploymentOption.selected);
+    const products = productList.filter((product) => product.selected);
+    const radioAccessTEchnologies = ratList.filter((rat) => rat.selected);
+    const ranSharing = ranSharingList.filter((ranSharing) => ranSharing.selected);
+    const sub = packageMain && operator && owner ? {
+      main: packageMain, operator, previous: packagePrevious, owner,
+      deploymentOptions, products, radioAccessTEchnologies, ranSharing,
+    } : undefined;
+    axios.post('/packages', { name, sub }).then((response) => {
+      setMessageVisible(false);
+      onAdd?.();
+    }).catch((reason) => {
+      console.error(reason);
+      const messageContent = reason.response?.data?.reason
+        ?? 'Oops. Something went wrong. Please try again later.';
+      setMessageContent(messageContent);
+      setMessageVisible(true);
+    }).finally(() => {
+      setWaiting(false);
+    })
+  }
 
   function disabled() {
     if (!name) {
@@ -161,7 +193,7 @@ export default function ModalPackageAddMod({ ...modalProps }: Props) {
               <label>Previous package</label>
               <Select
                 search options={packageSubList}
-                value={packageSub} onChange={(e, d) => setPackageSub(d.value as string)}
+                value={packagePrevious} onChange={(e, d) => setPackagePrevious(d.value as string)}
               />
             </Form.Field>
             <Form.Field disabled={!packageMain}>
@@ -197,12 +229,18 @@ export default function ModalPackageAddMod({ ...modalProps }: Props) {
             <Loader />
           </Dimmer>
         </Dimmer.Dimmable>
+        {
+          messageVisible ? (
+            <Message visible negative>{messageContent}</Message>
+          ) : (<></>)
+        }
       </Modal.Content>
       <Modal.Actions>
         <Button onClick={(e, d) => onClose && onClose(e, {})}>Cancel</Button>
         <Button
           color='green'
           disabled={disabled()}
+          onClick={addPackage}
         >Add</Button>
       </Modal.Actions>
     </Modal>

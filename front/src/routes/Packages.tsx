@@ -39,6 +39,20 @@ export default function Packages({ user, onLogout }: Props) {
     });
   }, [onLogout]);
 
+  function onAdd() {
+    console.log('asdf');
+    setOpen(false);
+    setWaiting(true);
+    axios.get('/packages?include[]=operator').then((response) => {
+      const { data: packageList } = response;
+      setPackageList(packageList);
+    }).catch((reason) => {
+      console.error(reason);
+    }).finally(() => {
+      setWaiting(false);
+    });
+  }
+
   function onClose() {
     setOpen(false);
   }
@@ -93,7 +107,7 @@ export default function Packages({ user, onLogout }: Props) {
             }
           </Table.Body>
         </Table>
-        <ModalPackageAddMod open={open} onClose={onClose} />
+        <ModalPackageAddMod open={open} onClose={onClose} onAdd={onAdd} />
         <Dimmer active={waiting}>
           <Loader />
         </Dimmer>
