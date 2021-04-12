@@ -11,6 +11,7 @@ export default function ModalPackageAddMod({ ...modalProps }: Props) {
   const { onClose } = modalProps;
 
   const [waiting, setWaiting] = useState(false);
+  const [packageList, setPackageList] = useState<DocPackage[]>([]);
   const [packageMainList, setPackageMainList] = useState<DropdownItemProps[]>([]);
   const [operatorList, setOperatorList] = useState<DropdownItemProps[]>([]);
   const [userList, setUserList] = useState<DropdownItemProps[]>([]);
@@ -24,11 +25,13 @@ export default function ModalPackageAddMod({ ...modalProps }: Props) {
   const [packageMain, setPackageMain] = useState('');
   const [operator, setOperator] = useState('');
   const [owner, setOwner] = useState('');
+  const [packageSub, setPackageSub] = useState('');
 
   useEffect(() => {
     setWaiting(true);
-    axios.get('/packages').then((response) => {
+    axios.get('/packages?include[]=operator').then((response) => {
       const { data: packageList } = response;
+      setPackageList(packageList);
       const packageMainList = [
         { key: '', value: '', text: '(None)' },
         ...packageList.filter((pkg: DocPackage) => !pkg.main)
@@ -108,8 +111,17 @@ export default function ModalPackageAddMod({ ...modalProps }: Props) {
   }
 
   function onChangeOperator(event: React.SyntheticEvent<HTMLElement>, data: DropdownProps) {
-    setOperator(data.value as string);
-    // TODO
+    const operator = data.value as string;
+    setOperator(operator);
+    const packageSubList = [
+      { key: '', value: '', text: '(None)' },
+      ...packageList.filter((pkg) => pkg.operator === operator)
+        .map((pkg) => {
+          const { _id, name } = pkg;
+          return { key: _id, value: _id, text: name };
+        }),
+    ];
+    setPackageSubList(packageSubList);
   }
 
   return (
@@ -147,7 +159,10 @@ export default function ModalPackageAddMod({ ...modalProps }: Props) {
             <Divider horizontal>Additional information</Divider>
             <Form.Field disabled={!packageMain}>
               <label>Previous package</label>
-              <Select search options={packageSubList} />
+              <Select
+                search options={packageSubList}
+                value={packageSub} onChange={(e, d) => setPackageSub(d.value as string)}
+              />
             </Form.Field>
             <Form.Field disabled={!packageMain}>
               <label>Deployment options</label>
