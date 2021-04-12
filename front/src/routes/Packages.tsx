@@ -1,7 +1,9 @@
 import axios from "axios";
 import { DocPackage, DocUser } from "randevu-shared/dist/types";
+import { isAdmin } from 'randevu-shared/dist/utils';
 import { useEffect, useState } from "react";
-import { Container, Dimmer, Header, Label, Loader, Table } from "semantic-ui-react";
+import { Button, Container, Dimmer, Header, Label, Loader, Table } from "semantic-ui-react";
+import ModalPackageAddMod from "../components/ModalPackageAddMod";
 
 type Props = {
   user: DocUser | undefined;
@@ -10,6 +12,7 @@ type Props = {
 
 export default function Packages({ user, onLogout }: Props) {
   const [waiting, setWaiting] = useState(false);
+  const [open, setOpen] = useState(false);
   const [packageList, setPackageList] = useState<DocPackage[]>([]);
 
   useEffect(() => {
@@ -29,6 +32,10 @@ export default function Packages({ user, onLogout }: Props) {
     });
   }, [onLogout]);
 
+  function onClose() {
+    setOpen(false);
+  }
+
   return (
     <Container>
       <Header as='h1'>Packages</Header>
@@ -40,6 +47,15 @@ export default function Packages({ user, onLogout }: Props) {
             </Table.Row>
           </Table.Header>
           <Table.Body>
+            {
+              isAdmin(user) ? (
+                <Table.Row>
+                  <Table.Cell textAlign='center'>
+                    <Button onClick={() => setOpen(true)}>Add a package</Button>
+                  </Table.Cell>
+                </Table.Row>
+              ) : (<></>)
+            }
             {
               packageList.filter((pkg) => !pkg.main).map((pkgMain) => {
                 const { _id, name } = pkgMain;
@@ -66,6 +82,7 @@ export default function Packages({ user, onLogout }: Props) {
             }
           </Table.Body>
         </Table>
+        <ModalPackageAddMod open={open} onClose={onClose} />
         <Dimmer active={waiting}>
           <Loader />
         </Dimmer>
