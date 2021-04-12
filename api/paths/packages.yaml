@@ -42,93 +42,37 @@ get:
                 name:
                   type: string
                 main:
-                  type: object
-                  properties:
-                    _id:
-                      type: string
-                    name:
-                      type: string
-                  required:
-                    - _id
-                    - name
+                  type: string
+                  description: Document ID of main package
                 operator:
-                  type: object
-                  properties:
-                    _id:
-                      type: string
-                    name:
-                      type: string
-                  required:
-                    - _id
-                    - name
+                  type: string
+                  description: Document ID of operator
                 previous:
-                  type: object
-                  properties:
-                    _id:
-                      type: string
-                    name:
-                      type: string
-                  required:
-                    - _id
-                    - name
+                  type: string
+                  description: Document ID of previous sub package
                 owner:
-                  type: object
-                  properties:
-                    _id:
-                      type: string
-                    name:
-                      type: string
-                  required:
-                    - _id
-                    - name
+                  type: string
+                  description: Document ID of owner
                 deploymentOptions:
                   type: array
                   items:
-                    type: object
-                    properties:
-                      _id:
-                        type: string
-                      name:
-                        type: string
-                    required:
-                      - _id
-                      - name
+                    type: string
+                    description: Document ID of deployment option
                 products:
                   type: array
                   items:
-                    type: object
-                    properties:
-                      _id:
-                        type: string
-                      name:
-                        type: string
-                    required:
-                      - _id
-                      - name
+                    type: string
+                    description: Document ID of product
                 radioAccessTechnologies:
                   type: array
                   items:
-                    type: object
-                    properties:
-                      _id:
-                        type: string
-                      name:
-                        type: string
-                    required:
-                      - _id
-                      - name
+                    type: string
+                    description: Document ID of radio access technology
                 ranSharing:
                   type: array
                   items:
-                    type: object
-                    properties:
-                      _id:
-                        type: string
-                      name:
-                        type: string
-                    required:
-                      - _id
-                      - name
+                    type: string
+                    description: Document ID of RAN sharing
               required:
                 - _id
                 - name
