@@ -32,6 +32,19 @@ export type DocOperator = {
   owner?: string;
 };
 
+export type DocPackage = {
+  _id: string;
+  name: string;
+  main?: string;
+  operator?: string;
+  previous?: string;
+  owner?: string;
+  deploymentOptions?: string[];
+  products?: string[];
+  radioAccessTechnologies?: string[];
+  ranSharing?: string[]
+}
+
 export type DocUser = {
   _id: string;
   username: string;

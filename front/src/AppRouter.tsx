@@ -8,6 +8,7 @@ import { Dimmer, Dropdown, Label, Loader, Menu } from 'semantic-ui-react';
 import ModalJoinLogin from './components/ModalJoinLogin';
 import EnumManager from './routes/EnumManager';
 import Operators from './routes/Operators';
+import Packages from './routes/Packages';
 
 const { api } = config;
 axios.defaults.baseURL = `http://${api.host}:${api.port}`;
@@ -55,7 +56,7 @@ export default function AppRouter() {
               <Menu.Item header onClick={() => history.push('/')}>RANdevU</Menu.Item>
               <Menu.Item>Feature</Menu.Item>
               <Menu.Item onClick={() => history.push('/operators')}>Operator</Menu.Item>
-              <Menu.Item>Package</Menu.Item>
+              <Menu.Item onClick={() => history.push('/packages')}>Package</Menu.Item>
               <Menu.Item>Requirement</Menu.Item>
               <Dropdown item text='Collection' simple>
                 <Dropdown.Menu>
@@ -89,6 +90,7 @@ export default function AppRouter() {
               <Route path='/duplex-modes' render={() => <EnumManager title='Duplex mode' path='/duplex-modes' user={user} onLogout={onLogout} />} />
               <Route path='/network-elements' render={() => <EnumManager title='Network element' path='/network-elements' user={user} onLogout={onLogout} />} />
               <Route path='/operators' render={() => <Operators user={user} onLogout={onLogout} />} />
+              <Route path='/packages' render={() => <Packages user={user} onLogout={onLogout} />} />
               <Route path='/products' render={() => <EnumManager title='Product' path='/products' user={user} onLogout={onLogout} />} />
               <Route path='/radio-access-technologies' render={() => <EnumManager title='Radio access technology' path='/radio-access-technologies' user={user} onLogout={onLogout} />} />
               <Route path='/ran-sharing' render={() => <EnumManager title='RAN sharing' path='/ran-sharing' user={user} onLogout={onLogout} />} />
