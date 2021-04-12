@@ -2,6 +2,7 @@ import axios from "axios";
 import { DocOperator, DocPackage, DocUser } from "randevu-shared/dist/types";
 import { useEffect, useState } from "react";
 import { Button, Dimmer, Divider, DropdownItemProps, DropdownProps, Form, Loader, Modal, ModalProps, Select } from "semantic-ui-react";
+import { EnumItem } from "../types";
 import EnumSelector from "./EnumSelector";
 
 type Props = {} & ModalProps;
@@ -14,10 +15,10 @@ export default function ModalPackageAddMod({ ...modalProps }: Props) {
   const [operatorList, setOperatorList] = useState<DropdownItemProps[]>([]);
   const [userList, setUserList] = useState<DropdownItemProps[]>([]);
   const [packageSubList, setPackageSubList] = useState<DropdownItemProps[]>([]);
-  const [deploymentOptionList, setDeploymentOptionList] = useState<any[]>([]);
-  const [productList, setProductList] = useState<any[]>([]);
-  const [ratList, setRatList] = useState<any[]>([]);
-  const [ranSharingList, setRanSharingList] = useState<any[]>([]);
+  const [deploymentOptionList, setDeploymentOptionList] = useState<EnumItem[]>([]);
+  const [productList, setProductList] = useState<EnumItem[]>([]);
+  const [ratList, setRatList] = useState<EnumItem[]>([]);
+  const [ranSharingList, setRanSharingList] = useState<EnumItem[]>([]);
 
   const [name, setName] = useState('');
   const [packageMain, setPackageMain] = useState('');
@@ -150,19 +151,31 @@ export default function ModalPackageAddMod({ ...modalProps }: Props) {
             </Form.Field>
             <Form.Field disabled={!packageMain}>
               <label>Deployment options</label>
-              <EnumSelector enumList={deploymentOptionList} />
+              <EnumSelector
+                enumList={deploymentOptionList}
+                onChange={(deploymentOptionList) => setDeploymentOptionList([...deploymentOptionList])}
+              />
             </Form.Field>
             <Form.Field disabled={!packageMain}>
               <label>Prodcuts</label>
-              <EnumSelector enumList={productList} />
+              <EnumSelector
+                enumList={productList}
+                onChange={(productList) => setProductList([...productList])}
+              />
             </Form.Field>
             <Form.Field disabled={!packageMain}>
               <label>Radio access technologies</label>
-              <EnumSelector enumList={ratList} />
+              <EnumSelector
+                enumList={ratList}
+                onChange={(ratList) => setRatList([...ratList])}
+              />
             </Form.Field>
             <Form.Field disabled={!packageMain}>
               <label>RAN sharing</label>
-              <EnumSelector enumList={ranSharingList} />
+              <EnumSelector
+                enumList={ranSharingList}
+                onChange={(ranSharingList) => setRanSharingList([...ranSharingList])}
+              />
             </Form.Field>
           </Form>
           <Dimmer active={waiting}>

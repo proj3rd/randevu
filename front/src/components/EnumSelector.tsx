@@ -1,16 +1,13 @@
-import { DocEnum } from "randevu-shared/dist/types";
 import { useEffect, useState } from "react";
 import { Icon, Label } from "semantic-ui-react";
-
-type EnumItem = {
-  selected: boolean;
-} & DocEnum;
+import { EnumItem } from "../types";
 
 type Props = {
   enumList: EnumItem[];
+  onChange?: (enumLisT: EnumItem[]) => void;
 };
 
-export default function EnumSelector({ enumList: enumListProp }: Props) {
+export default function EnumSelector({ enumList: enumListProp, onChange }: Props) {
   const [enumList, setEnumList] = useState<EnumItem[]>([]);
 
   useEffect(() => {
@@ -29,7 +26,11 @@ export default function EnumSelector({ enumList: enumListProp }: Props) {
       enumItem,
       ...enumList.slice(index + 1),
     ];
-    setEnumList(enumListNew);
+    if (onChange) {
+      onChange(enumListNew);
+    } else {
+      setEnumList(enumListNew);
+    }
   }
 
   return (
