@@ -63,7 +63,7 @@ export default function EnumManager({ title, path, user, onLogout }: Props) {
     <Container>
       <Header as='h1'>{title}</Header>
       <Dimmer.Dimmable>
-        <Table compact>
+        <Table>
           <Table.Header>
             <Table.Row>
               <Table.HeaderCell colSpan={2}>Name</Table.HeaderCell>
