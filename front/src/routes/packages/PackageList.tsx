@@ -1,7 +1,8 @@
 import axios from "axios";
 import { DocOperator, DocPackage, DocUser } from "randevu-shared/dist/types";
-import { isAdmin } from "randevu-shared/dist/utils";
+import { isAdmin, seqValOf } from "randevu-shared/dist/utils";
 import { useEffect, useState } from "react";
+import { Link, useRouteMatch } from "react-router-dom";
 import { Button, Dimmer, Label, Loader, Table } from "semantic-ui-react";
 import ModalPackageAddMod from "../../components/ModalPackageAddMod";
 
@@ -12,6 +13,8 @@ type Props = {
 const numCols = 2;
 
 export default function PackageList({ user }: Props) {
+  const { url } = useRouteMatch();
+
   const [waiting, setWaiting] = useState(false);
   const [open, setOpen] = useState(false);
   const [packageList, setPackageList] = useState<DocPackage[]>([]);
@@ -87,7 +90,9 @@ export default function PackageList({ user }: Props) {
                       const operatorFound = operatorList.find((operator) => operator._id === operator_id);
                       return (
                         <Table.Row key={_id}>
-                          <Table.Cell>{name}</Table.Cell>
+                          <Table.Cell>
+                            <Link to={`${url}/${seqValOf(_id)}`}>{name}</Link>
+                          </Table.Cell>
                           <Table.Cell>{operatorFound?.name ?? ''}</Table.Cell>
                         </Table.Row>
                       )
