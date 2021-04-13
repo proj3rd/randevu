@@ -26,7 +26,10 @@ export default function PackageInfo({ user }: Props) {
 
   return (
     <Dimmer.Dimmable>
-      <Header as='h2'>{seqVal}</Header>
+      <Header as='h1'>
+        <Header.Subheader>Packages</Header.Subheader>
+        {seqVal}
+      </Header>
       <Dimmer active={waiting}>
         <Loader />
       </Dimmer>

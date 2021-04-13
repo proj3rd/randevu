@@ -3,7 +3,7 @@ import { DocOperator, DocPackage, DocUser } from "randevu-shared/dist/types";
 import { isAdmin, seqValOf } from "randevu-shared/dist/utils";
 import { useEffect, useState } from "react";
 import { Link, useRouteMatch } from "react-router-dom";
-import { Button, Dimmer, Label, Loader, Table } from "semantic-ui-react";
+import { Button, Dimmer, Header, Label, Loader, Table } from "semantic-ui-react";
 import ModalPackageAddMod from "../../components/ModalPackageAddMod";
 
 type Props = {
@@ -56,6 +56,7 @@ export default function PackageList({ user }: Props) {
 
   return (
     <Dimmer.Dimmable>
+      <Header as='h1'>Packages</Header>
       <Table>
         <Table.Header>
           <Table.Row>

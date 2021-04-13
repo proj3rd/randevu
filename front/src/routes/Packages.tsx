@@ -2,7 +2,7 @@ import axios from "axios";
 import { DocUser } from "randevu-shared/dist/types";
 import { useEffect, useState } from "react";
 import { Route, Switch, useRouteMatch } from "react-router-dom";
-import { Container, Dimmer, Header, Loader } from "semantic-ui-react";
+import { Container, Dimmer, Loader } from "semantic-ui-react";
 import PackageInfo from "./packages/PackageInfo";
 import PackageList from "./packages/PackageList";
 
@@ -28,7 +28,6 @@ export default function Packages({ user, onLogout }: Props) {
 
   return (
     <Container>
-      <Header as='h1'>Packages</Header>
       <Dimmer.Dimmable>
         <Switch>
           <Route exact path={path} render={() => <PackageList user={user} />} />
