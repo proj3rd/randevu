@@ -6,6 +6,49 @@ import { DocUser } from "randevu-shared/dist/types";
 import { mergeObjectList, validateString, validateStringList } from "../utils";
 
 export function servicePackage(app: Express, db: Database) {
+  app.get('/packages/main/:seqVal', async (req, res) => {
+    const user = req.user as DocUser;
+    if(!user) {
+      return res.status(403).end();
+    }
+    const { include: includeList } = req.query;
+    if (includeList && !validateStringList(includeList)) {
+      return res.status(400).end();
+    }
+    let trx: Transaction | undefined;
+    try {
+      const collectionPackageMain = db.collection(COLLECTION_PACKAGE_MAIN);
+      trx = await db.beginTransaction({
+        read: [collectionPackageMain],
+      });
+      const { seqVal } = req.params;
+      // Main packages
+      const _idMain = `${collectionPackageMain.name}/${seqVal}`;
+      const cursorPackageMainList = await trx.step(() => db.query({
+        query: `
+          FOR package IN @@collectionPackageMain
+            FILTER package._id == @_idMain
+            LIMIT 1
+            RETURN package
+        `,
+        bindVars: { '@collectionPackageMain': collectionPackageMain.name, _idMain },
+      }));
+      const packageMainList = await cursorPackageMainList.all();
+      if (!packageMainList.length) {
+        await trx.abort();
+        return res.status(404).end();
+      }
+      await trx.commit();
+      return res.json(packageMainList[0]);
+    } catch (e) {
+      if (trx) {
+        await trx.abort();
+      }
+      console.error(e);
+      return res.status(500).end();
+    }
+  });
+
   app.get('/packages', async (req, res) => {
     const user = req.user as DocUser;
     if(!user) {
