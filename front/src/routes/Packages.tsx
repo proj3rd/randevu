@@ -31,7 +31,8 @@ export default function Packages({ user, onLogout }: Props) {
       <Dimmer.Dimmable>
         <Switch>
           <Route exact path={path} render={() => <PackageList user={user} />} />
-          <Route path={`${path}/:seqVal`} render={() => <PackageInfo user={user} />} />
+          <Route path={`${path}/main/:seqVal`} render={() => <PackageInfo user={user} type='main' />} />
+          <Route path={`${path}/sub/:seqVal`} render={() => <PackageInfo user={user} type='sub' />} />
         </Switch>
         <Dimmer active={waiting}>
           <Loader />

@@ -6,9 +6,10 @@ import { Dimmer, Header, Loader } from "semantic-ui-react";
 
 type Props = {
   user: DocUser | undefined;
-}
+  type: 'main' | 'sub';
+};
 
-export default function PackageInfo({ user }: Props) {
+export default function PackageInfo({ user, type }: Props) {
   const { seqVal } = useParams() as any;
 
   const [waiting, setWaiting] = useState(false);

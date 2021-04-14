@@ -81,7 +81,9 @@ export default function PackageList({ user }: Props) {
                 <>
                   <Table.Row key={_id}>
                     <Table.Cell>
-                      <Label ribbon>{name}</Label>
+                      <Label ribbon>
+                        <Link to={`${url}/main/${seqValOf(_id)}`}>{name}</Link>
+                      </Label>
                     </Table.Cell>
                     <Table.Cell />
                   </Table.Row>
@@ -92,7 +94,7 @@ export default function PackageList({ user }: Props) {
                       return (
                         <Table.Row key={_id}>
                           <Table.Cell>
-                            <Link to={`${url}/${seqValOf(_id)}`}>{name}</Link>
+                            <Link to={`${url}/sub/${seqValOf(_id)}`}>{name}</Link>
                           </Table.Cell>
                           <Table.Cell>{operatorFound?.name ?? ''}</Table.Cell>
                         </Table.Row>
