@@ -2,7 +2,7 @@ import axios from "axios";
 import { DocUser } from "randevu-shared/dist/types";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
-import { Dimmer, Header, Loader } from "semantic-ui-react";
+import { Dimmer, Header, Label, Loader } from "semantic-ui-react";
 
 type Props = {
   user: DocUser | undefined;
@@ -33,6 +33,17 @@ export default function PackageInfo({ user, type }: Props) {
         <Header.Subheader>Packages</Header.Subheader>
         {name}
       </Header>
+      <Label>Operator</Label>
+      {
+        type === 'sub' ? (
+          <>
+            <Header as='h2'>Deployment options</Header>
+            <Header as='h2'>Products</Header>
+            <Header as='h2'>Radio access technologies</Header>
+            <Header as='h2'>RAN sharing</Header>
+          </>
+        ) : (<></>)
+      }
       <Dimmer active={waiting}>
         <Loader />
       </Dimmer>
