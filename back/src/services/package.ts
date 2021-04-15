@@ -49,6 +49,88 @@ export function servicePackage(app: Express, db: Database) {
     }
   });
 
+  app.get('/packages/main/:seqVal/sub', async (req, res) => {
+    const user = req.user as DocUser;
+    if(!user) {
+      return res.status(403).end();
+    }
+    const { include: includeList } = req.query;
+    if (includeList && !validateStringList(includeList)) {
+      return res.status(400).end();
+    }
+    let trx: Transaction | undefined;
+    try {
+      const collectionDerivedFrom = db.collection(EDGE_COLLECTION_DERIVED_FROM);
+      const collectionOperator = db.collection(COLLECTION_OPERATOR);
+      const collectionOwns = db.collection(EDGE_COLLECTION_OWNS);
+      const collectionPackageMain = db.collection(COLLECTION_PACKAGE_MAIN);
+      const collectionPackageSub = db.collection(COLLECTION_PACKAGE_SUB);
+      const collectionSucceeds = db.collection(EDGE_COLLECTION_SUCCEEDS);
+      const collectionTargets = db.collection(EDGE_COLLECTION_TARGETS);
+      const collectionUser = db.collection(COLLECTION_USER);
+      trx = await db.beginTransaction({
+        read: [collectionDerivedFrom, collectionPackageMain, collectionPackageSub, collectionOperator, collectionOwns, collectionTargets, collectionSucceeds, collectionUser],
+      });
+      const { seqVal } = req.params;
+      // Sub packages
+      const _idMain = `${collectionPackageMain.name}/${seqVal}`;
+      const cursorPackageSubList = await trx.step(() => db.query({
+        query: `
+          FOR package IN INBOUND @_idMain @@collectionDerivedFrom
+            RETURN package
+        `,
+        bindVars: { _idMain, '@collectionDerivedFrom': collectionDerivedFrom.name },
+      }));
+      const packageSubList = await cursorPackageSubList.all();
+      const packageIdList = packageSubList.map((packageSub) => packageSub._id);
+      // Operator
+      const cursorOperatorDocList = await trx.step(() => db.query({
+        query: `
+          FOR id IN @packageIdList
+            FOR operator IN OUTBOUND id @@collectionTargets
+              RETURN { _id: id, operator: operator._id }
+        `,
+        bindVars: { packageIdList, '@collectionTargets': collectionTargets.name },
+      }));
+      const operatorDocList = await cursorOperatorDocList.all();
+      mergeObjectList(packageSubList, operatorDocList, '_id');
+      // Owner
+      if (includeList && (includeList as string[]).includes('owner')) {
+        const cursorOwnerList = await trx.step(() => db.query({
+          query: `
+            FOR id IN @packageIdList
+              FOR user IN INBOUND id @@collectionOwns
+                RETURN { _id: id, owner: user._id }
+          `,
+          bindVars: { packageIdList, '@collectionOwns': collectionOwns.name },
+        }));
+        const ownerList = await cursorOwnerList.all();
+        mergeObjectList(packageSubList, ownerList, '_id');
+      }
+      // Previous
+      if (includeList && (includeList as string[]).includes('previous')) {
+        const cursorPreviousList = await trx.step(() => db.query({
+          query: `
+            FOR id IN @packageIdList
+              FOR previous IN OUTBOUND id @@collectionSucceeds
+                RETURN { _id: id, previous: previous._id }
+          `,
+          bindVars: { packageIdList, '@collectionSucceeds': collectionSucceeds.name },
+        }))
+        const previousList = await cursorPreviousList.all();
+        mergeObjectList(packageSubList, previousList, '_id');
+      }
+      await trx.commit();
+      return res.json(packageSubList);
+    } catch (e) {
+      if (trx) {
+        await trx.abort();
+      }
+      console.error(e);
+      return res.status(500).end();
+    }
+  });
+
   app.get('/packages', async (req, res) => {
     const user = req.user as DocUser;
     if(!user) {
