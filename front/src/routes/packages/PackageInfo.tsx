@@ -33,10 +33,17 @@ export default function PackageInfo({ user, type }: Props) {
         <Header.Subheader>Packages</Header.Subheader>
         {name}
       </Header>
-      <Label>Operator</Label>
+      {
+        type === 'main' ? (
+          <>
+            <Header as='h2'>Sub packages</Header>
+          </>
+        ) : (<></>)
+      }
       {
         type === 'sub' ? (
           <>
+            <Label>Operator</Label>
             <Header as='h2'>Deployment options</Header>
             <Header as='h2'>Products</Header>
             <Header as='h2'>Radio access technologies</Header>
