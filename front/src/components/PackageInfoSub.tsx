@@ -3,6 +3,7 @@ import { DocEnum, DocOperator, DocUser } from "randevu-shared/dist/types";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Dimmer, Header, Label, Loader } from "semantic-ui-react";
+import { markSelected } from "../utils";
 import EnumList from "./EnumList";
 
 type Props = {
@@ -47,19 +48,33 @@ export default function PackageInfoSub({ user }: Props) {
     });
 
     setWaitingDeploymentOptionList(true);
-    axios.get(`/packages/sub/${seqVal}/deployment-options`).then((response) => {
+    axios.get('/deployment-options').then((response) => {
       const { data: deploymentOptionList } = response;
       setDeploymentOptionList(deploymentOptionList);
+      return axios.get(`/packages/sub/${seqVal}/deployment-options`);
+    }).then((response) => {
+      const { data: deploymentOptionListSelected } = response;
+      const deploymentOptionListNew = markSelected(deploymentOptionList, deploymentOptionListSelected);
+      setDeploymentOptionList(deploymentOptionListNew);
     }).catch((reason) => {
       console.error(reason);
     }).finally(() => {
       setWaitingDeploymentOptionList(false);
     });
+    axios.get(`/packages/sub/${seqVal}/deployment-options`).then((response) => {
+      const { data: deploymentOptionList } = response;
+      setDeploymentOptionList(deploymentOptionList);
+    })
 
     setWaitingProductList(true);
-    axios.get(`/packages/sub/${seqVal}/products`).then((response) => {
+    axios.get('/products').then((response) => {
       const { data: productList } = response;
       setProductList(productList);
+      return axios.get(`/packages/sub/${seqVal}/products`);
+    }).then((response) => {
+      const { data: productListSelected } = response;
+      const productListNew = markSelected(productList, productListSelected);
+      setProductList(productListNew);
     }).catch((reason) => {
       console.error(reason);
     }).finally(() => {
@@ -67,9 +82,14 @@ export default function PackageInfoSub({ user }: Props) {
     });
 
     setWaitingRatList(true);
-    axios.get(`/packages/sub/${seqVal}/radio-access-technologies`).then((response) => {
+    axios.get('/radio-access-technologies').then((response) => {
       const { data: ratList } = response;
       setRatList(ratList);
+      return axios.get(`/packages/sub/${seqVal}/radio-access-technologies`);
+    }).then((response) => {
+      const { data: ratListSelected } = response;
+      const ratListNew = markSelected(ratList, ratListSelected);
+      setRatList(ratListNew);
     }).catch((reason) => {
       console.error(reason);
     }).finally(() => {
@@ -77,14 +97,20 @@ export default function PackageInfoSub({ user }: Props) {
     });
 
     setWaitingRanSharingList(true);
-    axios.get(`/packages/sub/${seqVal}/ran-sharing`).then((response) => {
+    axios.get('/ran-sharing').then((response) => {
       const { data: ranSharingList } = response;
       setRanSharingList(ranSharingList);
+      return axios.get(`/packages/sub/${seqVal}/ran-sharing`);
+    }).then((response) => {
+      const { data: ranSharingListSelected } = response;
+      const ranSharingListNew = markSelected(ranSharingList, ranSharingListSelected);
+      setRanSharingList(ranSharingListNew);
     }).catch((reason) => {
       console.error(reason);
     }).finally(() => {
       setWaitingRanSharingList(false);
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [seqVal]);
 
   return (
