@@ -3,7 +3,8 @@ import { DocUser } from "randevu-shared/dist/types";
 import { useEffect, useState } from "react";
 import { Route, Switch, useRouteMatch } from "react-router-dom";
 import { Container, Dimmer, Loader } from "semantic-ui-react";
-import PackageInfo from "./packages/PackageInfo";
+import PackageInfoMain from "../components/PackageInfoMain";
+import PackageInfoSub from "../components/PackageInfoSub";
 import PackageSearch from "./packages/PackageSearch";
 
 type Props = {
@@ -31,8 +32,8 @@ export default function Packages({ user, onLogout }: Props) {
       <Dimmer.Dimmable>
         <Switch>
           <Route exact path={path} render={() => <PackageSearch user={user} />} />
-          <Route path={`${path}/main/:seqVal`} render={() => <PackageInfo user={user} type='main' />} />
-          <Route path={`${path}/sub/:seqVal`} render={() => <PackageInfo user={user} type='sub' />} />
+          <Route path={`${path}/main/:seqVal`} render={() => <PackageInfoMain user={user} />} />
+          <Route path={`${path}/sub/:seqVal`} render={() => <PackageInfoSub user={user} />} />
         </Switch>
         <Dimmer active={waiting}>
           <Loader />
