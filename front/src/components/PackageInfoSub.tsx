@@ -1,5 +1,5 @@
 import axios from "axios";
-import { DocUser } from "randevu-shared/dist/types";
+import { DocOperator, DocUser } from "randevu-shared/dist/types";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Dimmer, Header, Label, Loader } from "semantic-ui-react";
@@ -13,6 +13,8 @@ export default function PackageInfoSub({ user }: Props) {
 
   const [name, setName] = useState('');
   const [waitingName, setWaitingName] = useState(false);
+  const [operator, setOperator] = useState<DocOperator | undefined>(undefined);
+  const [waitingOperator, setWaitingOperator] = useState(false);
 
   useEffect(() => {
     setWaitingName(true);
@@ -23,6 +25,16 @@ export default function PackageInfoSub({ user }: Props) {
       console.error(reason);
     }).finally(() => {
       setWaitingName(false);
+    });
+
+    setWaitingOperator(true);
+    axios.get(`/packages/sub/${seqVal}/operator`).then((response) => {
+      const { data: operator } = response;
+      setOperator(operator);
+    }).catch((reason) => {
+      console.error(reason);
+    }).finally(() => {
+      setWaitingOperator(false);
     });
   }, [seqVal]);
 
@@ -37,7 +49,12 @@ export default function PackageInfoSub({ user }: Props) {
           <Loader />
         </Dimmer>
       </Dimmer.Dimmable>
-      <Label>Operator</Label>
+      <Dimmer.Dimmable>
+        <Label>{operator ? operator.name : ''}</Label>
+        <Dimmer active={waitingOperator}>
+          <Loader />
+        </Dimmer>
+      </Dimmer.Dimmable>
       <Header as='h2'>Deployment options</Header>
       <Header as='h2'>Products</Header>
       <Header as='h2'>Radio access technologies</Header>
