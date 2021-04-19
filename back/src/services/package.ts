@@ -152,7 +152,6 @@ export function servicePackage(app: Express, db: Database) {
           FOR deploymentOption IN @@collectionDeploymentOption
             FOR packageSub IN INBOUND deploymentOption._id @@collectionRequires
               FILTER packageSub._id == @_id
-              LIMIT 1
               RETURN deploymentOption
         `,
         bindVars: {
@@ -192,7 +191,6 @@ export function servicePackage(app: Express, db: Database) {
           FOR product IN @@collectionProduct
             FOR packageSub IN INBOUND product._id @@collectionRequires
               FILTER packageSub._id == @_id
-              LIMIT 1
               RETURN product
         `,
         bindVars: {
@@ -232,7 +230,6 @@ export function servicePackage(app: Express, db: Database) {
           FOR rat IN @@collectionRat
             FOR packageSub IN INBOUND rat._id @@collectionRequires
               FILTER packageSub._id == @_id
-              LIMIT 1
               RETURN rat
         `,
         bindVars: {
@@ -272,7 +269,6 @@ export function servicePackage(app: Express, db: Database) {
           FOR ranSharing IN @@collectionRanSharing
             FOR packageSub IN INBOUND ranSharing._id @@collectionRequires
               FILTER packageSub._id == @_id
-              LIMIT 1
               RETURN ranSharing
         `,
         bindVars: {
