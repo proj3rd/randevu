@@ -132,6 +132,44 @@ export function servicePackage(app: Express, db: Database) {
     }
   });
 
+  app.get('/packages/sub/:seqVal/operator', async (req, res) => {
+    const user = req.user as DocUser;
+    if (!user) {
+      return res.status(403).end();
+    }
+    let trx: Transaction | undefined;
+    try {
+      const collectionOperator = db.collection(COLLECTION_OPERATOR);
+      const collectionPackageSub = db.collection(COLLECTION_PACKAGE_SUB);
+      const collectionTargets = db.collection(EDGE_COLLECTION_TARGETS);
+      trx = await db.beginTransaction({
+        read: [collectionOperator, collectionPackageSub, collectionTargets],
+      });
+      const { seqVal } = req.params;
+      const _id = `${collectionPackageSub.name}/${seqVal}`;
+      const cursorOperator = await trx.step(() => db.query({
+        query: `
+          FOR operator IN OUTBOUND @_id @@collectionTargets
+            LIMIT 1
+            RETURN operator
+        `,
+        bindVars: { _id, '@collectionTargets': collectionTargets.name },
+      }));
+      const operatorList = await cursorOperator.all();
+      if (!operatorList.length) {
+        await trx.abort();
+        return res.status(404).end();
+      }
+      return res.json(operatorList[0]);
+    } catch (e) {
+      if (trx) {
+        await trx.abort();
+      }
+      console.error(e);
+      return res.status(500).end();
+    }
+  });
+
   app.get('/packages/sub/:seqVal', async (req, res) => {
     const user = req.user as DocUser;
     if (!user) {
