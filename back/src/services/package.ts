@@ -488,12 +488,13 @@ export function servicePackage(app: Express, db: Database) {
       const collectionOwns = db.collection(EDGE_COLLECTION_OWNS);
       const collectionPackageMain = db.collection(COLLECTION_PACKAGE_MAIN);
       const collectionPackageSub = db.collection(COLLECTION_PACKAGE_SUB);
+      const collectionRequires = db.collection(EDGE_COLLECTION_REQUIRES);
       const collectionSucceeds = db.collection(EDGE_COLLECTION_SUCCEEDS);
       const collectionTargets = db.collection(EDGE_COLLECTION_TARGETS);
       const collectionUser = db.collection(COLLECTION_USER);
       trx = await db.beginTransaction({
         read: [collectionOperator, collectionUser],
-        write: [collectionDerivedFrom, collectionPackageMain, collectionPackageSub, collectionOwns, collectionSucceeds, collectionTargets],
+        write: [collectionDerivedFrom, collectionPackageMain, collectionPackageSub, collectionOwns, collectionRequires, collectionSucceeds, collectionTargets],
       });
       // Check duplicate package name
       const packageFound = await findPackageByName(db, trx, name);
@@ -507,9 +508,14 @@ export function servicePackage(app: Express, db: Database) {
         await trx.commit();
         return res.status(200).end();
       } else {
-        const { main, operator, previous, owner } = sub;
+        const { main, operator, previous, owner, deploymentOptions, products, radioAccessTechnologies, ranSharing } = sub;
         if (!validateString(main) || !validateString(operator) || !validateString(owner)
-            || (previous && !validateString(previous))) {
+            || (previous && !validateString(previous))
+            || (deploymentOptions && !validateStringList(deploymentOptions))
+            || (products && !validateStringList(products))
+            || (radioAccessTechnologies && !validateStringList(radioAccessTechnologies))
+            || (ranSharing && !validateStringList(ranSharing))
+          ) {
           await trx.abort();
           return res.status(400).end();
         }
@@ -555,6 +561,38 @@ export function servicePackage(app: Express, db: Database) {
           await trx.step(() => collectionSucceeds.save({
             _from: packageSub._id,
             _to: previousFound._id,
+          }));
+        }
+        // Sub -requires-> Deployment options
+        for (let i = 0; i < deploymentOptions.length; i += 1) {
+          const deploymentOption_id = deploymentOptions[i];
+          await trx.step(() => collectionRequires.save({
+            _from: packageSub._id,
+            _to: deploymentOption_id,
+          }));
+        }
+        // Sub -requires-> Products
+        for (let i = 0; i < products.length; i += 1) {
+          const product_id = products[i];
+          await trx.step(() => collectionRequires.save({
+            _from: packageSub._id,
+            _to: product_id,
+          }));
+        }
+        // Sub -requires-> Radio access technologies
+        for (let i = 0; i < radioAccessTechnologies.length; i += 1) {
+          const radioAccessTechnology_id = radioAccessTechnologies[i];
+          await trx.step(() => collectionRequires.save({
+            _from: packageSub._id,
+            _to: radioAccessTechnology_id,
+          }));
+        }
+        // Sub -requires-> RAN sharing
+        for (let i = 0; i < ranSharing.length; i += 1) {
+          const ranSharing_id = ranSharing[i];
+          await trx.step(() => collectionRequires.save({
+            _from: packageSub._id,
+            _to: ranSharing_id,
           }));
         }
         await trx.commit();
