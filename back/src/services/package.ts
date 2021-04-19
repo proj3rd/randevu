@@ -1,7 +1,7 @@
 import { Database } from "arangojs";
 import { Transaction } from "arangojs/transaction";
 import { Express } from 'express';
-import { COLLECTION_DEPLOYMENT_OPTION, COLLECTION_OPERATOR, COLLECTION_PACKAGE_MAIN, COLLECTION_PACKAGE_SUB, COLLECTION_PRODUCTS, COLLECTION_USER, EDGE_COLLECTION_DERIVED_FROM, EDGE_COLLECTION_OWNS, EDGE_COLLECTION_REQUIRES, EDGE_COLLECTION_SUCCEEDS, EDGE_COLLECTION_TARGETS } from "../constants";
+import { COLLECTION_DEPLOYMENT_OPTION, COLLECTION_OPERATOR, COLLECTION_PACKAGE_MAIN, COLLECTION_PACKAGE_SUB, COLLECTION_PRODUCTS, COLLECTION_RADIO_ACCESS_TECH, COLLECTION_RAN_SHARING, COLLECTION_USER, EDGE_COLLECTION_DERIVED_FROM, EDGE_COLLECTION_OWNS, EDGE_COLLECTION_REQUIRES, EDGE_COLLECTION_SUCCEEDS, EDGE_COLLECTION_TARGETS } from "../constants";
 import { DocUser } from "randevu-shared/dist/types";
 import { mergeObjectList, validateString, validateStringList } from "../utils";
 
@@ -203,6 +203,86 @@ export function servicePackage(app: Express, db: Database) {
       }));
       const productList = await cursorProductList.all();
       return res.json(productList);
+    } catch (e) {
+      if (trx) {
+        await trx.abort();
+      }
+      console.error(e);
+      return res.status(500).end();
+    }
+  });
+
+  app.get('/packages/sub/:seqVal/radio-access-technologies', async (req, res) => {
+    const user = req.user as DocUser;
+    if (!user) {
+      return res.status(403).end();
+    }
+    let trx: Transaction | undefined;
+    try {
+      const collectionRat = db.collection(COLLECTION_RADIO_ACCESS_TECH);
+      const collectionPackageSub = db.collection(COLLECTION_PACKAGE_SUB);
+      const collectionRequires = db.collection(EDGE_COLLECTION_REQUIRES);
+      trx = await db.beginTransaction({
+        read: [collectionPackageSub, collectionRat, collectionRequires],
+      });
+      const { seqVal } = req.params;
+      const _id = `${collectionPackageSub.name}/${seqVal}`;
+      const cursorRatList = await trx.step(() => db.query({
+        query: `
+          FOR rat IN @@collectionRat
+            FOR packageSub IN INBOUND rat._id @@collectionRequires
+              FILTER packageSub._id == @_id
+              LIMIT 1
+              RETURN rat
+        `,
+        bindVars: {
+          '@collectionRat': collectionRat.name,
+          _id,
+          '@collectionRequires': collectionRequires.name
+        },
+      }));
+      const ratList = await cursorRatList.all();
+      return res.json(ratList);
+    } catch (e) {
+      if (trx) {
+        await trx.abort();
+      }
+      console.error(e);
+      return res.status(500).end();
+    }
+  });
+
+  app.get('/packages/sub/:seqVal/ran-sharing', async (req, res) => {
+    const user = req.user as DocUser;
+    if (!user) {
+      return res.status(403).end();
+    }
+    let trx: Transaction | undefined;
+    try {
+      const collectionRanSharing = db.collection(COLLECTION_RAN_SHARING);
+      const collectionPackageSub = db.collection(COLLECTION_PACKAGE_SUB);
+      const collectionRequires = db.collection(EDGE_COLLECTION_REQUIRES);
+      trx = await db.beginTransaction({
+        read: [collectionPackageSub, collectionRanSharing, collectionRequires],
+      });
+      const { seqVal } = req.params;
+      const _id = `${collectionPackageSub.name}/${seqVal}`;
+      const cursorRanSharingList = await trx.step(() => db.query({
+        query: `
+          FOR ranSharing IN @@collectionRanSharing
+            FOR packageSub IN INBOUND ranSharing._id @@collectionRequires
+              FILTER packageSub._id == @_id
+              LIMIT 1
+              RETURN ranSharing
+        `,
+        bindVars: {
+          '@collectionRanSharing': collectionRanSharing.name,
+          _id,
+          '@collectionRequires': collectionRequires.name
+        },
+      }));
+      const ranSharingList = await cursorRanSharingList.all();
+      return res.json(ranSharingList);
     } catch (e) {
       if (trx) {
         await trx.abort();
