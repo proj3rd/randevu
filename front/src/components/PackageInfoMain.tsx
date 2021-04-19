@@ -56,7 +56,7 @@ export default function PackageInfoMain({ user }: Props) {
       </Dimmer.Dimmable>
       <Header as='h2'>Sub packages</Header>
       <Dimmer.Dimmable>
-        <PackageTable packageList={packageList} operatorList={operatorList} user={user} />
+        <PackageTable packageList={packageList} operatorList={operatorList} />
         <Dimmer active={waitingPackageList}>
           <Loader />
         </Dimmer>
