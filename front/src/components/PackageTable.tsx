@@ -48,32 +48,27 @@ export default function PackageTable({ packageList, operatorList, user, onAdd: o
           ) : (<></>)
         }
         {
-          packageList.filter((pkg) => !pkg.main).map((pkgMain) => {
-            const { _id, name } = pkgMain;
+          packageList.map((pkg) => {
+            const { _id, name, main, operator: operator_id } = pkg;
+            const operatorFound = operatorList.find((operator) => operator._id === operator_id);
             return (
               <>
                 <Table.Row key={_id}>
                   <Table.Cell>
-                    <Label ribbon>
-                      <Link to={`${url}/main/${seqValOf(_id)}`}>{name}</Link>
-                    </Label>
+                    {
+                      !main ? (
+                        <Label ribbon>
+                          <Link to={`/packages/main/${seqValOf(_id)}`}>{name}</Link>
+                        </Label>
+                      ) : (
+                        <Link to={`/packages/sub/${seqValOf(_id)}`}>{name}</Link>
+                      )
+                    }
                   </Table.Cell>
-                  <Table.Cell />
+                  <Table.Cell>
+                    {operatorFound?.name ?? ''}
+                  </Table.Cell>
                 </Table.Row>
-                {
-                  packageList.filter((pkg) => pkg.main === _id).map((pkgSub) => {
-                    const { _id, name, operator: operator_id } = pkgSub;
-                    const operatorFound = operatorList.find((operator) => operator._id === operator_id);
-                    return (
-                      <Table.Row key={_id}>
-                        <Table.Cell>
-                          <Link to={`${url}/sub/${seqValOf(_id)}`}>{name}</Link>
-                        </Table.Cell>
-                        <Table.Cell>{operatorFound?.name ?? ''}</Table.Cell>
-                      </Table.Row>
-                    )
-                  })
-                }
               </>
             )
           })
