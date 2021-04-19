@@ -58,13 +58,21 @@ export default function ModalPackageAddMod({ onAdd, ...modalProps }: Props) {
       return;
     }
     setWaiting(true);
-    const deploymentOptions = deploymentOptionList.filter((deploymentOption) => deploymentOption.selected);
-    const products = productList.filter((product) => product.selected);
-    const radioAccessTEchnologies = ratList.filter((rat) => rat.selected);
-    const ranSharing = ranSharingList.filter((ranSharing) => ranSharing.selected);
+    const deploymentOptions = deploymentOptionList
+      .filter((deploymentOption) => deploymentOption.selected)
+      .map((deploymentOption) => deploymentOption._id);
+    const products = productList
+      .filter((product) => product.selected)
+      .map((product) => product._id);
+    const radioAccessTechnologies = ratList
+      .filter((rat) => rat.selected)
+      .map((rat) => rat._id);
+    const ranSharing = ranSharingList
+      .filter((ranSharing) => ranSharing.selected)
+      .map((ranSharing) => ranSharing._id);
     const sub = packageMain && operator && owner ? {
       main: packageMain, operator, previous: packagePrevious, owner,
-      deploymentOptions, products, radioAccessTEchnologies, ranSharing,
+      deploymentOptions, products, radioAccessTechnologies, ranSharing,
     } : undefined;
     axios.post('/packages', { name, sub }).then((response) => {
       setMessageVisible(false);
