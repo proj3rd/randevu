@@ -77,7 +77,8 @@ export function servicePackage(app: Express, db: Database) {
       const cursorPackageSubList = await trx.step(() => db.query({
         query: `
           FOR package IN INBOUND @_idMain @@collectionDerivedFrom
-            RETURN package
+            FOR packageMain IN OUTBOUND package._id @@collectionDerivedFrom
+              RETURN MERGE(package, { main: packageMain._id })
         `,
         bindVars: { _idMain, '@collectionDerivedFrom': collectionDerivedFrom.name },
       }));
