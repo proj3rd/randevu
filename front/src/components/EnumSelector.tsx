@@ -4,10 +4,11 @@ import { EnumItem } from "../types";
 
 type Props = {
   enumList: EnumItem[];
+  editing?: boolean;
   onChange?: (enumLisT: EnumItem[]) => void;
 };
 
-export default function EnumSelector({ enumList: enumListProp, onChange }: Props) {
+export default function EnumSelector({ enumList: enumListProp, editing, onChange }: Props) {
   const [enumList, setEnumList] = useState<EnumItem[]>([]);
 
   useEffect(() => {
@@ -36,19 +37,28 @@ export default function EnumSelector({ enumList: enumListProp, onChange }: Props
   return (
     <>
       {
-        enumList.map((enumItem) => {
-          const { _id, name, selected } = enumItem;
-          const color = selected ? 'green' : undefined;
-          const icon = selected ? 'check square outline' : 'square outline';
-          return (
-            <Label as='a' key={_id} color={color}
-              onClick={() => toggle(_id)}
-            >
-              <Icon name={icon} />
-              {name}
-            </Label>
-          )
-        })
+        editing ? (
+          enumList.map((enumItem) => {
+            const { _id, name, selected } = enumItem;
+            const color = selected ? 'green' : undefined;
+            const icon = selected ? 'check square outline' : 'square outline';
+            return (
+              <Label as='a' key={_id} color={color}
+                onClick={() => toggle(_id)}
+              >
+                <Icon name={icon} />
+                {name}
+              </Label>
+            )
+          })
+        ) : (
+          enumList.filter((enumItem) => enumItem.selected).map((enumItem) => {
+            const { _id, name } = enumItem;
+            return (
+              <Label key={_id}>{name}</Label>
+            )
+          })
+        )
       }
     </>
   )

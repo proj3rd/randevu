@@ -5,7 +5,7 @@ import { useParams } from "react-router-dom";
 import { Dimmer, Header, Label, Loader } from "semantic-ui-react";
 import { EnumItem } from "../types";
 import { markSelected } from "../utils";
-import EnumList from "./EnumList";
+import EnumSelector from "./EnumSelector";
 
 type Props = {
   user: DocUser | undefined;
@@ -20,12 +20,16 @@ export default function PackageInfoSub({ user }: Props) {
   const [waitingOperator, setWaitingOperator] = useState(false);
   const [deploymentOptionList, setDeploymentOptionList] = useState<EnumItem[]>([]);
   const [waitingDeploymentOptionList, setWaitingDeploymentOptionList] = useState(false);
+  const [editingDeploymentOptionList, setEditingDeploymentOptionList] = useState(false);
   const [productList, setProductList] = useState<EnumItem[]>([]);
   const [waitingProductList, setWaitingProductList] = useState(false);
+  const [editingProductList, setEditingProductList] = useState(false);
   const [ratList, setRatList] = useState<EnumItem[]>([]);
   const [waitingRatList, setWaitingRatList] = useState(false);
+  const [editingRatList, setEditingRatList] = useState(false);
   const [ranSharingList, setRanSharingList] = useState<EnumItem[]>([]);
   const [waitingRanSharingList, setWaitingRanSharingList] = useState(false);
+  const [editingRanSharingList, setEditingRanSharingList] = useState(false);
 
   useEffect(() => {
     setWaitingName(true);
@@ -129,28 +133,28 @@ export default function PackageInfoSub({ user }: Props) {
       </Dimmer.Dimmable>
       <Header as='h2'>Deployment options</Header>
       <Dimmer.Dimmable>
-        <EnumList enumList={deploymentOptionList} />
+        <EnumSelector enumList={deploymentOptionList} editing={editingDeploymentOptionList} />
         <Dimmer active={waitingDeploymentOptionList}>
           <Loader />
         </Dimmer>
       </Dimmer.Dimmable>
       <Header as='h2'>Products</Header>
       <Dimmer.Dimmable>
-        <EnumList enumList={productList} />
+        <EnumSelector enumList={productList} editing={editingProductList} />
         <Dimmer active={waitingProductList}>
           <Loader />
         </Dimmer>
       </Dimmer.Dimmable>
       <Header as='h2'>Radio access technologies</Header>
       <Dimmer.Dimmable>
-        <EnumList enumList={ratList} />
+        <EnumSelector enumList={ratList} editing={editingRatList} />
         <Dimmer active={waitingRatList}>
           <Loader />
         </Dimmer>
       </Dimmer.Dimmable>
       <Header as='h2'>RAN sharing</Header>
       <Dimmer.Dimmable>
-        <EnumList enumList={ranSharingList} />
+        <EnumSelector enumList={ranSharingList} editing={editingRanSharingList} />
         <Dimmer active={waitingRanSharingList}>
           <Loader />
         </Dimmer>
