@@ -132,6 +132,34 @@ export function servicePackage(app: Express, db: Database) {
     }
   });
 
+  app.get('/packages/sub/:seqVal', async (req, res) => {
+    const user = req.user as DocUser;
+    if (!user) {
+      return res.status(403).end();
+    }
+    let trx: Transaction | undefined;
+    try {
+      const collectionPackageSub = db.collection(COLLECTION_PACKAGE_SUB);
+      trx = await db.beginTransaction({
+        read: [collectionPackageSub],
+      });
+      const { seqVal } = req.params;
+      const _id = `${collectionPackageSub.name}/${seqVal}`;
+      const packageSub = await trx.step(() => collectionPackageSub.document(_id));
+      if (!packageSub) {
+        await trx.abort();
+        return res.status(404).end();
+      }
+      return res.json(packageSub);
+    } catch (e) {
+      if (trx) {
+        await trx.abort();
+      }
+      console.error(e);
+      return res.status(500).end();
+    }
+  });
+
   app.get('/packages', async (req, res) => {
     const user = req.user as DocUser;
     if(!user) {
