@@ -5,7 +5,7 @@ import { useParams } from "react-router-dom";
 import { Dimmer, Header, Label, Loader } from "semantic-ui-react";
 import { EnumItem } from "../types";
 import { markSelected } from "../utils";
-import EnumSelector from "./EnumSelector";
+import EnumEditor from "./EnumEditor";
 
 type Props = {
   user: DocUser | undefined;
@@ -133,28 +133,28 @@ export default function PackageInfoSub({ user }: Props) {
       </Dimmer.Dimmable>
       <Header as='h2'>Deployment options</Header>
       <Dimmer.Dimmable>
-        <EnumSelector enumList={deploymentOptionList} editing={editingDeploymentOptionList} />
+        <EnumEditor enumList={deploymentOptionList} editing={editingDeploymentOptionList} />
         <Dimmer active={waitingDeploymentOptionList}>
           <Loader />
         </Dimmer>
       </Dimmer.Dimmable>
       <Header as='h2'>Products</Header>
       <Dimmer.Dimmable>
-        <EnumSelector enumList={productList} editing={editingProductList} />
+        <EnumEditor enumList={productList} editing={editingProductList} />
         <Dimmer active={waitingProductList}>
           <Loader />
         </Dimmer>
       </Dimmer.Dimmable>
       <Header as='h2'>Radio access technologies</Header>
       <Dimmer.Dimmable>
-        <EnumSelector enumList={ratList} editing={editingRatList} />
+        <EnumEditor enumList={ratList} editing={editingRatList} />
         <Dimmer active={waitingRatList}>
           <Loader />
         </Dimmer>
       </Dimmer.Dimmable>
       <Header as='h2'>RAN sharing</Header>
       <Dimmer.Dimmable>
-        <EnumSelector enumList={ranSharingList} editing={editingRanSharingList} />
+        <EnumEditor enumList={ranSharingList} editing={editingRanSharingList} />
         <Dimmer active={waitingRanSharingList}>
           <Loader />
         </Dimmer>

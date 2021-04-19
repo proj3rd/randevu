@@ -3,7 +3,7 @@ import { DocOperator, DocPackage, DocUser } from "randevu-shared/dist/types";
 import { useEffect, useState } from "react";
 import { Button, Dimmer, Divider, DropdownItemProps, DropdownProps, Form, Loader, Message, Modal, ModalProps, Select } from "semantic-ui-react";
 import { EnumItem } from "../types";
-import EnumSelector from "./EnumSelector";
+import EnumEditor from "./EnumEditor";
 
 type Props = {
   onAdd?: () => void;
@@ -206,28 +206,28 @@ export default function ModalPackageAddMod({ onAdd, ...modalProps }: Props) {
             </Form.Field>
             <Form.Field disabled={!packageMain}>
               <label>Deployment options</label>
-              <EnumSelector
+              <EnumEditor
                 enumList={deploymentOptionList}
                 onChange={(deploymentOptionList) => setDeploymentOptionList([...deploymentOptionList])}
               />
             </Form.Field>
             <Form.Field disabled={!packageMain}>
               <label>Prodcuts</label>
-              <EnumSelector
+              <EnumEditor
                 enumList={productList}
                 onChange={(productList) => setProductList([...productList])}
               />
             </Form.Field>
             <Form.Field disabled={!packageMain}>
               <label>Radio access technologies</label>
-              <EnumSelector
+              <EnumEditor
                 enumList={ratList}
                 onChange={(ratList) => setRatList([...ratList])}
               />
             </Form.Field>
             <Form.Field disabled={!packageMain}>
               <label>RAN sharing</label>
-              <EnumSelector
+              <EnumEditor
                 enumList={ranSharingList}
                 onChange={(ranSharingList) => setRanSharingList([...ranSharingList])}
               />

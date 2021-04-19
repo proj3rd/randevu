@@ -8,7 +8,7 @@ type Props = {
   onChange?: (enumLisT: EnumItem[]) => void;
 };
 
-export default function EnumSelector({ enumList: enumListProp, editing, onChange }: Props) {
+export default function EnumEditor({ enumList: enumListProp, editing, onChange }: Props) {
   const [enumList, setEnumList] = useState<EnumItem[]>([]);
 
   useEffect(() => {
