@@ -20,7 +20,7 @@ export default function PackageSearch({ user }: Props) {
       setOperatorList(operatorList);
       return axios.get('/packages?include[]=operator');
     }).then((response) => {
-      const { data: packageList } = response;
+      const packageList = groupPackageList(response.data);
       setPackageList(packageList);
     }).catch((reason) => {
       console.error(reason);
@@ -28,6 +28,18 @@ export default function PackageSearch({ user }: Props) {
       setWaiting(false);
     });
   }, [])
+
+  function groupPackageList(packageList: DocPackage[]) {
+    const packageMainList = packageList.filter((pkg) => !pkg.main);
+    const packageSubList = packageList.filter((pkg) => pkg.main);
+    const packageListGrouped: DocPackage[] = [];
+    packageMainList.forEach((pkgMain) => {
+      const { _id } = pkgMain;
+      packageListGrouped.push(pkgMain);
+      packageListGrouped.push(...packageSubList.filter((pkgSub) => pkgSub.main === _id));
+    });
+    return packageListGrouped;
+  }
 
   function onAdd() {
     setWaiting(true);
