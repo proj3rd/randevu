@@ -49,32 +49,28 @@ export default function PackageInfoSub({ user }: Props) {
     });
 
     setWaitingDeploymentOptionList(true);
+    let deploymentOptionListTemp: EnumItem[] = [];
     axios.get('/deployment-options').then((response) => {
-      const { data: deploymentOptionList } = response;
-      setDeploymentOptionList(deploymentOptionList);
+      ({ data: deploymentOptionListTemp } = response);
       return axios.get(`/packages/sub/${seqVal}/deployment-options`);
     }).then((response) => {
       const { data: deploymentOptionListSelected } = response;
-      const deploymentOptionListNew = markSelected(deploymentOptionList, deploymentOptionListSelected);
+      const deploymentOptionListNew = markSelected(deploymentOptionListTemp, deploymentOptionListSelected);
       setDeploymentOptionList(deploymentOptionListNew);
     }).catch((reason) => {
       console.error(reason);
     }).finally(() => {
       setWaitingDeploymentOptionList(false);
     });
-    axios.get(`/packages/sub/${seqVal}/deployment-options`).then((response) => {
-      const { data: deploymentOptionList } = response;
-      setDeploymentOptionList(deploymentOptionList);
-    })
 
     setWaitingProductList(true);
+    let productListTemp: EnumItem[] = [];
     axios.get('/products').then((response) => {
-      const { data: productList } = response;
-      setProductList(productList);
+      ({ data: productListTemp } = response);
       return axios.get(`/packages/sub/${seqVal}/products`);
     }).then((response) => {
       const { data: productListSelected } = response;
-      const productListNew = markSelected(productList, productListSelected);
+      const productListNew = markSelected(productListTemp, productListSelected);
       setProductList(productListNew);
     }).catch((reason) => {
       console.error(reason);
@@ -83,13 +79,13 @@ export default function PackageInfoSub({ user }: Props) {
     });
 
     setWaitingRatList(true);
+    let ratListTemp: EnumItem[] = [];
     axios.get('/radio-access-technologies').then((response) => {
-      const { data: ratList } = response;
-      setRatList(ratList);
+      ({ data: ratListTemp } = response);
       return axios.get(`/packages/sub/${seqVal}/radio-access-technologies`);
     }).then((response) => {
       const { data: ratListSelected } = response;
-      const ratListNew = markSelected(ratList, ratListSelected);
+      const ratListNew = markSelected(ratListTemp, ratListSelected);
       setRatList(ratListNew);
     }).catch((reason) => {
       console.error(reason);
@@ -98,13 +94,13 @@ export default function PackageInfoSub({ user }: Props) {
     });
 
     setWaitingRanSharingList(true);
+    let ranSharingListTemp: EnumItem[] = [];
     axios.get('/ran-sharing').then((response) => {
-      const { data: ranSharingList } = response;
-      setRanSharingList(ranSharingList);
+      ({ data: ranSharingListTemp } = response);
       return axios.get(`/packages/sub/${seqVal}/ran-sharing`);
     }).then((response) => {
       const { data: ranSharingListSelected } = response;
-      const ranSharingListNew = markSelected(ranSharingList, ranSharingListSelected);
+      const ranSharingListNew = markSelected(ranSharingListTemp, ranSharingListSelected);
       setRanSharingList(ranSharingListNew);
     }).catch((reason) => {
       console.error(reason);
