@@ -54,12 +54,14 @@ export default function PackageSearch({ user }: Props) {
   }
 
   return (
-    <Dimmer.Dimmable>
+    <>
       <Header as='h1'>Packages</Header>
-      <PackageTable packageList={packageList} operatorList={operatorList} user={user} onAdd={onAdd} />
-      <Dimmer active={waiting}>
-        <Loader />
-      </Dimmer>
-    </Dimmer.Dimmable>
+      <Dimmer.Dimmable>
+        <PackageTable packageList={packageList} operatorList={operatorList} user={user} onAdd={onAdd} />
+        <Dimmer active={waiting}>
+          <Loader />
+        </Dimmer>
+      </Dimmer.Dimmable>
+    </>
   )
 }
