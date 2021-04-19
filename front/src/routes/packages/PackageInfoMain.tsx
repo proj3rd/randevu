@@ -3,7 +3,7 @@ import { DocOperator, DocPackage, DocUser } from "randevu-shared/dist/types";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Dimmer, Header, Loader } from "semantic-ui-react";
-import PackageTable from "./PackageTable";
+import PackageTable from "../../components/PackageTable";
 
 type Props = {
   user: DocUser | undefined;

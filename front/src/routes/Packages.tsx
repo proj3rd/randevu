@@ -3,8 +3,8 @@ import { DocUser } from "randevu-shared/dist/types";
 import { useEffect, useState } from "react";
 import { Route, Switch, useRouteMatch } from "react-router-dom";
 import { Container, Dimmer, Loader } from "semantic-ui-react";
-import PackageInfoMain from "../components/PackageInfoMain";
-import PackageInfoSub from "../components/PackageInfoSub";
+import PackageInfoMain from "./packages/PackageInfoMain";
+import PackageInfoSub from "./packages/PackageInfoSub";
 import PackageSearch from "./packages/PackageSearch";
 
 type Props = {

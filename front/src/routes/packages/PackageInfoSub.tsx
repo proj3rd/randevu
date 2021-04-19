@@ -3,9 +3,9 @@ import { DocOperator, DocUser } from "randevu-shared/dist/types";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Dimmer, Header, Label, Loader } from "semantic-ui-react";
-import { EnumItem } from "../types";
-import { markSelected } from "../utils";
-import EnumEditor from "./EnumEditor";
+import { EnumItem } from "../../types";
+import { markSelected } from "../../utils";
+import EnumEditor from "../../components/EnumEditor";
 
 type Props = {
   user: DocUser | undefined;
