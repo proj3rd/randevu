@@ -15,8 +15,6 @@ type Props = {
 const numCols = 2;
 
 export default function PackageTable({ packageList, operatorList, user, onAdd: onAddParent }: Props) {
-  const { url } = useRouteMatch();
-
   const [open, setOpen] = useState(false);
 
   function onAdd() {
