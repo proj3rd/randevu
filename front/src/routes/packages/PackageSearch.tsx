@@ -12,7 +12,7 @@ type Props = {
 
 const numCols = 2;
 
-export default function PackageList({ user }: Props) {
+export default function PackageSearch({ user }: Props) {
   const { url } = useRouteMatch();
 
   const [waiting, setWaiting] = useState(false);

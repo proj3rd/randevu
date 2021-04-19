@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Route, Switch, useRouteMatch } from "react-router-dom";
 import { Container, Dimmer, Loader } from "semantic-ui-react";
 import PackageInfo from "./packages/PackageInfo";
-import PackageList from "./packages/PackageList";
+import PackageSearch from "./packages/PackageSearch";
 
 type Props = {
   user: DocUser | undefined;
@@ -30,7 +30,7 @@ export default function Packages({ user, onLogout }: Props) {
     <Container>
       <Dimmer.Dimmable>
         <Switch>
-          <Route exact path={path} render={() => <PackageList user={user} />} />
+          <Route exact path={path} render={() => <PackageSearch user={user} />} />
           <Route path={`${path}/main/:seqVal`} render={() => <PackageInfo user={user} type='main' />} />
           <Route path={`${path}/sub/:seqVal`} render={() => <PackageInfo user={user} type='sub' />} />
         </Switch>
