@@ -1,7 +1,7 @@
 import { Database } from "arangojs";
 import { Transaction } from "arangojs/transaction";
 import { Express } from 'express';
-import { COLLECTION_OPERATOR, COLLECTION_PACKAGE_MAIN, COLLECTION_PACKAGE_SUB, COLLECTION_USER, EDGE_COLLECTION_DERIVED_FROM, EDGE_COLLECTION_OWNS, EDGE_COLLECTION_SUCCEEDS, EDGE_COLLECTION_TARGETS } from "../constants";
+import { COLLECTION_DEPLOYMENT_OPTION, COLLECTION_OPERATOR, COLLECTION_PACKAGE_MAIN, COLLECTION_PACKAGE_SUB, COLLECTION_PRODUCTS, COLLECTION_USER, EDGE_COLLECTION_DERIVED_FROM, EDGE_COLLECTION_OWNS, EDGE_COLLECTION_REQUIRES, EDGE_COLLECTION_SUCCEEDS, EDGE_COLLECTION_TARGETS } from "../constants";
 import { DocUser } from "randevu-shared/dist/types";
 import { mergeObjectList, validateString, validateStringList } from "../utils";
 
@@ -123,6 +123,86 @@ export function servicePackage(app: Express, db: Database) {
       }
       await trx.commit();
       return res.json(packageSubList);
+    } catch (e) {
+      if (trx) {
+        await trx.abort();
+      }
+      console.error(e);
+      return res.status(500).end();
+    }
+  });
+
+  app.get('/packages/sub/:seqVal/deployment-options', async (req, res) => {
+    const user = req.user as DocUser;
+    if (!user) {
+      return res.status(403).end();
+    }
+    let trx: Transaction | undefined;
+    try {
+      const collectionDeploymentOption = db.collection(COLLECTION_DEPLOYMENT_OPTION);
+      const collectionPackageSub = db.collection(COLLECTION_PACKAGE_SUB);
+      const collectionRequires = db.collection(EDGE_COLLECTION_REQUIRES);
+      trx = await db.beginTransaction({
+        read: [collectionDeploymentOption, collectionPackageSub, collectionRequires],
+      });
+      const { seqVal } = req.params;
+      const _id = `${collectionPackageSub.name}/${seqVal}`;
+      const cursorDeploymentOptionList = await trx.step(() => db.query({
+        query: `
+          FOR deploymentOption IN @@collectionDeploymentOption
+            FOR packageSub IN INBOUND deploymentOption._id @@collectionRequires
+              FILTER packageSub._id == @_id
+              LIMIT 1
+              RETURN deploymentOption
+        `,
+        bindVars: {
+          '@collectionDeploymentOption': collectionDeploymentOption.name,
+          _id,
+          '@collectionRequires': collectionRequires.name
+        },
+      }));
+      const deploymentOptionList = await cursorDeploymentOptionList.all();
+      return res.json(deploymentOptionList);
+    } catch (e) {
+      if (trx) {
+        await trx.abort();
+      }
+      console.error(e);
+      return res.status(500).end();
+    }
+  });
+
+  app.get('/packages/sub/:seqVal/products', async (req, res) => {
+    const user = req.user as DocUser;
+    if (!user) {
+      return res.status(403).end();
+    }
+    let trx: Transaction | undefined;
+    try {
+      const collectionProduct = db.collection(COLLECTION_PRODUCTS);
+      const collectionPackageSub = db.collection(COLLECTION_PACKAGE_SUB);
+      const collectionRequires = db.collection(EDGE_COLLECTION_REQUIRES);
+      trx = await db.beginTransaction({
+        read: [collectionPackageSub, collectionProduct, collectionRequires],
+      });
+      const { seqVal } = req.params;
+      const _id = `${collectionPackageSub.name}/${seqVal}`;
+      const cursorProductList = await trx.step(() => db.query({
+        query: `
+          FOR product IN @@collectionProduct
+            FOR packageSub IN INBOUND product._id @@collectionRequires
+              FILTER packageSub._id == @_id
+              LIMIT 1
+              RETURN product
+        `,
+        bindVars: {
+          '@collectionProduct': collectionProduct.name,
+          _id,
+          '@collectionRequires': collectionRequires.name
+        },
+      }));
+      const productList = await cursorProductList.all();
+      return res.json(productList);
     } catch (e) {
       if (trx) {
         await trx.abort();
