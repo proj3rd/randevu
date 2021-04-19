@@ -1,15 +1,15 @@
-import { DocEnum } from "randevu-shared/dist/types";
 import { Label } from "semantic-ui-react";
+import { EnumItem } from "../types";
 
 type Props = {
-  enumList: DocEnum[];
+  enumList: EnumItem[];
 };
 
 export default function EnumList({ enumList }: Props) {
   return (
     <>
       {
-        enumList.map((enumItem) => {
+        enumList.filter((enumItem) => enumItem.selected).map((enumItem) => {
           const { _id, name } = enumItem;
           return (
             <Label key={_id}>{name}</Label>

@@ -1,8 +1,9 @@
 import axios from "axios";
-import { DocEnum, DocOperator, DocUser } from "randevu-shared/dist/types";
+import { DocOperator, DocUser } from "randevu-shared/dist/types";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Dimmer, Header, Label, Loader } from "semantic-ui-react";
+import { EnumItem } from "../types";
 import { markSelected } from "../utils";
 import EnumList from "./EnumList";
 
@@ -17,13 +18,13 @@ export default function PackageInfoSub({ user }: Props) {
   const [waitingName, setWaitingName] = useState(false);
   const [operator, setOperator] = useState<DocOperator | undefined>(undefined);
   const [waitingOperator, setWaitingOperator] = useState(false);
-  const [deploymentOptionList, setDeploymentOptionList] = useState<DocEnum[]>([]);
+  const [deploymentOptionList, setDeploymentOptionList] = useState<EnumItem[]>([]);
   const [waitingDeploymentOptionList, setWaitingDeploymentOptionList] = useState(false);
-  const [productList, setProductList] = useState<DocEnum[]>([]);
+  const [productList, setProductList] = useState<EnumItem[]>([]);
   const [waitingProductList, setWaitingProductList] = useState(false);
-  const [ratList, setRatList] = useState<DocEnum[]>([]);
+  const [ratList, setRatList] = useState<EnumItem[]>([]);
   const [waitingRatList, setWaitingRatList] = useState(false);
-  const [ranSharingList, setRanSharingList] = useState<DocEnum[]>([]);
+  const [ranSharingList, setRanSharingList] = useState<EnumItem[]>([]);
   const [waitingRanSharingList, setWaitingRanSharingList] = useState(false);
 
   useEffect(() => {
