@@ -44,7 +44,7 @@ export default function PackageSearch({ user }: Props) {
   function onAdd() {
     setWaiting(true);
     axios.get('/packages?include[]=operator').then((response) => {
-      const { data: packageList } = response;
+      const packageList = groupPackageList(response.data);
       setPackageList(packageList);
     }).catch((reason) => {
       console.error(reason);
