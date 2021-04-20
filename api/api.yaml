@@ -17,7 +17,7 @@ paths:
   /users/:
     $ref: './paths/users.yaml'
   /users/{seqVal}:
-    $ref: './paths/user_docKey.yaml'
+    $ref: './paths/users_seqVal.yaml'
 
   # Deployment option
   /deployment-options:
