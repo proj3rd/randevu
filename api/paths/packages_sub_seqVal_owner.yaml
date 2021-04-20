@@ -18,6 +18,6 @@ get:
     "403":
       description: Unauthorized
     "404":
-      description: Main package not found
+      description: Sub package not found
     "500":
       description: Internal failure
