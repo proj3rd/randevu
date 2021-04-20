@@ -24,7 +24,6 @@ get:
         items:
           type: string
           enum:
-            - operator
             - previous
             - owner
   responses:
@@ -53,26 +52,6 @@ get:
                 owner:
                   type: string
                   description: Document ID of owner
-                deploymentOptions:
-                  type: array
-                  items:
-                    type: string
-                    description: Document ID of deployment option
-                products:
-                  type: array
-                  items:
-                    type: string
-                    description: Document ID of product
-                radioAccessTechnologies:
-                  type: array
-                  items:
-                    type: string
-                    description: Document ID of radio access technology
-                ranSharing:
-                  type: array
-                  items:
-                    type: string
-                    description: Document ID of RAN sharing
               required:
                 - _id
                 - name
