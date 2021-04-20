@@ -172,6 +172,46 @@ export function servicePackage(app: Express, db: Database) {
     }
   });
 
+  app.get('/packages/sub/:seqVal/owner', async (req, res) => {
+    const user = req.user as DocUser;
+    if (!user) {
+      return res.status(403).end();
+    }
+    let trx: Transaction | undefined;
+    try {
+      const collectionPackageSub = db.collection(COLLECTION_PACKAGE_SUB);
+      const collectionOwns = db.collection(EDGE_COLLECTION_OWNS);
+      const collectionUser = db.collection(COLLECTION_USER);
+      trx = await db.beginTransaction({
+        read: [collectionOwns, collectionPackageSub, collectionUser],
+      });
+      const cursorOwnerList = await trx.step(() => db.query({
+        query: `
+          FOR user IN @@collectionUser
+            FOR package IN OUTBOUND user._id @@collectionOwns
+              RETURN UNSET(user, "password")
+        `,
+        bindVars: {
+          '@collectionUser': collectionUser.name,
+          '@collectionOwns': collectionOwns.name,
+        },
+      }));
+      const ownerList = await cursorOwnerList.all();
+      if (!ownerList.length) {
+        await trx.abort();
+        return res.status(404).end(); 
+      }
+      await trx.commit();
+      return res.json(ownerList[0]);
+    } catch (e) {
+      if (trx) {
+        await trx.abort();
+      }
+      console.error(e);
+      return res.status(500).end();
+    }
+  });
+
   app.get('/packages/sub/:seqVal/products', async (req, res) => {
     const user = req.user as DocUser;
     if (!user) {
