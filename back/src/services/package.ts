@@ -240,8 +240,9 @@ export function servicePackage(app: Express, db: Database) {
         },
       }));
       const previousList = await cursorPreviousList.all();
+      const previous = previousList[0];
       await trx.commit();
-      return res.json(previousList);
+      return res.json(previous);
     } catch (e) {
       if (trx) {
         await trx.abort();
