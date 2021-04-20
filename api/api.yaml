@@ -5,45 +5,64 @@ info:
 servers:
   - url: http://localhost:3699
 paths:
+  # User
   /authenticate:
     $ref: './paths/authenticate.yaml'
-  /deployment-options:
-    $ref: './paths/deploymentOptions.yaml'
-  /deployment-options/{seqVal}:
-    $ref: './paths/deploymentOption.yaml'
-  /duplex-modes:
-    $ref: './paths/duplexModes.yaml'
-  /duplex-modes/{seqVal}:
-    $ref: './paths/duplexMode.yaml'
   /join:
     $ref: './paths/join.yaml'
   /login:
     $ref: './paths/login.yaml'
   /logout:
     $ref: './paths/logout.yaml'
-  /network-elements:
-    $ref: './paths/networkElements.yaml'
-  /network-elements/{seqVal}:
-    $ref: './paths/networkElement.yaml'
-  /operators:
-    $ref: './paths/operators.yaml'
-  /packages:
-    $ref: './paths/packages.yaml'
-  /products:
-    $ref: './paths/products.yaml'
-  /products/{seqVal}:
-    $ref: './paths/product.yaml'
-  /radio-access-technologies:
-    $ref: './paths/radioAccessTechnologies.yaml'
-  /radio-access-technologies/{seqVal}:
-    $ref: './paths/radioAccessTechnology.yaml'
-  /ran-sharing:
-    $ref: './paths/ranSharings.yaml'
-  /ran-sharing/{seqVal}:
-    $ref: './paths/ranSharing.yaml'
-  /requirements:
-    $ref: './paths/requirements.yaml'
   /users/:
     $ref: './paths/users.yaml'
   /users/{seqVal}:
     $ref: './paths/user_docKey.yaml'
+
+  # Deployment option
+  /deployment-options:
+    $ref: './paths/deploymentOptions.yaml'
+  /deployment-options/{seqVal}:
+    $ref: './paths/deploymentOption.yaml'
+
+    # Duplex mode
+  /duplex-modes:
+    $ref: './paths/duplexModes.yaml'
+  /duplex-modes/{seqVal}:
+    $ref: './paths/duplexMode.yaml'
+
+    # Network element
+  /network-elements:
+    $ref: './paths/networkElements.yaml'
+  /network-elements/{seqVal}:
+    $ref: './paths/networkElement.yaml'
+
+    # Operator
+  /operators:
+    $ref: './paths/operators.yaml'
+
+  # Package
+  /packages:
+    $ref: './paths/packages.yaml'
+
+  # Product
+  /products:
+    $ref: './paths/products.yaml'
+  /products/{seqVal}:
+    $ref: './paths/product.yaml'
+
+  # RAT
+  /radio-access-technologies:
+    $ref: './paths/radioAccessTechnologies.yaml'
+  /radio-access-technologies/{seqVal}:
+    $ref: './paths/radioAccessTechnology.yaml'
+
+  # RAN sharing
+  /ran-sharing:
+    $ref: './paths/ranSharings.yaml'
+  /ran-sharing/{seqVal}:
+    $ref: './paths/ranSharing.yaml'
+
+  # Requirement
+  /requirements:
+    $ref: './paths/requirements.yaml'
