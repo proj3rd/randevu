@@ -50,6 +50,8 @@ paths:
     $ref: './paths/packages_main_seqVal_sub.yaml'
   /packages/sub/{seqVal}:
     $ref: './paths/packages_sub_seqVal.yaml'
+  /packages/sub/{seqVal}/operator:
+    $ref: './paths/packages_sub_seqVal_operator.yaml'
   /packages/sub/{seqVal}/owner:
     $ref: './paths/packages_sub_seqVal_owner.yaml'
 
