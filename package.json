@@ -1,7 +1,8 @@
 {
   "name": "randevu",
   "scripts": {
-    "shared": "cd shared && tsc && cd ../back && yarn add file:../shared && cd ../front && yarn add file:../shared"
+    "shared": "cd shared && tsc && cd ../back && yarn add file:../shared && cd ../front && yarn add file:../shared",
+    "redoc": "npx @redocly/openapi-cli preview-docs ./api/api.yaml"
   },
   "version": "1.0.0",
   "main": "index.js",
