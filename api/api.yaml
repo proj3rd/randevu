@@ -54,6 +54,8 @@ paths:
     $ref: './paths/packages_sub_seqVal_operator.yaml'
   /packages/sub/{seqVal}/owner:
     $ref: './paths/packages_sub_seqVal_owner.yaml'
+  /packages/sub/{seqVal}/previous:
+    $ref: './paths/packages_sub_seqVal_previous.yaml'
   /packages/sub/{seqVal}/deployment-options:
     $ref: './paths/packages_sub_seqVal_deploymentOptions.yaml'
   /packages/sub/{seqVal}/products:
