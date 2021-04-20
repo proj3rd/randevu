@@ -42,10 +42,9 @@ export default function PackageInfoSub({ user }: Props) {
     axios.get(`/packages/sub/${seqVal}`).then((response) => {
       const { name } = response.data;
       setName(name);
+      setWaitingName(false);
     }).catch((reason) => {
       console.error(reason);
-    }).finally(() => {
-      setWaitingName(false);
     });
 
     axios.get(`/packages/sub/${seqVal}/operator`).then((response) => {
@@ -72,10 +71,9 @@ export default function PackageInfoSub({ user }: Props) {
       const deploymentOptionListNew = markSelected(deploymentOptionListTemp, deploymentOptionListSelected);
       deploymentOptionListOriginal.current = cloneDeep(deploymentOptionListNew);
       setDeploymentOptionList(deploymentOptionListNew);
+      setWaitingDeploymentOptionList(false);
     }).catch((reason) => {
       console.error(reason);
-    }).finally(() => {
-      setWaitingDeploymentOptionList(false);
     });
 
     setWaitingProductList(true);
@@ -88,10 +86,9 @@ export default function PackageInfoSub({ user }: Props) {
       const productListNew = markSelected(productListTemp, productListSelected);
       productListOriginal.current = cloneDeep(productListNew);
       setProductList(productListNew);
+      setWaitingProductList(false);
     }).catch((reason) => {
       console.error(reason);
-    }).finally(() => {
-      setWaitingProductList(false);
     });
 
     setWaitingRatList(true);
@@ -104,10 +101,9 @@ export default function PackageInfoSub({ user }: Props) {
       const ratListNew = markSelected(ratListTemp, ratListSelected);
       ratListOriginal.current = cloneDeep(ratListNew);
       setRatList(ratListNew);
+      setWaitingRatList(false);
     }).catch((reason) => {
       console.error(reason);
-    }).finally(() => {
-      setWaitingRatList(false);
     });
 
     setWaitingRanSharingList(true);
@@ -120,10 +116,9 @@ export default function PackageInfoSub({ user }: Props) {
       const ranSharingListNew = markSelected(ranSharingListTemp, ranSharingListSelected);
       ranSharingListOriginal.current = cloneDeep(ranSharingListNew);
       setRanSharingList(ranSharingListNew);
+      setWaitingRanSharingList(false);
     }).catch((reason) => {
       console.error(reason);
-    }).finally(() => {
-      setWaitingRanSharingList(false);
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [seqVal]);
