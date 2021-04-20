@@ -3,7 +3,7 @@ import { cloneDeep } from 'lodash';
 import { DocOperator, DocUser } from "randevu-shared/dist/types";
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Dimmer, Header, Icon, Label, Loader } from "semantic-ui-react";
+import { Dimmer, Header, Icon, Label, Loader, Table } from "semantic-ui-react";
 import { EnumItem } from "../../types";
 import { markSelected } from "../../utils";
 import EnumEditor from "../../components/EnumEditor";
@@ -159,120 +159,142 @@ export default function PackageInfoSub({ user }: Props) {
           <Loader />
         </Dimmer>
       </Dimmer.Dimmable>
-      <div>
-        <Label>
-          Operator
-          <Label.Detail>{operator?.name ?? ''}</Label.Detail>
-        </Label>
-        <Label>
-          Owner
-          <Label.Detail>{owner?.username ?? ''}</Label.Detail>
-        </Label>
-      </div>
-      <Header as='h2'>Deployment options</Header>
-      <Dimmer.Dimmable>
-        <EnumEditor enumList={deploymentOptionList} editing={editingDeploymentOptionList} />
-        {
-          editingDeploymentOptionList ? (
-            <>
-            <Label as='a' basic>
-              <Icon name='check' />
-              Save
-            </Label>
-            <Label as='a' basic onClick={cancelEditingDeploymentOptionList}>
-              <Icon name='cancel' />
-              Cancel
-            </Label>
-            </>
-          ) : (
-            <Label as='a' basic onClick={() => setEditingDeploymentOptionList(true)}>
-              <Icon name='edit' />
-              Edit
-            </Label>
-          )
-        }
-        <Dimmer active={waitingDeploymentOptionList}>
-          <Loader />
-        </Dimmer>
-      </Dimmer.Dimmable>
-      <Header as='h2'>Products</Header>
-      <Dimmer.Dimmable>
-        <EnumEditor enumList={productList} editing={editingProductList} />
-        {
-          editingProductList ? (
-            <>
-            <Label as='a' basic>
-              <Icon name='check' />
-              Save
-            </Label>
-            <Label as='a' basic onClick={cancelEditingProductList}>
-              <Icon name='cancel' />
-              Cancel
-            </Label>
-            </>
-          ) : (
-            <Label as='a' basic onClick={() => setEditingProductList(true)}>
-              <Icon name='edit' />
-              Edit
-            </Label>
-          )
-        }
-        <Dimmer active={waitingProductList}>
-          <Loader />
-        </Dimmer>
-      </Dimmer.Dimmable>
-      <Header as='h2'>Radio access technologies</Header>
-      <Dimmer.Dimmable>
-        <EnumEditor enumList={ratList} editing={editingRatList} />
-        {
-          editingRatList ? (
-            <>
-            <Label as='a' basic>
-              <Icon name='check' />
-              Save
-            </Label>
-            <Label as='a' basic onClick={cancelEditingRatList}>
-              <Icon name='cancel' />
-              Cancel
-            </Label>
-            </>
-          ) : (
-            <Label as='a' basic onClick={() => setEditingRatList(true)}>
-              <Icon name='edit' />
-              Edit
-            </Label>
-          )
-        }
-        <Dimmer active={waitingRatList}>
-          <Loader />
-        </Dimmer>
-      </Dimmer.Dimmable>
-      <Header as='h2'>RAN sharing</Header>
-      <Dimmer.Dimmable>
-        <EnumEditor enumList={ranSharingList} editing={editingRanSharingList} />
-        {
-          editingRanSharingList ? (
-            <>
-            <Label as='a' basic>
-              <Icon name='check' />
-              Save
-            </Label>
-            <Label as='a' basic onClick={cancelEditingRanSharingList}>
-              <Icon name='cancel' />
-              Cancel
-            </Label>
-            </>
-          ) : (
-            <Label as='a' basic onClick={() => setEditingRanSharingList(true)}>
-              <Icon name='edit' />
-              Edit
-            </Label>
-          )
-        }
-        <Dimmer active={waitingRanSharingList}>
-          <Loader />
-        </Dimmer>
-      </Dimmer.Dimmable>
+      <Table definition>
+        <Table.Body>
+          <Table.Row>
+            <Table.Cell collapsing>Operator</Table.Cell>
+            <Table.Cell>{operator?.name ?? ''}</Table.Cell>
+          </Table.Row>
+          <Table.Row>
+            <Table.Cell collapsing>Previous</Table.Cell>
+            <Table.Cell></Table.Cell>
+          </Table.Row>
+          <Table.Row>
+            <Table.Cell collapsing>Owner</Table.Cell>
+            <Table.Cell>{owner?.username ?? ''}</Table.Cell>
+          </Table.Row>
+          <Table.Row>
+            <Table.Cell collapsing>Deployment options</Table.Cell>
+            <Table.Cell>
+              <Dimmer.Dimmable>
+                <EnumEditor enumList={deploymentOptionList} editing={editingDeploymentOptionList} />
+                {
+                  editingDeploymentOptionList ? (
+                    <>
+                    <Label as='a' basic>
+                      <Icon name='check' />
+                      Save
+                    </Label>
+                    <Label as='a' basic onClick={cancelEditingDeploymentOptionList}>
+                      <Icon name='cancel' />
+                      Cancel
+                    </Label>
+                    </>
+                  ) : (
+                    <Label as='a' basic onClick={() => setEditingDeploymentOptionList(true)}>
+                      <Icon name='edit' />
+                      Edit
+                    </Label>
+                  )
+                }
+                <Dimmer active={waitingDeploymentOptionList}>
+                  <Loader />
+                </Dimmer>
+              </Dimmer.Dimmable>
+            </Table.Cell>
+          </Table.Row>
+          <Table.Row>
+            <Table.Cell collapsing>Products</Table.Cell>
+            <Table.Cell>
+              <Dimmer.Dimmable>
+                <EnumEditor enumList={productList} editing={editingProductList} />
+                {
+                  editingProductList ? (
+                    <>
+                    <Label as='a' basic>
+                      <Icon name='check' />
+                      Save
+                    </Label>
+                    <Label as='a' basic onClick={cancelEditingProductList}>
+                      <Icon name='cancel' />
+                      Cancel
+                    </Label>
+                    </>
+                  ) : (
+                    <Label as='a' basic onClick={() => setEditingProductList(true)}>
+                      <Icon name='edit' />
+                      Edit
+                    </Label>
+                  )
+                }
+                <Dimmer active={waitingProductList}>
+                  <Loader />
+                </Dimmer>
+              </Dimmer.Dimmable>
+            </Table.Cell>
+          </Table.Row>
+          <Table.Row>
+            <Table.Cell collapsing>Radio access technologies</Table.Cell>
+            <Table.Cell>
+              <Dimmer.Dimmable>
+                <EnumEditor enumList={ratList} editing={editingRatList} />
+                {
+                  editingRatList ? (
+                    <>
+                    <Label as='a' basic>
+                      <Icon name='check' />
+                      Save
+                    </Label>
+                    <Label as='a' basic onClick={cancelEditingRatList}>
+                      <Icon name='cancel' />
+                      Cancel
+                    </Label>
+                    </>
+                  ) : (
+                    <Label as='a' basic onClick={() => setEditingRatList(true)}>
+                      <Icon name='edit' />
+                      Edit
+                    </Label>
+                  )
+                }
+                <Dimmer active={waitingRatList}>
+                  <Loader />
+                </Dimmer>
+              </Dimmer.Dimmable>
+            </Table.Cell>
+          </Table.Row>
+          <Table.Row>
+            <Table.Cell collapsing>RAN sharing</Table.Cell>
+            <Table.Cell>
+              <Dimmer.Dimmable>
+                <EnumEditor enumList={ranSharingList} editing={editingRanSharingList} />
+                {
+                  editingRanSharingList ? (
+                    <>
+                    <Label as='a' basic>
+                      <Icon name='check' />
+                      Save
+                    </Label>
+                    <Label as='a' basic onClick={cancelEditingRanSharingList}>
+                      <Icon name='cancel' />
+                      Cancel
+                    </Label>
+                    </>
+                  ) : (
+                    <Label as='a' basic onClick={() => setEditingRanSharingList(true)}>
+                      <Icon name='edit' />
+                      Edit
+                    </Label>
+                  )
+                }
+                <Dimmer active={waitingRanSharingList}>
+                  <Loader />
+                </Dimmer>
+              </Dimmer.Dimmable>
+            </Table.Cell>
+          </Table.Row>
+        </Table.Body>
+      </Table>
     </>
   );
 }
