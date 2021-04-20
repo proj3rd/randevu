@@ -161,6 +161,7 @@ export function servicePackage(app: Express, db: Database) {
         },
       }));
       const deploymentOptionList = await cursorDeploymentOptionList.all();
+      await trx.commit();
       return res.json(deploymentOptionList);
     } catch (e) {
       if (trx) {
@@ -200,6 +201,7 @@ export function servicePackage(app: Express, db: Database) {
         },
       }));
       const productList = await cursorProductList.all();
+      await trx.commit();
       return res.json(productList);
     } catch (e) {
       if (trx) {
@@ -239,6 +241,7 @@ export function servicePackage(app: Express, db: Database) {
         },
       }));
       const ratList = await cursorRatList.all();
+      await trx.commit();
       return res.json(ratList);
     } catch (e) {
       if (trx) {
@@ -278,6 +281,7 @@ export function servicePackage(app: Express, db: Database) {
         },
       }));
       const ranSharingList = await cursorRanSharingList.all();
+      await trx.commit();
       return res.json(ranSharingList);
     } catch (e) {
       if (trx) {
@@ -316,6 +320,7 @@ export function servicePackage(app: Express, db: Database) {
         await trx.abort();
         return res.status(404).end();
       }
+      await trx.commit();
       return res.json(operatorList[0]);
     } catch (e) {
       if (trx) {
@@ -344,6 +349,7 @@ export function servicePackage(app: Express, db: Database) {
         await trx.abort();
         return res.status(404).end();
       }
+      await trx.commit();
       return res.json(packageSub);
     } catch (e) {
       if (trx) {
