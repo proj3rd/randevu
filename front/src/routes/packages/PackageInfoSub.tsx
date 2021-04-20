@@ -1,12 +1,13 @@
 import axios from "axios";
 import { cloneDeep } from 'lodash';
-import { DocOperator, DocUser } from "randevu-shared/dist/types";
+import { DocOperator, DocPackage, DocUser } from "randevu-shared/dist/types";
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { Dimmer, Header, Icon, Label, Loader, Table } from "semantic-ui-react";
 import { EnumItem } from "../../types";
 import { markSelected } from "../../utils";
 import EnumEditor from "../../components/EnumEditor";
+import { seqValOf } from "randevu-shared/dist/utils";
 
 type Props = {
   user: DocUser | undefined;
@@ -24,6 +25,8 @@ export default function PackageInfoSub({ user }: Props) {
   const [waitingName, setWaitingName] = useState(false);
   const [operator, setOperator] = useState<DocOperator | undefined>(undefined);
   const [waitingOperator, setWaitingOperator] = useState(false);
+  const [previous, setPrevious] = useState<DocPackage | undefined>(undefined);
+  const [waitingPrevious, setWaitingPrevious] = useState(false);
   const [owner, setOwner] = useState<DocUser | undefined>(undefined);
   const [waitingOwner, setWaitingOwner] = useState(false);
   const [deploymentOptionList, setDeploymentOptionList] = useState<EnumItem[]>([]);
@@ -54,6 +57,15 @@ export default function PackageInfoSub({ user }: Props) {
       const { data: operator } = response;
       setOperator(operator);
       setWaitingOperator(false);
+    }).catch((reason) => {
+      console.error(reason);
+    });
+
+    setWaitingPrevious(true);
+    axios.get(`/packages/sub/${seqVal}/previous`).then((response) => {
+      const { data: previous } = response;
+      setPrevious(previous);
+      setWaitingPrevious(false);
     }).catch((reason) => {
       console.error(reason);
     });
@@ -175,7 +187,19 @@ export default function PackageInfoSub({ user }: Props) {
           </Table.Row>
           <Table.Row>
             <Table.Cell collapsing>Previous</Table.Cell>
-            <Table.Cell></Table.Cell>
+            <Table.Cell>
+              <Dimmer.Dimmable>
+                {
+                  previous ? (
+                    <Link to={`/packages/sub/${seqValOf(previous._id)}`}>{previous.name}</Link>
+                  ) : (<></>)
+                }
+                <Label as='a' basic>Release history</Label>
+                <Dimmer active={waitingPrevious}>
+                  <Loader />
+                </Dimmer>
+              </Dimmer.Dimmable>
+            </Table.Cell>
           </Table.Row>
           <Table.Row>
             <Table.Cell collapsing>Owner</Table.Cell>
