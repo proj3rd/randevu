@@ -29,8 +29,6 @@ paths:
     $ref: './paths/operators.yaml'
   /packages:
     $ref: './paths/packages.yaml'
-  /packages/{seqVal}:
-    $ref: './paths/packages_docId.yaml'
   /products:
     $ref: './paths/products.yaml'
   /products/{seqVal}:
