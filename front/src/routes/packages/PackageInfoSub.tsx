@@ -23,7 +23,9 @@ export default function PackageInfoSub({ user }: Props) {
   const [name, setName] = useState('');
   const [waitingName, setWaitingName] = useState(false);
   const [operator, setOperator] = useState<DocOperator | undefined>(undefined);
+  const [waitingOperator, setWaitingOperator] = useState(false);
   const [owner, setOwner] = useState<DocUser | undefined>(undefined);
+  const [waitingOwner, setWaitingOwner] = useState(false);
   const [deploymentOptionList, setDeploymentOptionList] = useState<EnumItem[]>([]);
   const [waitingDeploymentOptionList, setWaitingDeploymentOptionList] = useState(false);
   const [editingDeploymentOptionList, setEditingDeploymentOptionList] = useState(false);
@@ -47,16 +49,20 @@ export default function PackageInfoSub({ user }: Props) {
       console.error(reason);
     });
 
+    setWaitingOperator(true);
     axios.get(`/packages/sub/${seqVal}/operator`).then((response) => {
       const { data: operator } = response;
       setOperator(operator);
+      setWaitingOperator(false);
     }).catch((reason) => {
       console.error(reason);
     });
 
+    setWaitingOwner(true);
     axios.get(`/packages/sub/${seqVal}/owner`).then((response) => {
       const { data: owner } = response;
       setOwner(owner);
+      setWaitingOwner(false);
     }).catch((reason) => {
       console.error(reason);
     });
@@ -158,7 +164,14 @@ export default function PackageInfoSub({ user }: Props) {
         <Table.Body>
           <Table.Row>
             <Table.Cell collapsing>Operator</Table.Cell>
-            <Table.Cell>{operator?.name ?? ''}</Table.Cell>
+            <Table.Cell>
+              <Dimmer.Dimmable>
+                {operator?.name ?? ''}
+                <Dimmer active={waitingOperator}>
+                  <Loader />
+                </Dimmer>
+              </Dimmer.Dimmable>
+            </Table.Cell>
           </Table.Row>
           <Table.Row>
             <Table.Cell collapsing>Previous</Table.Cell>
@@ -166,7 +179,14 @@ export default function PackageInfoSub({ user }: Props) {
           </Table.Row>
           <Table.Row>
             <Table.Cell collapsing>Owner</Table.Cell>
-            <Table.Cell>{owner?.username ?? ''}</Table.Cell>
+            <Table.Cell>
+              <Dimmer.Dimmable>
+                {owner?.username ?? ''}
+                <Dimmer active={waitingOwner}>
+                  <Loader />
+                </Dimmer>
+              </Dimmer.Dimmable>
+            </Table.Cell>
           </Table.Row>
           <Table.Row>
             <Table.Cell collapsing>Deployment options</Table.Cell>
