@@ -17,7 +17,7 @@ export default function PackageInfoSub({ user }: Props) {
   const [name, setName] = useState('');
   const [waitingName, setWaitingName] = useState(false);
   const [operator, setOperator] = useState<DocOperator | undefined>(undefined);
-  const [waitingOperator, setWaitingOperator] = useState(false);
+  const [owner, setOwner] = useState<DocUser | undefined>(undefined);
   const [deploymentOptionList, setDeploymentOptionList] = useState<EnumItem[]>([]);
   const [waitingDeploymentOptionList, setWaitingDeploymentOptionList] = useState(false);
   const [editingDeploymentOptionList, setEditingDeploymentOptionList] = useState(false);
@@ -42,14 +42,18 @@ export default function PackageInfoSub({ user }: Props) {
       setWaitingName(false);
     });
 
-    setWaitingOperator(true);
     axios.get(`/packages/sub/${seqVal}/operator`).then((response) => {
       const { data: operator } = response;
       setOperator(operator);
     }).catch((reason) => {
       console.error(reason);
-    }).finally(() => {
-      setWaitingOperator(false);
+    });
+
+    axios.get(`/packages/sub/${seqVal}/owner`).then((response) => {
+      const { data: owner } = response;
+      setOwner(owner);
+    }).catch((reason) => {
+      console.error(reason);
     });
 
     setWaitingDeploymentOptionList(true);
@@ -125,15 +129,16 @@ export default function PackageInfoSub({ user }: Props) {
           <Loader />
         </Dimmer>
       </Dimmer.Dimmable>
-      <Dimmer.Dimmable>
+      <div>
         <Label>
           Operator
           <Label.Detail>{operator?.name ?? ''}</Label.Detail>
         </Label>
-        <Dimmer active={waitingOperator}>
-          <Loader />
-        </Dimmer>
-      </Dimmer.Dimmable>
+        <Label>
+          Owner
+          <Label.Detail>{owner?.username ?? ''}</Label.Detail>
+        </Label>
+      </div>
       <Header as='h2'>Deployment options</Header>
       <Dimmer.Dimmable>
         <EnumEditor enumList={deploymentOptionList} editing={editingDeploymentOptionList} />
