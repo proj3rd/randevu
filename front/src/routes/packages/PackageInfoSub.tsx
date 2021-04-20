@@ -126,7 +126,10 @@ export default function PackageInfoSub({ user }: Props) {
         </Dimmer>
       </Dimmer.Dimmable>
       <Dimmer.Dimmable>
-        <Label>{operator ? operator.name : ''}</Label>
+        <Label>
+          Operator
+          <Label.Detail>{operator?.name ?? ''}</Label.Detail>
+        </Label>
         <Dimmer active={waitingOperator}>
           <Loader />
         </Dimmer>
