@@ -23,8 +23,8 @@ export function serviceProduct(app: Express, db: Database) {
       return res.status(403).end();
     }
     const { seqVal } = req.params;
-    const { nameNew } = req.body;
-    handleRequestRenameEnum(res, db, COLLECTION_PRODUCTS, seqVal, nameNew);
+    const { name } = req.body;
+    handleRequestRenameEnum(res, db, COLLECTION_PRODUCTS, seqVal, name);
   });
 
   app.post("/products", (req, res) => {
