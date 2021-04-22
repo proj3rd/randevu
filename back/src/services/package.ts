@@ -311,6 +311,42 @@ export function servicePackage(app: Express, db: Database) {
     }
   });
 
+  app.get('/packages/sub/:seqVal/follow-ups', async (req, res) => {
+    const user = req.user as DocUser;
+    if (!user) {
+      return res.status(403).end();
+    }
+    let trx: Transaction | undefined;
+    try {
+      const collectionPackageSub = db.collection(COLLECTION_PACKAGE_SUB);
+      const collectionSucceeds = db.collection(EDGE_COLLECTION_SUCCEEDS);
+      trx = await db.beginTransaction({
+        read: [collectionPackageSub, collectionSucceeds],
+      });
+      const { seqVal } = req.params;
+      const _id = `${collectionPackageSub.name}/${seqVal}`;
+      const cursorFollowUpList = await trx.step(() => db.query({
+        query: `
+          FOR followUp IN INBOUND @_id @@collectionSucceeds
+            RETURN followUp
+        `,
+        bindVars: {
+          '@collectionSucceeds': collectionSucceeds.name,
+          _id,
+        },
+      }));
+      const followUpList = await cursorFollowUpList.all();
+      await trx.commit();
+      return res.json(followUpList);
+    } catch (e) {
+      if (trx) {
+        await trx.abort();
+      }
+      console.error(e);
+      return res.status(500).end();
+    }
+  });
+
   app.get('/packages/sub/:seqVal/products', async (req, res) => {
     const user = req.user as DocUser;
     if (!user) {
