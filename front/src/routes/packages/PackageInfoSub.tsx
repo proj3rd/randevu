@@ -263,7 +263,10 @@ export default function PackageInfoSub({ user }: Props) {
                     <Link to={`/packages/sub/${seqValOf(previous._id)}`}>{previous.name}</Link>
                   ) : (<></>)
                 }
-                <Label as='a' basic>Release history</Label>
+                <Label as='a' basic>
+                  <Icon name='code branch' />
+                  Package graph
+                </Label>
                 <Dimmer active={waitingPrevious}>
                   <Loader />
                 </Dimmer>
