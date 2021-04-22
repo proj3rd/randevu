@@ -351,6 +351,63 @@ export function servicePackage(app: Express, db: Database) {
     }
   });
 
+  app.post('/packages/sub/:seqVal/products', async (req, res) => {
+    const user = req.user as DocUser;
+    if (!user) {
+      return res.status(403).end();
+    }
+    const { seqVal } = req.params;
+    const { products } = req.body;
+    if (!validateStringList(products)) {
+      return res.status(400).end();
+    }
+    let trx: Transaction | undefined;
+    try {
+      const collectionProducts = db.collection(COLLECTION_PRODUCTS);
+      const collectionOwns = db.collection(EDGE_COLLECTION_OWNS);
+      const collectionPackageSub = db.collection(COLLECTION_PACKAGE_SUB);
+      const collectionRequires = db.collection(EDGE_COLLECTION_REQUIRES);
+      const collectionUser = db.collection(COLLECTION_USER);
+      trx = await db.beginTransaction({
+        read: [collectionProducts, collectionOwns, collectionPackageSub, collectionUser],
+        write: [collectionRequires],
+      });
+      // Check package exists
+      const package_id = `${collectionPackageSub.name}/${seqVal}`;
+      const packageExists = await trx.step(() => collectionPackageSub.documentExists(package_id));
+      if (!packageExists) {
+        return res.status(404).end();
+      }
+      // CHeck package owner
+      const cursorOwnerList = await trx.step(() => db.query({
+        query: `
+          FOR package IN OUTBOUND @user_id @@collectionOwns
+            FILTER package._id == @package_id
+            LIMIT 1
+            RETURN package
+        `,
+        bindVars: {
+          user_id: user._id,
+          '@collectionOwns': collectionOwns.name, 
+          package_id,
+        },
+      }));
+      const ownerList = await cursorOwnerList.all();
+      if (!ownerList.length) {
+        return res.status(403).end();
+      }
+      await updateRequiredEnumList(db, trx, package_id, collectionRequires, collectionProducts, products);
+      await trx.commit();
+      return res.status(200).end();
+    } catch (e) {
+      if (trx) {
+        await trx.abort();
+      }
+      console.error(e);
+      return res.status(500).end();
+    }
+  });
+
   app.get('/packages/sub/:seqVal/radio-access-technologies', async (req, res) => {
     const user = req.user as DocUser;
     if (!user) {
@@ -391,6 +448,63 @@ export function servicePackage(app: Express, db: Database) {
     }
   });
 
+  app.post('/packages/sub/:seqVal/radio-access-technologies', async (req, res) => {
+    const user = req.user as DocUser;
+    if (!user) {
+      return res.status(403).end();
+    }
+    const { seqVal } = req.params;
+    const { radioAccessTechnologies } = req.body;
+    if (!validateStringList(radioAccessTechnologies)) {
+      return res.status(400).end();
+    }
+    let trx: Transaction | undefined;
+    try {
+      const collectionRat = db.collection(COLLECTION_RADIO_ACCESS_TECH);
+      const collectionOwns = db.collection(EDGE_COLLECTION_OWNS);
+      const collectionPackageSub = db.collection(COLLECTION_PACKAGE_SUB);
+      const collectionRequires = db.collection(EDGE_COLLECTION_REQUIRES);
+      const collectionUser = db.collection(COLLECTION_USER);
+      trx = await db.beginTransaction({
+        read: [collectionRat, collectionOwns, collectionPackageSub, collectionUser],
+        write: [collectionRequires],
+      });
+      // Check package exists
+      const package_id = `${collectionPackageSub.name}/${seqVal}`;
+      const packageExists = await trx.step(() => collectionPackageSub.documentExists(package_id));
+      if (!packageExists) {
+        return res.status(404).end();
+      }
+      // CHeck package owner
+      const cursorOwnerList = await trx.step(() => db.query({
+        query: `
+          FOR package IN OUTBOUND @user_id @@collectionOwns
+            FILTER package._id == @package_id
+            LIMIT 1
+            RETURN package
+        `,
+        bindVars: {
+          user_id: user._id,
+          '@collectionOwns': collectionOwns.name, 
+          package_id,
+        },
+      }));
+      const ownerList = await cursorOwnerList.all();
+      if (!ownerList.length) {
+        return res.status(403).end();
+      }
+      await updateRequiredEnumList(db, trx, package_id, collectionRequires, collectionRat, radioAccessTechnologies);
+      await trx.commit();
+      return res.status(200).end();
+    } catch (e) {
+      if (trx) {
+        await trx.abort();
+      }
+      console.error(e);
+      return res.status(500).end();
+    }
+  });
+
   app.get('/packages/sub/:seqVal/ran-sharing', async (req, res) => {
     const user = req.user as DocUser;
     if (!user) {
@@ -422,6 +536,63 @@ export function servicePackage(app: Express, db: Database) {
       const ranSharingList = await cursorRanSharingList.all();
       await trx.commit();
       return res.json(ranSharingList);
+    } catch (e) {
+      if (trx) {
+        await trx.abort();
+      }
+      console.error(e);
+      return res.status(500).end();
+    }
+  });
+
+  app.post('/packages/sub/:seqVal/ran-sharing', async (req, res) => {
+    const user = req.user as DocUser;
+    if (!user) {
+      return res.status(403).end();
+    }
+    const { seqVal } = req.params;
+    const { ranSharing } = req.body;
+    if (!validateStringList(ranSharing)) {
+      return res.status(400).end();
+    }
+    let trx: Transaction | undefined;
+    try {
+      const collectionRanSharing = db.collection(COLLECTION_RAN_SHARING);
+      const collectionOwns = db.collection(EDGE_COLLECTION_OWNS);
+      const collectionPackageSub = db.collection(COLLECTION_PACKAGE_SUB);
+      const collectionRequires = db.collection(EDGE_COLLECTION_REQUIRES);
+      const collectionUser = db.collection(COLLECTION_USER);
+      trx = await db.beginTransaction({
+        read: [collectionRanSharing, collectionOwns, collectionPackageSub, collectionUser],
+        write: [collectionRequires],
+      });
+      // Check package exists
+      const package_id = `${collectionPackageSub.name}/${seqVal}`;
+      const packageExists = await trx.step(() => collectionPackageSub.documentExists(package_id));
+      if (!packageExists) {
+        return res.status(404).end();
+      }
+      // CHeck package owner
+      const cursorOwnerList = await trx.step(() => db.query({
+        query: `
+          FOR package IN OUTBOUND @user_id @@collectionOwns
+            FILTER package._id == @package_id
+            LIMIT 1
+            RETURN package
+        `,
+        bindVars: {
+          user_id: user._id,
+          '@collectionOwns': collectionOwns.name, 
+          package_id,
+        },
+      }));
+      const ownerList = await cursorOwnerList.all();
+      if (!ownerList.length) {
+        return res.status(403).end();
+      }
+      await updateRequiredEnumList(db, trx, package_id, collectionRequires, collectionRanSharing, ranSharing);
+      await trx.commit();
+      return res.status(200).end();
     } catch (e) {
       if (trx) {
         await trx.abort();
