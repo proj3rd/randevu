@@ -15,3 +15,24 @@ get:
       description: Unauthorized
     "500":
       description: Internal failure
+post:
+  tags:
+    - Package
+  summary: Update a list of deployment options of a sub package
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            type: string
+            description: Document ID of a deployment option
+  responses:
+    "200":
+      description: Ok
+    "400":
+      description: Invalid input
+    "403":
+      description: Unauthorized
+    "500":
+      description: Internal failure

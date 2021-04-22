@@ -1,7 +1,7 @@
 get:
   tags:
     - Package
-  summary: Get a list of products of a sub package
+  summary: Get a list of RAN sharing of a sub package
   responses:
     "200":
       description: Ok
@@ -15,3 +15,25 @@ get:
       description: Unauthorized
     "500":
       description: Internal failure
+post:
+  tags:
+    - Package
+  summary: Update a list of RAN sharing of a sub package
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            type: string
+            description: Document ID of a RAN sharing
+  responses:
+    "200":
+      description: Ok
+    "400":
+      description: Invalid input
+    "403":
+      description: Unauthorized
+    "500":
+      description: Internal failure
+
