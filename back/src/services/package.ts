@@ -5,6 +5,7 @@ import { differenceWith } from 'lodash';
 import { COLLECTION_DEPLOYMENT_OPTION, COLLECTION_OPERATOR, COLLECTION_PACKAGE_MAIN, COLLECTION_PACKAGE_SUB, COLLECTION_PRODUCTS, COLLECTION_RADIO_ACCESS_TECH, COLLECTION_RAN_SHARING, COLLECTION_USER, EDGE_COLLECTION_DERIVED_FROM, EDGE_COLLECTION_OWNS, EDGE_COLLECTION_REQUIRES, EDGE_COLLECTION_SUCCEEDS, EDGE_COLLECTION_TARGETS } from "../constants";
 import { DocUser } from "randevu-shared/dist/types";
 import { mergeObjectList, validateString, validateStringList } from "../utils";
+import { DocumentCollection, EdgeCollection } from "arangojs/collection";
 
 export function servicePackage(app: Express, db: Database) {
   app.get('/packages/main/:seqVal', async (req, res) => {
@@ -218,33 +219,7 @@ export function servicePackage(app: Express, db: Database) {
       if (!ownerList.length) {
         return res.status(403).end();
       }
-      // Get current deployment option list
-      const cursorRequireList = await trx.step(() => db.query({
-        query: `
-          FOR deploymentOption IN @@collectionDeploymentOption
-            FOR package, requires IN INBOUND deploymentOption._id @@collectionRequires
-              FILTER package._id == @package_id
-              RETURN requires
-        `,
-        bindVars: {
-          '@collectionDeploymentOption': collectionDeploymentOption.name,
-          '@collectionRequires': collectionRequires.name,
-          package_id,
-        },
-      }));
-      const requireList = await cursorRequireList.all();
-      // Find out deployment option list to be added and to be removed
-      const toBeAdded = differenceWith(deploymentOptions, requireList, (id, edge) => id === edge._to);
-      for (let i = 0; i < toBeAdded.length; i += 1) {
-        await trx.step(() => collectionRequires.save({
-          _from: package_id,
-          _to: toBeAdded[i],
-        }));
-      }
-      const toBeRemoved = differenceWith(requireList, deploymentOptions, (edge, id) => edge._to === id);
-      for (let i = 0; i < toBeRemoved.length; i += 1) {
-        await trx.step(() => collectionRequires.remove(toBeRemoved[i]._id));
-      }
+      await updateRequiredEnumList(db, trx, package_id, collectionRequires, collectionDeploymentOption, deploymentOptions);
       await trx.commit();
       return res.status(200).end();
     } catch (e) {
@@ -798,4 +773,41 @@ async function findPackageByNameInCollection(db: Database, trx: Transaction, nam
   }));
   const packageFound = await cursorPackageFound.all();
   return packageFound[0];
+}
+
+async function updateRequiredEnumList(
+  db: Database,
+  trx: Transaction,
+  package_id: string,
+  collectionRequires: EdgeCollection<any>,
+  collectionEnum: DocumentCollection<any>,
+  enums: string[],
+) {
+  // Get current enum list
+  const cursorRequireList = await trx.step(() => db.query({
+    query: `
+      FOR enum IN @@collectionEnum
+        FOR package, requires IN INBOUND enum._id @@collectionRequires
+          FILTER package._id == @package_id
+          RETURN requires
+    `,
+    bindVars: {
+      '@collectionEnum': collectionEnum.name,
+      '@collectionRequires': collectionRequires.name,
+      package_id,
+    },
+  }));
+  const requireList = await cursorRequireList.all();
+  // Find out enum list to be added and to be removed
+  const toBeAdded = differenceWith(enums, requireList, (id, edge) => id === edge._to);
+  for (let i = 0; i < toBeAdded.length; i += 1) {
+    await trx.step(() => collectionRequires.save({
+      _from: package_id,
+      _to: toBeAdded[i],
+    }));
+  }
+  const toBeRemoved = differenceWith(requireList, enums, (edge, id) => edge._to === id);
+  for (let i = 0; i < toBeRemoved.length; i += 1) {
+    await trx.step(() => collectionRequires.remove(toBeRemoved[i]._id));
+  }
 }
