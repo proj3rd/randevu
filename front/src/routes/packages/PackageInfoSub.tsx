@@ -252,6 +252,10 @@ export default function PackageInfoSub({ user }: Props) {
           <Loader />
         </Dimmer>
       </Dimmer.Dimmable>
+      <Label as='a' basic>
+        <Icon name='code branch' />
+        Package graph
+      </Label>
       <Table definition>
         <Table.Body>
           <Table.Row>
@@ -274,11 +278,6 @@ export default function PackageInfoSub({ user }: Props) {
                     <Link to={`/packages/sub/${seqValOf(previous._id)}`}>{previous.name}</Link>
                   ) : (<>(None)</>)
                 }
-                {' '}
-                <Label as='a' basic>
-                  <Icon name='code branch' />
-                  Package graph
-                </Label>
                 <Dimmer active={waitingPrevious}>
                   <Loader />
                 </Dimmer>
