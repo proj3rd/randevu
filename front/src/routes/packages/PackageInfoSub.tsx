@@ -1,7 +1,7 @@
 import axios from "axios";
 import { cloneDeep } from 'lodash';
 import { DocOperator, DocPackage, DocUser } from "randevu-shared/dist/types";
-import React, { useEffect, useRef, useState } from "react";
+import React, { SetStateAction, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Dimmer, Header, Icon, Label, Loader, Table } from "semantic-ui-react";
 import { EnumItem } from "../../types";
@@ -174,6 +174,61 @@ export default function PackageInfoSub({ user }: Props) {
     setRanSharingList(ranSharingList);
   }
 
+  async function updateEnumList(
+    suffix: string, propertyName: string, enumList: EnumItem[],
+    enumListOriginal: React.MutableRefObject<EnumItem[]>,
+    setWaitingFunc: (value: React.SetStateAction<boolean>) => void,
+    setEnumListFunc: (value: SetStateAction<EnumItem[]>) => void,
+    setEditingEnumListFunc: (value: React.SetStateAction<boolean>) => void,
+  ) {
+    const enums = enumList.map((enumItem) => enumItem._id);
+    setWaitingFunc(true);
+    return axios.post(`/packages/sub/${seqVal}${suffix}`, {
+      [propertyName]: enums,
+    }).then((response) => {
+      getEnumList(suffix, enumListOriginal, setEnumListFunc).then(() => {
+        setEditingEnumListFunc(false);
+        setWaitingFunc(false);
+      }).catch((reason) => {
+        console.error(reason);
+      });
+    }).catch((reason) => {
+      console.error(reason);
+      setWaitingFunc(false);
+    });
+  }
+
+  async function updateDeploymentOptionList() {
+    return updateEnumList(
+      '/deployment-options', 'deploymentOptions',
+      deploymentOptionList, deploymentOptionListOriginal,
+      setWaitingDeploymentOptionList, setDeploymentOptionList, setEditingDeploymentOptionList,
+    );
+  }
+
+  async function updateProductList() {
+    return updateEnumList(
+      '/products', 'products',
+      productList, productListOriginal,
+      setWaitingProductList, setProductList, setEditingProductList,
+    );
+  }
+
+  async function updateRatList() {
+    return updateEnumList(
+      '/radio-access-technologies', 'radioAccessTechnologies',
+      ratList, ratListOriginal,
+      setWaitingRatList, setRatList, setEditingRatList,
+    );
+  }
+
+  async function updateRanSharingList() {
+    return updateEnumList(
+      '/ran-sharing', 'ranSharing',
+      ranSharingList, ranSharingListOriginal,
+      setWaitingRanSharingList, setRanSharingList, setEditingRanSharingList,
+    );
+  }
 
   return (
     <>
@@ -236,7 +291,7 @@ export default function PackageInfoSub({ user }: Props) {
                 {
                   editingDeploymentOptionList ? (
                     <>
-                    <Label as='a' basic>
+                    <Label as='a' basic onClick={updateDeploymentOptionList}>
                       <Icon name='check' />
                       Save
                     </Label>
@@ -268,7 +323,7 @@ export default function PackageInfoSub({ user }: Props) {
                 {
                   editingProductList ? (
                     <>
-                    <Label as='a' basic>
+                    <Label as='a' basic onClick={updateProductList}>
                       <Icon name='check' />
                       Save
                     </Label>
@@ -300,7 +355,7 @@ export default function PackageInfoSub({ user }: Props) {
                 {
                   editingRatList ? (
                     <>
-                    <Label as='a' basic>
+                    <Label as='a' basic onClick={updateRatList}>
                       <Icon name='check' />
                       Save
                     </Label>
@@ -332,7 +387,7 @@ export default function PackageInfoSub({ user }: Props) {
                 {
                   editingRanSharingList ? (
                     <>
-                    <Label as='a' basic>
+                    <Label as='a' basic onClick={updateRanSharingList}>
                       <Icon name='check' />
                       Save
                     </Label>
