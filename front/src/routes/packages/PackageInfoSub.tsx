@@ -163,15 +163,15 @@ export default function PackageInfoSub({ user }: Props) {
   }
 
   function onChangeProductList(productList: EnumItem[]) {
-    setProductList(productList);
+    setProductList(cloneDeep(productList));
   }
 
   function onChangeRatList(ratList: EnumItem[]) {
-    setRatList(ratList);
+    setRatList(cloneDeep(ratList));
   }
 
   function onChangeRanSharingList(ranSharingList: EnumItem[]) {
-    setRanSharingList(ranSharingList);
+    setRanSharingList(cloneDeep(ranSharingList));
   }
 
   async function updateEnumList(
@@ -181,7 +181,7 @@ export default function PackageInfoSub({ user }: Props) {
     setEnumListFunc: (value: SetStateAction<EnumItem[]>) => void,
     setEditingEnumListFunc: (value: React.SetStateAction<boolean>) => void,
   ) {
-    const enums = enumList.map((enumItem) => enumItem._id);
+    const enums = enumList.filter((enumItem) => enumItem.selected).map((enumItem) => enumItem._id);
     setWaitingFunc(true);
     return axios.post(`/packages/sub/${seqVal}${suffix}`, {
       [propertyName]: enums,
