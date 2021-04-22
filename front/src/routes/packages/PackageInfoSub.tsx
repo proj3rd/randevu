@@ -261,8 +261,9 @@ export default function PackageInfoSub({ user }: Props) {
                 {
                   previous ? (
                     <Link to={`/packages/sub/${seqValOf(previous._id)}`}>{previous.name}</Link>
-                  ) : (<></>)
+                  ) : (<>(None)</>)
                 }
+                {' '}
                 <Label as='a' basic>
                   <Icon name='code branch' />
                   Package graph
