@@ -1,6 +1,7 @@
 import { Database } from "arangojs";
 import { Transaction } from "arangojs/transaction";
 import { Express } from 'express';
+import { differenceWith } from 'lodash';
 import { COLLECTION_DEPLOYMENT_OPTION, COLLECTION_OPERATOR, COLLECTION_PACKAGE_MAIN, COLLECTION_PACKAGE_SUB, COLLECTION_PRODUCTS, COLLECTION_RADIO_ACCESS_TECH, COLLECTION_RAN_SHARING, COLLECTION_USER, EDGE_COLLECTION_DERIVED_FROM, EDGE_COLLECTION_OWNS, EDGE_COLLECTION_REQUIRES, EDGE_COLLECTION_SUCCEEDS, EDGE_COLLECTION_TARGETS } from "../constants";
 import { DocUser } from "randevu-shared/dist/types";
 import { mergeObjectList, validateString, validateStringList } from "../utils";
@@ -163,6 +164,89 @@ export function servicePackage(app: Express, db: Database) {
       const deploymentOptionList = await cursorDeploymentOptionList.all();
       await trx.commit();
       return res.json(deploymentOptionList);
+    } catch (e) {
+      if (trx) {
+        await trx.abort();
+      }
+      console.error(e);
+      return res.status(500).end();
+    }
+  });
+
+  app.post('/packages/sub/:seqVal/deployment-options', async (req, res) => {
+    const user = req.user as DocUser;
+    if (!user) {
+      return res.status(403).end();
+    }
+    const { seqVal } = req.params;
+    const { deploymentOptions } = req.body;
+    if (!validateStringList(deploymentOptions)) {
+      return res.status(400).end();
+    }
+    let trx: Transaction | undefined;
+    try {
+      const collectionDeploymentOption = db.collection(COLLECTION_DEPLOYMENT_OPTION);
+      const collectionOwns = db.collection(EDGE_COLLECTION_OWNS);
+      const collectionPackageSub = db.collection(COLLECTION_PACKAGE_SUB);
+      const collectionRequires = db.collection(EDGE_COLLECTION_REQUIRES);
+      const collectionUser = db.collection(COLLECTION_USER);
+      trx = await db.beginTransaction({
+        read: [collectionDeploymentOption, collectionOwns, collectionPackageSub, collectionUser],
+        write: [collectionRequires],
+      });
+      // Check package exists
+      const package_id = `${collectionPackageSub.name}/${seqVal}`;
+      const packageExists = await trx.step(() => collectionPackageSub.documentExists(package_id));
+      if (!packageExists) {
+        return res.status(404).end();
+      }
+      // CHeck package owner
+      const cursorOwnerList = await trx.step(() => db.query({
+        query: `
+          FOR package IN OUTBOUND @user_id @@collectionOwns
+            FILTER package._id == @package_id
+            LIMIT 1
+            RETURN package
+        `,
+        bindVars: {
+          user_id: user._id,
+          '@collectionOwns': collectionOwns.name, 
+          package_id,
+        },
+      }));
+      const ownerList = await cursorOwnerList.all();
+      if (!ownerList.length) {
+        return res.status(403).end();
+      }
+      // Get current deployment option list
+      const cursorRequireList = await trx.step(() => db.query({
+        query: `
+          FOR deploymentOption IN @@collectionDeploymentOption
+            FOR package, requires IN INBOUND deploymentOption._id @@collectionRequires
+              FILTER package._id == @package_id
+              RETURN requires
+        `,
+        bindVars: {
+          '@collectionDeploymentOption': collectionDeploymentOption.name,
+          '@collectionRequires': collectionRequires.name,
+          package_id,
+        },
+      }));
+      const requireList = await cursorRequireList.all();
+      // Find out deployment option list to be added and to be removed
+      const toBeAdded = differenceWith(deploymentOptions, requireList, (id, edge) => id === edge._to);
+      for (let i = 0; i < toBeAdded.length; i += 1) {
+        await trx.step(() => collectionRequires.save({
+          _from: package_id,
+          _to: toBeAdded[i],
+        }));
+      }
+      const toBeRemoved = differenceWith(requireList, deploymentOptions, (edge, id) => edge._to === id);
+      for (let i = 0; i < toBeRemoved.length; i += 1) {
+        await trx.step(() => collectionRequires.remove(toBeRemoved[i]._id));
+      }
+      await trx.commit();
+      return res.status(200).end();
     } catch (e) {
       if (trx) {
         await trx.abort();
