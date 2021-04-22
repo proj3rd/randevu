@@ -1,7 +1,7 @@
 import axios from "axios";
 import { cloneDeep } from 'lodash';
 import { DocOperator, DocPackage, DocUser } from "randevu-shared/dist/types";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Dimmer, Header, Icon, Label, Loader, Table } from "semantic-ui-react";
 import { EnumItem } from "../../types";
@@ -80,63 +80,23 @@ export default function PackageInfoSub({ user }: Props) {
     });
 
     setWaitingDeploymentOptionList(true);
-    let deploymentOptionListTemp: EnumItem[] = [];
-    axios.get('/deployment-options').then((response) => {
-      ({ data: deploymentOptionListTemp } = response);
-      return axios.get(`/packages/sub/${seqVal}/deployment-options`);
-    }).then((response) => {
-      const { data: deploymentOptionListSelected } = response;
-      const deploymentOptionListNew = markSelected(deploymentOptionListTemp, deploymentOptionListSelected);
-      deploymentOptionListOriginal.current = cloneDeep(deploymentOptionListNew);
-      setDeploymentOptionList(deploymentOptionListNew);
+    getDeploymentOptionList().then(() => {
       setWaitingDeploymentOptionList(false);
-    }).catch((reason) => {
-      console.error(reason);
     });
 
     setWaitingProductList(true);
-    let productListTemp: EnumItem[] = [];
-    axios.get('/products').then((response) => {
-      ({ data: productListTemp } = response);
-      return axios.get(`/packages/sub/${seqVal}/products`);
-    }).then((response) => {
-      const { data: productListSelected } = response;
-      const productListNew = markSelected(productListTemp, productListSelected);
-      productListOriginal.current = cloneDeep(productListNew);
-      setProductList(productListNew);
+    getProductList().then(() => {
       setWaitingProductList(false);
-    }).catch((reason) => {
-      console.error(reason);
     });
 
     setWaitingRatList(true);
-    let ratListTemp: EnumItem[] = [];
-    axios.get('/radio-access-technologies').then((response) => {
-      ({ data: ratListTemp } = response);
-      return axios.get(`/packages/sub/${seqVal}/radio-access-technologies`);
-    }).then((response) => {
-      const { data: ratListSelected } = response;
-      const ratListNew = markSelected(ratListTemp, ratListSelected);
-      ratListOriginal.current = cloneDeep(ratListNew);
-      setRatList(ratListNew);
+    getRatList().then(() => {
       setWaitingRatList(false);
-    }).catch((reason) => {
-      console.error(reason);
     });
 
     setWaitingRanSharingList(true);
-    let ranSharingListTemp: EnumItem[] = [];
-    axios.get('/ran-sharing').then((response) => {
-      ({ data: ranSharingListTemp } = response);
-      return axios.get(`/packages/sub/${seqVal}/ran-sharing`);
-    }).then((response) => {
-      const { data: ranSharingListSelected } = response;
-      const ranSharingListNew = markSelected(ranSharingListTemp, ranSharingListSelected);
-      ranSharingListOriginal.current = cloneDeep(ranSharingListNew);
-      setRanSharingList(ranSharingListNew);
+    getRanSharingList().then(() => {
       setWaitingRanSharingList(false);
-    }).catch((reason) => {
-      console.error(reason);
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [seqVal]);
@@ -160,6 +120,44 @@ export default function PackageInfoSub({ user }: Props) {
     setRanSharingList(cloneDeep(ranSharingListOriginal.current));
     setEditingRanSharingList(false);
   }
+
+  /**
+   * @param suffix Can be '/deployment-options', '/products', 'ran-sharing', etc.
+   */
+  async function getEnumList(
+    suffix: string, enumListOriginal: React.MutableRefObject<EnumItem[]>,
+    setEnumListFunc: (value: React.SetStateAction<EnumItem[]>) => void
+  ) {
+    let enumListTemp: EnumItem[] = [];
+    return axios.get(suffix).then((response) => {
+      ({ data: enumListTemp } = response);
+      return axios.get(`/packages/sub/${seqVal}${suffix}`);
+    }).then((response) => {
+      const { data: enumListSelected } = response;
+      const enumListNew = markSelected(enumListTemp, enumListSelected);
+      enumListOriginal.current = cloneDeep(enumListNew);
+      setEnumListFunc(enumListNew);
+    }).catch((reason) => {
+      console.error(reason);
+    });
+  }
+
+  async function getDeploymentOptionList() {
+    return getEnumList('/deployment-options', deploymentOptionListOriginal, setDeploymentOptionList);
+  }
+
+  async function getProductList() {
+    return getEnumList('/products', productListOriginal, setProductList);
+  }
+
+  async function getRatList() {
+    return getEnumList('/radio-access-technologies', ratListOriginal, setRatList);
+  }
+
+  async function getRanSharingList() {
+    return getEnumList('ran-sharing', ranSharingListOriginal, setRanSharingList);
+  }
+
 
   return (
     <>
