@@ -158,6 +158,22 @@ export default function PackageInfoSub({ user }: Props) {
     return getEnumList('ran-sharing', ranSharingListOriginal, setRanSharingList);
   }
 
+  function onChangeDeploymentOptionList(deploymentOptionList: EnumItem[]) {
+    setDeploymentOptionList(cloneDeep(deploymentOptionList));
+  }
+
+  function onChangeProductList(productList: EnumItem[]) {
+    setProductList(productList);
+  }
+
+  function onChangeRatList(ratList: EnumItem[]) {
+    setRatList(ratList);
+  }
+
+  function onChangeRanSharingList(ranSharingList: EnumItem[]) {
+    setRanSharingList(ranSharingList);
+  }
+
 
   return (
     <>
@@ -214,7 +230,9 @@ export default function PackageInfoSub({ user }: Props) {
             <Table.Cell collapsing>Deployment options</Table.Cell>
             <Table.Cell>
               <Dimmer.Dimmable>
-                <EnumEditor enumList={deploymentOptionList} editing={editingDeploymentOptionList} />
+                <EnumEditor enumList={deploymentOptionList} editing={editingDeploymentOptionList}
+                  onChange={onChangeDeploymentOptionList}
+                />
                 {
                   editingDeploymentOptionList ? (
                     <>
@@ -244,7 +262,9 @@ export default function PackageInfoSub({ user }: Props) {
             <Table.Cell collapsing>Products</Table.Cell>
             <Table.Cell>
               <Dimmer.Dimmable>
-                <EnumEditor enumList={productList} editing={editingProductList} />
+                <EnumEditor enumList={productList} editing={editingProductList}
+                  onChange={onChangeProductList}
+                />
                 {
                   editingProductList ? (
                     <>
@@ -274,7 +294,9 @@ export default function PackageInfoSub({ user }: Props) {
             <Table.Cell collapsing>Radio access technologies</Table.Cell>
             <Table.Cell>
               <Dimmer.Dimmable>
-                <EnumEditor enumList={ratList} editing={editingRatList} />
+                <EnumEditor enumList={ratList} editing={editingRatList}
+                  onChange={onChangeRatList}
+                />
                 {
                   editingRatList ? (
                     <>
@@ -304,7 +326,9 @@ export default function PackageInfoSub({ user }: Props) {
             <Table.Cell collapsing>RAN sharing</Table.Cell>
             <Table.Cell>
               <Dimmer.Dimmable>
-                <EnumEditor enumList={ranSharingList} editing={editingRanSharingList} />
+                <EnumEditor enumList={ranSharingList} editing={editingRanSharingList}
+                  onChange={onChangeRanSharingList}
+                />
                 {
                   editingRanSharingList ? (
                     <>
