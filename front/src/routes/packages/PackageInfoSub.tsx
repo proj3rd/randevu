@@ -290,12 +290,16 @@ export default function PackageInfoSub({ user }: Props) {
             <Table.Cell>
               <Dimmer.Dimmable>
                 {
-                  followUps.map((followUp) => {
+                  followUps.length ? followUps.map((followUp, index) => {
                     const { _id, name } = followUp;
+                    const separator = index < followUps.length - 1 ? ', ' : '';
                     return (
-                      <Link to={`/packages/sub/${seqValOf(_id)}`}>{name}</Link>
+                      <>
+                        <Link to={`/packages/sub/${seqValOf(_id)}`}>{name}</Link>
+                        {separator}
+                      </>
                     )
-                  })
+                  }) : (<>(None)</>)
                 }
                 <Dimmer active={waitingFollowUps}>
                   <Loader />
