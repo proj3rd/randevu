@@ -27,6 +27,8 @@ export default function PackageInfoSub({ user }: Props) {
   const [waitingOperator, setWaitingOperator] = useState(false);
   const [previous, setPrevious] = useState<DocPackage | undefined>(undefined);
   const [waitingPrevious, setWaitingPrevious] = useState(false);
+  const [followUps, setFollowUps] = useState<DocPackage[]>([]);
+  const [waitingFollowUps, setWaitingFollowUps] = useState(false);
   const [owner, setOwner] = useState<DocUser | undefined>(undefined);
   const [waitingOwner, setWaitingOwner] = useState(false);
   const [deploymentOptionList, setDeploymentOptionList] = useState<EnumItem[]>([]);
@@ -66,6 +68,15 @@ export default function PackageInfoSub({ user }: Props) {
       const { data: previous } = response;
       setPrevious(previous);
       setWaitingPrevious(false);
+    }).catch((reason) => {
+      console.error(reason);
+    });
+
+    setWaitingFollowUps(true);
+    axios.get(`/packages/sub/${seqVal}/follow-ups`).then((response) => {
+      const { data: followUps } = response;
+      setFollowUps(followUps);
+      setWaitingFollowUps(false);
     }).catch((reason) => {
       console.error(reason);
     });
@@ -269,6 +280,24 @@ export default function PackageInfoSub({ user }: Props) {
                   Package graph
                 </Label>
                 <Dimmer active={waitingPrevious}>
+                  <Loader />
+                </Dimmer>
+              </Dimmer.Dimmable>
+            </Table.Cell>
+          </Table.Row>
+          <Table.Row>
+            <Table.Cell collapsing>Follow-ups</Table.Cell>
+            <Table.Cell>
+              <Dimmer.Dimmable>
+                {
+                  followUps.map((followUp) => {
+                    const { _id, name } = followUp;
+                    return (
+                      <Link to={`/packages/sub/${seqValOf(_id)}`}>{name}</Link>
+                    )
+                  })
+                }
+                <Dimmer active={waitingFollowUps}>
                   <Loader />
                 </Dimmer>
               </Dimmer.Dimmable>
