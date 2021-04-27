@@ -50,24 +50,22 @@ export default function PackageTable({ packageList, operatorList, user, onAdd: o
             const { _id, name, main, operator: operator_id } = pkg;
             const operatorFound = operatorList.find((operator) => operator._id === operator_id);
             return (
-              <>
-                <Table.Row key={_id}>
-                  <Table.Cell>
-                    {
-                      !main ? (
-                        <Label ribbon>
-                          <Link to={`/packages/main/${seqValOf(_id)}`}>{name}</Link>
-                        </Label>
-                      ) : (
-                        <Link to={`/packages/sub/${seqValOf(_id)}`}>{name}</Link>
-                      )
-                    }
-                  </Table.Cell>
-                  <Table.Cell>
-                    {operatorFound?.name ?? ''}
-                  </Table.Cell>
-                </Table.Row>
-              </>
+              <Table.Row key={_id}>
+                <Table.Cell>
+                  {
+                    !main ? (
+                      <Label ribbon>
+                        <Link to={`/packages/main/${seqValOf(_id)}`}>{name}</Link>
+                      </Label>
+                    ) : (
+                      <Link to={`/packages/sub/${seqValOf(_id)}`}>{name}</Link>
+                    )
+                  }
+                </Table.Cell>
+                <Table.Cell>
+                  {operatorFound?.name ?? ''}
+                </Table.Cell>
+              </Table.Row>
             )
           })
         }

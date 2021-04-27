@@ -158,7 +158,7 @@ export function serviceUser(app: Express, db: Database) {
         read: collectionUser,
       });
       const { username } = req.query;
-      const usernameFilter = username ? 'FILTER CONTAINS(UPPER(user), UPPER(@username))' : '';
+      const usernameFilter = username ? 'FILTER CONTAINS(UPPER(user.username), UPPER(@username))' : '';
       const bindVarsUsernameFilter = username ? { username } : {};
       const cursorUserList = await trx.step(() => db.query({
         query: `

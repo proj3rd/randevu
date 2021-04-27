@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Button, Dimmer, Divider, DropdownItemProps, DropdownProps, Form, Loader, Message, Modal, ModalProps, Select } from "semantic-ui-react";
 import { EnumItem } from "../types";
 import EnumEditor from "./EnumEditor";
+import UserFinder from "./UserFinder";
 
 type Props = {
   onAdd?: () => void;
@@ -16,7 +17,7 @@ export default function ModalPackageAddMod({ onAdd, ...modalProps }: Props) {
   const [packageList, setPackageList] = useState<DocPackage[]>([]);
   const [packageMainList, setPackageMainList] = useState<DropdownItemProps[]>([]);
   const [operatorList, setOperatorList] = useState<DropdownItemProps[]>([]);
-  const [userList, setUserList] = useState<DropdownItemProps[]>([]);
+  const [userList, setUserList] = useState<DocUser[]>([]);
   const [packageSubList, setPackageSubList] = useState<DropdownItemProps[]>([]);
   const [deploymentOptionList, setDeploymentOptionList] = useState<EnumItem[]>([]);
   const [productList, setProductList] = useState<EnumItem[]>([]);
@@ -26,7 +27,7 @@ export default function ModalPackageAddMod({ onAdd, ...modalProps }: Props) {
   const [name, setName] = useState('');
   const [packageMain, setPackageMain] = useState('');
   const [operator, setOperator] = useState('');
-  const [owner, setOwner] = useState('');
+  const [owner, setOwner] = useState<DocUser | undefined>();
   const [packagePrevious, setPackagePrevious] = useState('');
 
   const [messageVisible, setMessageVisible] = useState(false);
@@ -71,7 +72,7 @@ export default function ModalPackageAddMod({ onAdd, ...modalProps }: Props) {
       .filter((ranSharing) => ranSharing.selected)
       .map((ranSharing) => ranSharing._id);
     const sub = packageMain && operator && owner ? {
-      main: packageMain, operator, previous: packagePrevious, owner,
+      main: packageMain, operator, previous: packagePrevious, owner: owner._id,
       deploymentOptions, products, radioAccessTechnologies, ranSharing,
     } : undefined;
     axios.post('/packages', { name, sub }).then((response) => {
@@ -110,23 +111,12 @@ export default function ModalPackageAddMod({ onAdd, ...modalProps }: Props) {
       return;
     }
     setWaiting(true);
-    axios.get('/users').then((response) => {
-      const { data: userList } = response;
-      setUserList(userList);
-      return axios.get('/operators');
-    }).then((response) => {
+    axios.get('/operators').then((response) => {
       const operatorList = response.data.map((item: DocOperator) => {
         const { _id, name } = item;
         return { key: _id, value: _id, text: name };
       });
       setOperatorList(operatorList);
-      return axios.get('/users');
-    }).then((response) => {
-      const userList = response.data.map((item: DocUser) => {
-        const { _id, username } = item;
-        return { key: _id, value: _id, text: username };
-      });
-      setUserList(userList);
       return axios.get('/deployment-options');
     }).then((response) => {
       const { data: deploymentOptionList } = response;
@@ -170,7 +160,7 @@ export default function ModalPackageAddMod({ onAdd, ...modalProps }: Props) {
       <Modal.Content>
         <Dimmer.Dimmable>
           <Form>
-            <Form.Field error={!name}>
+            <Form.Field>
               <label>Name</label>
               <input value={name} onChange={(e) => setName(e.target.value)} />
             </Form.Field>
@@ -182,18 +172,20 @@ export default function ModalPackageAddMod({ onAdd, ...modalProps }: Props) {
                 value={packageMain} onChange={onChangePackageMain}
               />
             </Form.Field>
-            <Form.Field error={packageMain && !operator} disabled={!packageMain}>
+            <Form.Field>
               <label>Operator</label>
               <Select
                 search options={operatorList}
                 value={operator} onChange={onChangeOperator}
               />
             </Form.Field>
-            <Form.Field error={packageMain && !owner} disabled={!packageMain}>
+            <Form.Field>
               <label>Owner</label>
-              <Select
-                search options={userList}
-                value={owner} onChange={(e, d) => setOwner(d.value as string)}
+              <UserFinder
+                userList={userList}
+                onChangeUserList={setUserList}
+                owner={owner}
+                onChange={setOwner}
               />
             </Form.Field>
             <Divider horizontal>Additional information</Divider>
@@ -209,6 +201,7 @@ export default function ModalPackageAddMod({ onAdd, ...modalProps }: Props) {
               <EnumEditor
                 enumList={deploymentOptionList}
                 onChange={(deploymentOptionList) => setDeploymentOptionList([...deploymentOptionList])}
+                editing
               />
             </Form.Field>
             <Form.Field disabled={!packageMain}>
@@ -216,6 +209,7 @@ export default function ModalPackageAddMod({ onAdd, ...modalProps }: Props) {
               <EnumEditor
                 enumList={productList}
                 onChange={(productList) => setProductList([...productList])}
+                editing
               />
             </Form.Field>
             <Form.Field disabled={!packageMain}>
@@ -223,6 +217,7 @@ export default function ModalPackageAddMod({ onAdd, ...modalProps }: Props) {
               <EnumEditor
                 enumList={ratList}
                 onChange={(ratList) => setRatList([...ratList])}
+                editing
               />
             </Form.Field>
             <Form.Field disabled={!packageMain}>
@@ -230,6 +225,7 @@ export default function ModalPackageAddMod({ onAdd, ...modalProps }: Props) {
               <EnumEditor
                 enumList={ranSharingList}
                 onChange={(ranSharingList) => setRanSharingList([...ranSharingList])}
+                editing
               />
             </Form.Field>
           </Form>
