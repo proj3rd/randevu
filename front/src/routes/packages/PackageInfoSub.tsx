@@ -166,7 +166,7 @@ export default function PackageInfoSub({ user }: Props) {
   }
 
   async function getRanSharingList() {
-    return getEnumList('ran-sharing', ranSharingListOriginal, setRanSharingList);
+    return getEnumList('/ran-sharing', ranSharingListOriginal, setRanSharingList);
   }
 
   function onChangeDeploymentOptionList(deploymentOptionList: EnumItem[]) {
