@@ -8,6 +8,7 @@ import { EnumItem } from "../../types";
 import { markSelected } from "../../utils";
 import EnumEditor from "../../components/EnumEditor";
 import { seqValOf } from "randevu-shared/dist/utils";
+import UserFinder from "../../components/UserFinder";
 
 type Props = {
   user: DocUser | undefined;
@@ -16,6 +17,7 @@ type Props = {
 export default function PackageInfoSub({ user }: Props) {
   const { seqVal } = useParams() as any;
 
+  let ownerOriginal = useRef<DocUser | undefined>(undefined);
   let deploymentOptionListOriginal = useRef<EnumItem[]>([]);
   let productListOriginal = useRef<EnumItem[]>([]);
   let ratListOriginal = useRef<EnumItem[]>([]);
@@ -31,6 +33,8 @@ export default function PackageInfoSub({ user }: Props) {
   const [waitingFollowUps, setWaitingFollowUps] = useState(false);
   const [owner, setOwner] = useState<DocUser | undefined>(undefined);
   const [waitingOwner, setWaitingOwner] = useState(false);
+  const [editingOwner, setEditingOwner] = useState(false);
+  const [userList, setUserList] = useState<DocUser[]>([]);
   const [deploymentOptionList, setDeploymentOptionList] = useState<EnumItem[]>([]);
   const [waitingDeploymentOptionList, setWaitingDeploymentOptionList] = useState(false);
   const [editingDeploymentOptionList, setEditingDeploymentOptionList] = useState(false);
@@ -84,6 +88,7 @@ export default function PackageInfoSub({ user }: Props) {
     setWaitingOwner(true);
     axios.get(`/packages/sub/${seqVal}/owner`).then((response) => {
       const { data: owner } = response;
+      ownerOriginal.current = cloneDeep(owner);
       setOwner(owner);
       setWaitingOwner(false);
     }).catch((reason) => {
@@ -115,6 +120,11 @@ export default function PackageInfoSub({ user }: Props) {
   function cancelEditingDeploymentOptionList() {
     setDeploymentOptionList(cloneDeep(deploymentOptionListOriginal.current));
     setEditingDeploymentOptionList(false);
+  }
+
+  function cancelEditingOwner() {
+    setOwner(cloneDeep(ownerOriginal.current));
+    setEditingOwner(false);
   }
 
   function cancelEditingProductList() {
@@ -155,6 +165,16 @@ export default function PackageInfoSub({ user }: Props) {
 
   async function getDeploymentOptionList() {
     return getEnumList('/deployment-options', deploymentOptionListOriginal, setDeploymentOptionList);
+  }
+
+  async function getOwner() {
+    return axios.get(`/packages/sub/${seqVal}/owner`).then((response) => {
+      const { data: owner } = response;
+      ownerOriginal.current = cloneDeep(owner);
+      setOwner(owner);
+    }).catch((reason) => {
+      console.error(reason);
+    })
   }
 
   async function getProductList() {
@@ -215,6 +235,26 @@ export default function PackageInfoSub({ user }: Props) {
       deploymentOptionList, deploymentOptionListOriginal,
       setWaitingDeploymentOptionList, setDeploymentOptionList, setEditingDeploymentOptionList,
     );
+  }
+
+  async function updateOwner() {
+    if (!owner || owner._id === ownerOriginal.current?._id) {
+      return;
+    }
+    setWaitingOwner(true);
+    return axios.post(`/packages/sub/${seqVal}/owner`, {
+      owner: owner._id,
+    }).then((response) => {
+      getOwner().then(() => {
+        setEditingOwner(false);
+        setWaitingOwner(false);
+      }).catch((reason) => {
+        console.error(reason);
+      });
+    }).catch((reason) => {
+      console.error(reason);
+      setWaitingOwner(false);
+    })
   }
 
   async function updateProductList() {
@@ -310,7 +350,33 @@ export default function PackageInfoSub({ user }: Props) {
             <Table.Cell collapsing>Owner</Table.Cell>
             <Table.Cell>
               <Dimmer.Dimmable>
-                {owner?.username ?? ''}
+                {
+                  editingOwner ? (
+                    <>
+                      <UserFinder
+                        userList={userList}
+                        onChangeUserList={setUserList}
+                        owner={owner}
+                        onChange={setOwner}
+                      />
+                      <Label as='a' basic onClick={updateOwner}>
+                        <Icon name='check' />
+                        Save
+                      </Label>
+                      <Label as='a' basic onClick={cancelEditingOwner}>
+                        <Icon name='cancel' />
+                        Cancel
+                      </Label>
+                    </>
+                  ) : (<>
+                    {owner?.username ?? ''}
+                    {' '}
+                    <Label as='a' basic onClick={() => setEditingOwner(true)}>
+                      <Icon name='edit' />
+                      Edit
+                    </Label>
+                  </>)
+                }
                 <Dimmer active={waitingOwner}>
                   <Loader />
                 </Dimmer>

@@ -236,6 +236,7 @@ export function servicePackage(app: Express, db: Database) {
     if (!user) {
       return res.status(403).end();
     }
+    const { seqVal } = req.params;
     let trx: Transaction | undefined;
     try {
       const collectionPackageSub = db.collection(COLLECTION_PACKAGE_SUB);
@@ -244,15 +245,16 @@ export function servicePackage(app: Express, db: Database) {
       trx = await db.beginTransaction({
         read: [collectionOwns, collectionPackageSub, collectionUser],
       });
+      const package_id = `${collectionPackageSub.name}/${seqVal}`;
       const cursorOwnerList = await trx.step(() => db.query({
         query: `
-          FOR user IN @@collectionUser
-            FOR package IN OUTBOUND user._id @@collectionOwns
+          FOR user IN INBOUND @package_id @@collectionOwns
+              LIMIT 1
               RETURN UNSET(user, "password")
         `,
         bindVars: {
-          '@collectionUser': collectionUser.name,
           '@collectionOwns': collectionOwns.name,
+          package_id,
         },
       }));
       const ownerList = await cursorOwnerList.all();
@@ -262,6 +264,92 @@ export function servicePackage(app: Express, db: Database) {
       }
       await trx.commit();
       return res.json(ownerList[0]);
+    } catch (e) {
+      if (trx) {
+        await trx.abort();
+      }
+      console.error(e);
+      return res.status(500).end();
+    }
+  });
+
+  app.post('/packages/sub/:seqVal/owner', async (req, res) => {
+    const user = req.user as DocUser;
+    if (!user) {
+      return res.status(403).end();
+    }
+    const { seqVal } = req.params;
+    const { owner } = req.body;
+    if (!validateString(owner)) {
+      return res.status(400).end();
+    }
+    let trx: Transaction | undefined;
+    try {
+      const collectionPackageSub = db.collection(COLLECTION_PACKAGE_SUB);
+      const collectionOwns = db.collection(EDGE_COLLECTION_OWNS);
+      const collectionUser = db.collection(COLLECTION_USER);
+      trx = await db.beginTransaction({
+        read: [collectionPackageSub, collectionUser],
+        write: [collectionOwns],
+      });
+      // Check package exists
+      const package_id = `${collectionPackageSub.name}/${seqVal}`;
+      const packageExists = await trx.step(() => collectionPackageSub.documentExists(package_id));
+      if (!packageExists) {
+        await trx.abort();
+        return res.status(400).json({ reason: 'Package does not exists' });
+      }
+      // CHeck package owner
+      const cursorOwnerList = await trx.step(() => db.query({
+        query: `
+          WITH @@collectionPackageSub
+          FOR package IN OUTBOUND @user_id @@collectionOwns
+            FILTER package._id == @package_id
+            LIMIT 1
+            RETURN package
+        `,
+        bindVars: {
+          '@collectionPackageSub': collectionPackageSub.name,
+          user_id: user._id,
+          '@collectionOwns': collectionOwns.name, 
+          package_id,
+        },
+      }));
+      const ownerList = await cursorOwnerList.all();
+      if (!ownerList.length) {
+        return res.status(403).end();
+      }
+      // Remove the exsiting user -owns-> packageSub edge
+      const cursorOwnsList = await trx.step(() => db.query({
+        query: `
+          FOR owns IN @@collectionOwns
+            FILTER owns._to == @package_id
+            LIMIT 1
+            RETURN owns
+        `,
+        bindVars: { '@collectionOwns': collectionOwns.name, package_id },
+      }));
+      const ownsList = await cursorOwnsList.all();
+      if (!ownsList.length) {
+        // Strange. Sub package exists, but owner does not exist.
+        // But I think no need to regard it as error currently
+      } else {
+        const owns = ownsList[0];
+        await trx.step(() => collectionOwns.remove(owns._id));
+      }
+      // Check user exists
+      const userExists = await trx.step(() => collectionUser.documentExists(owner));
+      if (!userExists) {
+        await trx.abort();
+        return res.status(400).json({ reason: 'User does not exists' });
+      }
+      // Add a new user -owns-> packageSub edge
+      await trx.step(() => collectionOwns.save({
+        _from: owner,
+        _to: package_id,
+      }));
+      await trx.commit();
+      return res.status(200).end();
     } catch (e) {
       if (trx) {
         await trx.abort();
