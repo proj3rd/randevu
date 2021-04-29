@@ -90,12 +90,12 @@ export default function ModalJoinLogin({ open, onLogin }: Props) {
                 <input type='password' value={retype} onChange={(e) => setRetype(e.target.value)} />
               </Form.Field>
               <Button type='button' content='Login' icon='angle left' labelPosition='left' disabled={waiting} onClick={() => setModeJoin(false)} />
-              <Button type='submit' color='blue' disabled={disabled() || waiting} onClick={join}>Join</Button>
+              <Button type='button' color='blue' disabled={disabled() || waiting} onClick={join}>Join</Button>
               </>
             ) : (
               <>
                 <Button type='button' content='Join' icon='angle left' labelPosition='left' disabled={waiting} onClick={() => setModeJoin(true)} />
-                <Button type='submit' color='green' disabled={disabled() || waiting} onClick={login}>Login</Button>
+                <Button type='button' color='green' disabled={disabled() || waiting} onClick={login}>Login</Button>
               </>
             )
           }
