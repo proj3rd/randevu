@@ -39,6 +39,7 @@ post:
           properties:
             owner:
               type: string
+              description: Document ID of owner
           required:
             - owner
   responses:
