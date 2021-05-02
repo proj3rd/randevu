@@ -1,7 +1,7 @@
 import { Database } from "arangojs";
 import { Transaction } from "arangojs/transaction";
 import { Express } from 'express';
-import { COLLECTION_OPERATOR, COLLECTION_USER, EDGE_COLLECTION_OWNS } from "../constants";
+import { COLLECTION_OPERATOR, COLLECTION_PACKAGE_SUB, COLLECTION_USER, EDGE_COLLECTION_DERIVED_FROM, EDGE_COLLECTION_OWNS, EDGE_COLLECTION_SUCCEEDS, EDGE_COLLECTION_TARGETS } from "../constants";
 import { DocOperator, DocUser } from "randevu-shared/dist/types";
 import { mergeObjectList, validateString, validateStringList } from "../utils";
 
@@ -100,6 +100,90 @@ export function serviceOperator(app: Express, db: Database) {
         await trx.abort();
       }
       console.error(e);
+      return res.status(500).end();
+    }
+  });
+
+  app.get('/operators/:seqVal/packages', async (req, res) => {
+    const user = req.user as DocUser;
+    if (!user) {
+      return res.status(403).end();
+    }
+    const { seqVal } = req.params;
+    const { include } = req.query;
+    if (!validateString(seqVal)
+        || (include && !validateStringList(include))
+    ) {
+      return res.status(400).end();
+    }
+    const includeList = include as unknown as string[];
+    let trx: Transaction | undefined;
+    const collectionDerivedFrom = db.collection(EDGE_COLLECTION_DERIVED_FROM);
+    const collectionOperator = db.collection(COLLECTION_OPERATOR);
+    const collectionPackageSub = db.collection(COLLECTION_PACKAGE_SUB);
+    const collectionSucceeds = db.collection(EDGE_COLLECTION_SUCCEEDS);
+    const collectionTargets = db.collection(EDGE_COLLECTION_TARGETS);
+    const operator_id = `${collectionOperator.name}/${seqVal}`;
+    try {
+      trx = await db.beginTransaction({
+        read: [collectionDerivedFrom, collectionOperator, collectionPackageSub, collectionSucceeds, collectionTargets],
+      });
+      const operatorExists = await trx.step(() => collectionOperator.documentExists(operator_id));
+      if (!operatorExists) {
+        await trx.abort();
+        return res.status(400).json({ reason: 'Operator does not exist '});
+      }
+      const cursorPackageSubList = await trx.step(() =>  db.query({
+        query: `
+          WITH @@collectionPackageSub
+          FOR packageSub IN INBOUND @operator_id @@collectionTargets
+            RETURN packageSub
+        `,
+        bindVars: {
+          '@collectionPackageSub': collectionPackageSub.name,
+          operator_id,
+          '@collectionTargets': collectionTargets.name,
+        },
+      }));
+      const packageSubList = await cursorPackageSubList.all();
+      const packageSubIdList = packageSubList.map((packageSub) => packageSub._id);
+      if (includeList && includeList.includes('main')) {
+        const cursorPackageMainList = await trx.step(() => db.query({
+          query: `
+            FOR packageSubId IN @packageSubIdList
+              FOR packageMain IN OUTBOUND packageSubId @@collectionDerivedFrom
+                RETURN {_id: packageSubId, main: packageMain._id}
+          `,
+          bindVars: {
+            packageSubIdList,
+            '@collectionDerivedFrom': collectionDerivedFrom.name,
+          },
+        }));
+        const packageMainList = await cursorPackageMainList.all();
+        mergeObjectList(packageSubList, packageMainList, '_id');
+      }
+      if (includeList && includeList.includes('previous')) {
+        const cursorPackagePreviousList = await trx.step(() => db.query({
+          query: `
+            FOR packageSubId IN @packageSubIdList
+              FOR packagePrevious IN OUTBOUND packageSubId @@collectionSucceeds
+                RETURN {_id: packageSubId, previous: packagePrevious._id}
+          `,
+          bindVars: {
+            packageSubIdList,
+            '@collectionSucceeds': collectionSucceeds.name,
+          },
+        }));
+        const packagePreviousList = await cursorPackagePreviousList.all();
+        mergeObjectList(packageSubList, packagePreviousList, '_id');
+      }
+      await trx.commit();
+      return res.json(packageSubList);
+    } catch (e) {
+      console.error(e);
+      if (trx) {
+        await trx.abort();
+      }
       return res.status(500).end();
     }
   });

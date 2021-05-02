@@ -1,0 +1,49 @@
+get:
+  tags:
+    - Operator
+  summary: Get a list of sub packges an operator
+  parameters:
+    - name: seqVal
+      in: query
+      description: Sequence value of an operator
+      required: true
+      schema:
+        type: string
+    - name: include
+      in: query
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+            - main
+            - previous
+  responses:
+    "200":
+      description: Ok
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                _id:
+                  type: string
+                name:
+                  type: string
+                main:
+                  type: string
+                  description: Document ID of a main package
+                previous:
+                  type: string
+                  description: Document ID of a previous sub package
+              required:
+                - _id
+                - name
+    "400":
+      description: Invalid input
+    "403":
+      description: Unauthorized
+    "500":
+      description: Internal failure

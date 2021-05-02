@@ -3,7 +3,7 @@ import { cloneDeep } from 'lodash';
 import { DocOperator, DocPackage, DocUser } from "randevu-shared/dist/types";
 import React, { SetStateAction, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Dimmer, Header, Icon, Label, Loader, Table } from "semantic-ui-react";
+import { Dimmer, Form, Header, Icon, Label, Loader, Select, Table } from "semantic-ui-react";
 import { EnumItem } from "../../types";
 import { markSelected } from "../../utils";
 import EnumEditor from "../../components/EnumEditor";
@@ -29,6 +29,9 @@ export default function PackageInfoSub({ user }: Props) {
   const [waitingOperator, setWaitingOperator] = useState(false);
   const [previous, setPrevious] = useState<DocPackage | undefined>(undefined);
   const [waitingPrevious, setWaitingPrevious] = useState(false);
+  const [editingPrevious, setEditingPrevious] = useState(false);
+  const [packageSubList, setPackageSubList] = useState<DocPackage[]>([]);
+  const [newPrevious, setNewPrevious] = useState('');
   const [followUps, setFollowUps] = useState<DocPackage[]>([]);
   const [waitingFollowUps, setWaitingFollowUps] = useState(false);
   const [owner, setOwner] = useState<DocUser | undefined>(undefined);
@@ -205,6 +208,32 @@ export default function PackageInfoSub({ user }: Props) {
     setRanSharingList(cloneDeep(ranSharingList));
   }
 
+  function onClickEditPrevious() {
+    if (!operator) {
+      return;
+    }
+    setWaitingPrevious(true);
+    setNewPrevious(previous?._id ?? '');
+    axios.get(`/operators/${seqValOf(operator._id)}/packages?include[]=previous`).then((response) => {
+      const packageSubList = [
+        { key: '', value: '', text: '(None)' },
+        ...response.data.map((packageSub: DocPackage) => {
+          const { _id, name, previous: previous_id } = packageSub;
+          return {
+            key: _id, value: _id, text: name,
+            disabled: seqValOf(_id) === seqVal || seqValOf(previous_id ?? '') === seqVal /* Candidate sub package succeeds the current sub package */
+          };
+        }),
+      ];
+      setPackageSubList(packageSubList);
+    }).catch((reason) => {
+      console.error(reason);
+    }).finally(() => {
+      setWaitingPrevious(false);
+    });
+    setEditingPrevious(true);
+  }
+
   async function updateEnumList(
     suffix: string, propertyName: string, enumList: EnumItem[],
     enumListOriginal: React.MutableRefObject<EnumItem[]>,
@@ -254,6 +283,25 @@ export default function PackageInfoSub({ user }: Props) {
     }).catch((reason) => {
       console.error(reason);
       setWaitingOwner(false);
+    })
+  }
+
+  async function updatePrevious() {
+    setWaitingPrevious(true);
+    return axios.post(`/packages/sub/${seqVal}/previous`, {
+      previous: newPrevious
+    }).then((response) => {
+      axios.get(`/packages/sub/${seqVal}/previous`).then((response) => {
+        const { data: previous } = response;
+        setPrevious(previous);
+        setEditingPrevious(false);
+        setWaitingPrevious(false);
+      }).catch((reason) => {
+        console.error(reason);
+      });
+    }).catch((reason) => {
+      console.error(reason);
+      setWaitingPrevious(false);
     })
   }
 
@@ -314,9 +362,41 @@ export default function PackageInfoSub({ user }: Props) {
             <Table.Cell>
               <Dimmer.Dimmable>
                 {
-                  previous ? (
-                    <Link to={`/packages/sub/${seqValOf(previous._id)}`}>{previous.name}</Link>
-                  ) : (<>(None)</>)
+                  editingPrevious ? (
+                    <Form>
+                      <Select
+                        search options={packageSubList}
+                        value={newPrevious} onChange={(e, d) => setNewPrevious(d.value as string)}
+                      />
+                      <Form.Group>
+                        <Label as='a' basic onClick={updatePrevious}>
+                          <Icon name='check' />
+                          Save
+                        </Label>
+                        <Label as='a' basic onClick={() => setEditingPrevious(false)}>
+                          <Icon name='cancel' />
+                          Cancel
+                        </Label>
+                      </Form.Group>
+                    </Form>
+                  ) : (
+                    <>
+                      {
+                        previous ? (
+                          <Link to={`/packages/sub/${seqValOf(previous._id)}`}>{previous.name}</Link>
+                        ) : (<>(None)</>)
+                      }
+                      {' '}
+                      {
+                        user?._id && user._id === owner?._id ? (
+                          <Label as='a' basic onClick={onClickEditPrevious}>
+                            <Icon name='edit' />
+                            Edit
+                          </Label>
+                        ) : (<></>)
+                      }
+                    </>
+                  )
                 }
                 <Dimmer active={waitingPrevious}>
                   <Loader />
@@ -371,10 +451,14 @@ export default function PackageInfoSub({ user }: Props) {
                   ) : (<>
                     {owner?.username ?? ''}
                     {' '}
-                    <Label as='a' basic onClick={() => setEditingOwner(true)}>
-                      <Icon name='edit' />
-                      Edit
-                    </Label>
+                    {
+                      user?._id && user._id === owner?._id ? (
+                        <Label as='a' basic onClick={() => setEditingOwner(true)}>
+                          <Icon name='edit' />
+                          Edit
+                        </Label>
+                      ) : (<></>)
+                    }
                   </>)
                 }
                 <Dimmer active={waitingOwner}>
@@ -403,10 +487,12 @@ export default function PackageInfoSub({ user }: Props) {
                     </Label>
                     </>
                   ) : (
-                    <Label as='a' basic onClick={() => setEditingDeploymentOptionList(true)}>
-                      <Icon name='edit' />
-                      Edit
-                    </Label>
+                    user?._id && user._id === owner?._id ? (
+                      <Label as='a' basic onClick={() => setEditingDeploymentOptionList(true)}>
+                        <Icon name='edit' />
+                        Edit
+                      </Label>
+                    ) : (<></>)
                   )
                 }
                 <Dimmer active={waitingDeploymentOptionList}>
@@ -435,10 +521,12 @@ export default function PackageInfoSub({ user }: Props) {
                     </Label>
                     </>
                   ) : (
-                    <Label as='a' basic onClick={() => setEditingProductList(true)}>
-                      <Icon name='edit' />
-                      Edit
-                    </Label>
+                    user?._id && user._id === owner?._id ? (
+                      <Label as='a' basic onClick={() => setEditingProductList(true)}>
+                        <Icon name='edit' />
+                        Edit
+                      </Label>
+                    ) : (<></>)
                   )
                 }
                 <Dimmer active={waitingProductList}>
@@ -467,10 +555,12 @@ export default function PackageInfoSub({ user }: Props) {
                     </Label>
                     </>
                   ) : (
-                    <Label as='a' basic onClick={() => setEditingRatList(true)}>
-                      <Icon name='edit' />
-                      Edit
-                    </Label>
+                    user?._id && user._id === owner?._id ? (
+                      <Label as='a' basic onClick={() => setEditingRatList(true)}>
+                        <Icon name='edit' />
+                        Edit
+                      </Label>
+                    ) : (<></>)
                   )
                 }
                 <Dimmer active={waitingRatList}>
@@ -499,10 +589,12 @@ export default function PackageInfoSub({ user }: Props) {
                     </Label>
                     </>
                   ) : (
-                    <Label as='a' basic onClick={() => setEditingRanSharingList(true)}>
-                      <Icon name='edit' />
-                      Edit
-                    </Label>
+                    user?._id && user._id === owner?._id ? (
+                      <Label as='a' basic onClick={() => setEditingRanSharingList(true)}>
+                        <Icon name='edit' />
+                        Edit
+                      </Label>
+                    ) : (<></>)
                   )
                 }
                 <Dimmer active={waitingRanSharingList}>

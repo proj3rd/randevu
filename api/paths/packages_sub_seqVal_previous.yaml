@@ -26,3 +26,33 @@ get:
       description: Sub package not found
     "500":
       description: Internal failure
+post:
+  tags:
+    - Package
+  summary: Update a previous package of a sub package
+  parameters:
+    - name: seqVal
+      in: path
+      required: true
+      schema:
+        type: string
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            previous:
+              type: string
+              description: Document ID of previous package
+          required:
+            - previous
+  responses:
+    "200":
+      description: Ok
+    "400":
+      description: Invalid input
+    "403":
+      description: Unauthorized
+    "500":
+      description: Internal failure

@@ -40,6 +40,8 @@ paths:
     # Operator
   /operators:
     $ref: './paths/operators.yaml'
+  /operators/{seqVal}/packages:
+    $ref: './paths/operators_seqVal_packages.yaml'
 
   # Package
   /packages:

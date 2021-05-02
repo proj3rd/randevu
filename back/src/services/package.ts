@@ -399,6 +399,87 @@ export function servicePackage(app: Express, db: Database) {
     }
   });
 
+  app.post('/packages/sub/:seqVal/previous', async (req, res) => {
+    const user = req.user as DocUser;
+    if (!user) {
+      return res.status(403).end();
+    }
+    const { seqVal } = req.params;
+    const { previous } = req.body;
+    let trx: Transaction | undefined;
+    try {
+      const collectionOwns = db.collection(EDGE_COLLECTION_OWNS);
+      const collectionPackageSub = db.collection(COLLECTION_PACKAGE_SUB);
+      const collectionSucceeds = db.collection(EDGE_COLLECTION_SUCCEEDS);
+      const collectionUser = db.collection(COLLECTION_USER);
+      trx = await db.beginTransaction({
+        read: [collectionOwns, collectionPackageSub, collectionUser],
+        write: [collectionSucceeds],
+      });
+      // Check package exists
+      const package_id = `${collectionPackageSub.name}/${seqVal}`;
+      const packageExists = await trx.step(() => collectionPackageSub.documentExists(package_id));
+      if (!packageExists) {
+        await trx.abort();
+        return res.status(400).json({ reason: 'Package does not exists' });
+      }
+      // CHeck package owner
+      const cursorOwnerList = await trx.step(() => db.query({
+        query: `
+          FOR package IN OUTBOUND @user_id @@collectionOwns
+            FILTER package._id == @package_id
+            LIMIT 1
+            RETURN package
+        `,
+        bindVars: {
+          user_id: user._id,
+          '@collectionOwns': collectionOwns.name, 
+          package_id,
+        },
+      }));
+      const ownerList = await cursorOwnerList.all();
+      if (!ownerList.length) {
+        return res.status(403).end();
+      }
+      // Remove the exsiting packageSub -succeeds-> previous edge
+      const cursorSucceedsList = await trx.step(() => db.query({
+        query: `
+          FOR succeeds IN @@collectionSucceeds
+            FILTER succeeds._from == @package_id
+            LIMIT 1
+            RETURN succeeds
+        `,
+        bindVars: { '@collectionSucceeds': collectionSucceeds.name, package_id },
+      }));
+      const succeedsList = await cursorSucceedsList.all();
+      if (succeedsList.length) {
+        const succeeds = succeedsList[0];
+        await trx.step(() => collectionSucceeds.remove(succeeds._id));
+      }
+      if (validateString(previous)) {
+        // Check new previous package exists
+        const previousExists = await trx.step(() => collectionPackageSub.documentExists(previous));
+        if (!previousExists) {
+          await trx.abort();
+          return res.status(400).json({ reason: 'Package does not exists' });
+        }
+        // Add a new packageSub -succeeds-> previous edge
+        await trx.step(() => collectionSucceeds.save({
+          _from: package_id,
+          _to: previous,
+        }));
+      }
+      await trx.commit();
+      return res.status(200).end();
+    } catch (e) {
+      if (trx) {
+        await trx.abort();
+      }
+      console.error(e);
+      return res.status(500).end();
+    }
+  });
+
   app.get('/packages/sub/:seqVal/follow-ups', async (req, res) => {
     const user = req.user as DocUser;
     if (!user) {
