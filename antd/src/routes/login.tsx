@@ -2,10 +2,11 @@ import { Button, Form, Input, message } from "antd";
 import axios from "axios";
 import { DocUser } from "randevu-shared/dist/types";
 import { useState } from "react";
+import { useHistory } from "react-router";
 
 type Props = {
   setWaiting?: (waiting: boolean) => void;
-  setUserAndRedirect?: (user: DocUser, redirect?: string) => void;
+  setUser?: (user: DocUser) => void;
 };
 
 const layout = {
@@ -17,7 +18,9 @@ const tailLayout = {
   wrapperCol: { span: 8, offset: 4 },
 };
 
-export default function Login({ setWaiting, setUserAndRedirect }: Props) {
+export default function Login({ setWaiting, setUser }: Props) {
+  const history = useHistory();
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
@@ -32,7 +35,8 @@ export default function Login({ setWaiting, setUserAndRedirect }: Props) {
     setWaiting?.(true);
     axios.post('/login', { username, password }).then((response) => {
       const { data: user } = response;
-      setUserAndRedirect?.(user/* TODO: redirect */);
+      setUser?.(user);
+      history.push('/'); // TODO: redirect
     }).catch((reason) => {
       console.error(reason);
       const content = reason.response?.data?.reason ?? 'Something went wrong. Please try again later';

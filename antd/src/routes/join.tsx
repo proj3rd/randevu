@@ -1,9 +1,12 @@
 import { Button, Form, Input, message } from "antd";
 import axios from "axios";
-import { useState } from "react";
+import { DocUser } from "randevu-shared/dist/types";
+import { useEffect, useState } from "react";
+import { useHistory } from "react-router";
 
 type Props = {
   setWaiting?: (waiting: boolean) => void;
+  setUser?: (user: DocUser | undefined) => void;
 };
 
 const layout = {
@@ -15,10 +18,25 @@ const tailLayout = {
   wrapperCol: { span: 8, offset: 4 },
 };
 
-export default function Join({ setWaiting }: Props) {
+export default function Join({ setWaiting, setUser: setUser }: Props) {
+  const history = useHistory();
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [retype, setRetype] = useState('');
+
+  useEffect(() => {
+    setWaiting?.(true);
+    axios.get('/authenticate').then((response) => {
+      const { data: user } = response;
+      setUser?.(user);
+      history.push('/');
+    }).catch((reason) => {
+      console.error(reason);
+    }).finally(() => {
+      setWaiting?.(false);
+    })
+  })
 
   function disabled() {
     return !username || !password || password !== retype;

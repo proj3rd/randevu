@@ -44,13 +44,6 @@ function App() {
     })
   }
 
-  function setUserAndRedirect(user: DocUser | undefined, redirect?: string) {
-    setUser(user);
-    if (redirect) {
-      history.push(redirect);
-    }
-  }
-
   return (
     <div className="App">
       <Spin spinning={waiting}>
@@ -100,8 +93,8 @@ function App() {
             <Route exact path='/'>
               Landing
             </Route>
-            <Route path='/join' render={() => <Join setWaiting={setWaiting} />} />
-            <Route path='/login' render={() => <Login setWaiting={setWaiting} setUserAndRedirect={setUserAndRedirect} />} />
+            <Route path='/join' render={() => <Join setWaiting={setWaiting} setUser={setUser} />} />
+            <Route path='/login' render={() => <Login setWaiting={setWaiting} setUser={setUser} />} />
           </Switch>
         </Content>
       </Spin>
