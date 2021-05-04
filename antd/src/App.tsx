@@ -6,6 +6,7 @@ import { BrowserRouter, Link, Route, Switch } from 'react-router-dom';
 import { Content } from 'antd/lib/layout/layout';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import Join from './routes/join';
 
 const { api } = config;
 const { host, port } = api;
@@ -76,6 +77,7 @@ function App() {
               <Route exact path='/'>
                 Landing
               </Route>
+              <Route path='/join' render={() => <Join setWaiting={setWaiting} />} />
             </Switch>
           </Content>
         </Spin>
