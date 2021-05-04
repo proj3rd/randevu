@@ -2,7 +2,7 @@ import './App.css';
 import { Col, Menu, Row, Spin } from "antd";
 import { config } from 'randevu-shared/dist/config';
 import { DocUser } from 'randevu-shared/dist/types';
-import { BrowserRouter, Link, Route, Switch } from 'react-router-dom';
+import { Link, Route, Switch } from 'react-router-dom';
 import { Content } from 'antd/lib/layout/layout';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -31,7 +31,6 @@ function App() {
 
   return (
     <div className="App">
-      <BrowserRouter>
         <Spin spinning={waiting}>
           <Row >
             <Col span={24}>
@@ -81,7 +80,6 @@ function App() {
             </Switch>
           </Content>
         </Spin>
-      </BrowserRouter>
     </div>
   );
 }
