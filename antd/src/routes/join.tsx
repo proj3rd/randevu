@@ -18,7 +18,7 @@ const tailLayout = {
   wrapperCol: { span: 8, offset: 4 },
 };
 
-export default function Join({ setWaiting, setUser: setUser }: Props) {
+export default function Join({ setWaiting, setUser }: Props) {
   const history = useHistory();
 
   const [username, setUsername] = useState('');
@@ -36,7 +36,7 @@ export default function Join({ setWaiting, setUser: setUser }: Props) {
     }).finally(() => {
       setWaiting?.(false);
     })
-  })
+  }, []);
 
   function disabled() {
     return !username || !password || password !== retype;
