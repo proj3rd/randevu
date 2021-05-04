@@ -1,7 +1,7 @@
 import { Button, Form, Input, message } from "antd";
 import axios from "axios";
 import { DocUser } from "randevu-shared/dist/types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useHistory } from "react-router";
 
 type Props = {
@@ -23,6 +23,19 @@ export default function Login({ setWaiting, setUser }: Props) {
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+
+  useEffect(() => {
+    setWaiting?.(true);
+    axios.get('/authenticate').then((response) => {
+      const { data: user } = response;
+      setUser?.(user);
+      history.push('/');
+    }).catch((reason) => {
+      console.error(reason);
+    }).finally(() => {
+      setWaiting?.(false);
+    })
+  }, [history, setUser, setWaiting]);
 
   function disabled() {
     return !username || !password;
