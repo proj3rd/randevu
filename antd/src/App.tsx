@@ -9,7 +9,7 @@ import axios from 'axios';
 
 const { api } = config;
 const { host, port } = api;
-axios.defaults.baseURL = `htpp://${host}:${port}`;
+axios.defaults.baseURL = `http://${host}:${port}`;
 axios.defaults.withCredentials = true;
 
 function App() {
