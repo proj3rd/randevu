@@ -36,7 +36,7 @@ export default function Join({ setWaiting, setUser }: Props) {
     }).finally(() => {
       setWaiting?.(false);
     })
-  }, []);
+  }, [history, setUser, setWaiting]);
 
   function disabled() {
     return !username || !password || password !== retype;
