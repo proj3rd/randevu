@@ -35,7 +35,9 @@ function App() {
           <Row >
             <Col span={24}>
               <Menu mode='horizontal'>
-                <Menu.Item>RANdevU</Menu.Item>
+                <Menu.Item>
+                  <Link to='/'>RANdevU</Link>
+                </Menu.Item>
                 <Menu.Item></Menu.Item>
                 <Menu.Item>Features</Menu.Item>
                 <Menu.Item>Operators</Menu.Item>
