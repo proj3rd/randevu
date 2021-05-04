@@ -59,16 +59,16 @@ function App() {
                 <Link to='/'>RANdevU</Link>
               </Menu.Item>
               <Menu.Item></Menu.Item>
-              <Menu.Item>Features</Menu.Item>
-              <Menu.Item>Operators</Menu.Item>
-              <Menu.Item>Packages</Menu.Item>
-              <Menu.Item>Requirements</Menu.Item>
+              {/* <Menu.Item>Features</Menu.Item> */}
+              {/* <Menu.Item>Operators</Menu.Item> */}
+              {/* <Menu.Item>Packages</Menu.Item> */}
+              {/* <Menu.Item>Requirements</Menu.Item> */}
               <Menu.SubMenu title='Collections'>
                 <Menu.Item>Deployment options</Menu.Item>
-                <Menu.Item>Duplex modes</Menu.Item>
-                <Menu.Item>Network elements</Menu.Item>
-                <Menu.Item>Products</Menu.Item>
-                <Menu.Item>RAN sharing</Menu.Item>
+                {/* <Menu.Item>Duplex modes</Menu.Item> */}
+                {/* <Menu.Item>Network elements</Menu.Item> */}
+                {/* <Menu.Item>Products</Menu.Item> */}
+                {/* <Menu.Item>RAN sharing</Menu.Item> */}
               </Menu.SubMenu>
               <Menu.Item></Menu.Item>
               {
