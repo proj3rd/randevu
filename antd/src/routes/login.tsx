@@ -5,7 +5,7 @@ import { useState } from "react";
 
 type Props = {
   setWaiting?: (waiting: boolean) => void;
-  onLogin?: (user: DocUser, redirect?: string) => void;
+  setUserAndRedirect?: (user: DocUser, redirect?: string) => void;
 };
 
 const layout = {
@@ -17,7 +17,7 @@ const tailLayout = {
   wrapperCol: { span: 8, offset: 4 },
 };
 
-export default function Login({ setWaiting, onLogin }: Props) {
+export default function Login({ setWaiting, setUserAndRedirect }: Props) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
@@ -32,7 +32,7 @@ export default function Login({ setWaiting, onLogin }: Props) {
     setWaiting?.(true);
     axios.post('/login', { username, password }).then((response) => {
       const { data: user } = response;
-      onLogin?.(user/* TODO: redirect */);
+      setUserAndRedirect?.(user/* TODO: redirect */);
     }).catch((reason) => {
       console.error(reason);
       const content = reason.response?.data?.reason ?? 'Something went wrong. Please try again later';

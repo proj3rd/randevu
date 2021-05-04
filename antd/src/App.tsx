@@ -44,9 +44,11 @@ function App() {
     })
   }
 
-  function onLogin(user: DocUser, redirect: string = '/') {
+  function setUserAndRedirect(user: DocUser | undefined, redirect?: string) {
     setUser(user);
-    history.push(redirect);
+    if (redirect) {
+      history.push(redirect);
+    }
   }
 
   return (
@@ -99,7 +101,7 @@ function App() {
               Landing
             </Route>
             <Route path='/join' render={() => <Join setWaiting={setWaiting} />} />
-            <Route path='/login' render={() => <Login setWaiting={setWaiting} onLogin={onLogin} />} />
+            <Route path='/login' render={() => <Login setWaiting={setWaiting} setUserAndRedirect={setUserAndRedirect} />} />
           </Switch>
         </Content>
       </Spin>
