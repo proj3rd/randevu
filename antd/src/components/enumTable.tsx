@@ -90,6 +90,7 @@ export default function EnumTable({ dataSource, onChangeEnum }: Props) {
             cell: EditableCell,
           },
         }}
+        pagination={false}
       ></Table>
     </Form>
   );
