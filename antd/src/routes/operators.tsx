@@ -13,6 +13,10 @@ type Props = {
   setWaiting?: (waiting: boolean) => void;
 }
 
+const dummyOptions = [
+  { value: 'value', label: 'label' },
+];
+
 export default function Operators({ user, setUser, setWaiting: setWaitingApp }: Props) {
   const history = useHistory();
   const { url } = useRouteMatch();
@@ -129,9 +133,10 @@ export default function Operators({ user, setUser, setWaiting: setWaitingApp }: 
   }
 
   function onClickEdit(record: DocOperator) {
-    const { name, owner } = record;
+    const { name } = record;
+    const username = (record as any).username ?? '';
     const key = (record as any).key;
-    form.setFieldsValue({ name, owner });
+    form.setFieldsValue({ name, owner: username });
     setEditingKey(key);
   }
 
@@ -202,7 +207,13 @@ function EditableCell({ record, dataIndex, editing, children, ...props }: any) {
             name={dataIndex} rules={[ {required: true }]} help={false}
             style={{ margin: 0 }}
           >
-            <Select />
+            <Select
+              showSearch
+              options={dummyOptions}
+              filterOption={(input, option) => {
+                return (option?.label?.toString() ?? '').toLocaleLowerCase().includes(input.toLocaleLowerCase());
+              }}
+            />
           </Form.Item>
         ) : record?.key === '' ? (
           <Skeleton.Input style={{ width: 200 }} />
