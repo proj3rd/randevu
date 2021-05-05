@@ -10,6 +10,7 @@ import Join from './routes/join';
 import Login from './routes/login';
 import EnumManager from './routes/enumManager';
 import { isAdmin } from 'randevu-shared/dist/utils';
+import Operators from './routes/operators';
 
 const { api } = config;
 const { host, port } = api;
@@ -57,7 +58,9 @@ function App() {
               </Menu.Item>
               <Menu.Item></Menu.Item>
               {/* <Menu.Item>Features</Menu.Item> */}
-              {/* <Menu.Item>Operators</Menu.Item> */}
+              <Menu.Item>
+                <Link to='/operators'>Operators</Link>
+              </Menu.Item>
               {/* <Menu.Item>Packages</Menu.Item> */}
               {/* <Menu.Item>Requirements</Menu.Item> */}
               <Menu.SubMenu title='Collections'>
@@ -105,6 +108,7 @@ function App() {
             <Route exact path='/'>
               Landing
             </Route>
+            <Route path='/operators' render={() => <Operators user={user} />} />
             <Route path='/deployment-options' render={() => <EnumManager title='Deployment options' path='/deployment-options' user={user} />} />
             <Route path='/duplex-modes' render={() => <EnumManager title='Duplex modes' path='/duplex-modes' user={user} />} />
             <Route path='/network-elements' render={() => <EnumManager title='Network elements' path='/network-elements' user={user} />} />
