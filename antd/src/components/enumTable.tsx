@@ -1,4 +1,4 @@
-import { Form, Input, Table, Typography } from "antd";
+import { Form, Input, Skeleton, Table, Typography } from "antd";
 import { CheckOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons'
 import { DocEnum, DocUser } from "randevu-shared/dist/types";
 import { useState } from "react";
@@ -132,6 +132,8 @@ function EditableCell({ record, dataIndex, editing, children, ...props }: any) {
           >
             <Input />
           </Form.Item>
+        ) : record?.key === '' ? (
+          <Skeleton.Input style={{ width: 200 }} />
         ) : (
           children
         )
