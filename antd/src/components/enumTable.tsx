@@ -25,7 +25,7 @@ export default function EnumTable({ enumList, user, onChangeEnum }: Props) {
       width: '25%',
       render: (_: any, record: any) => {
         const editable = isEditing(record);
-        return user?.role !== 'admin' ? (
+        return !isAdmin(user) ? (
           <></>
         ) : record.key === '' ? (
           <Typography.Link onClick={() => onClickSave(record)} disabled={!editable}>
