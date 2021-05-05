@@ -21,8 +21,7 @@ export default function EnumManager({ title, path, setUser, setWaiting: setWaiti
   const [enumList, setEnumList] = useState<any[]>([]);
 
   const getEnumList = useCallback(() => {
-    setWaiting(true);
-    axios.get(path).then((response) => {
+    return axios.get(path).then((response) => {
       const enumList = response.data.map((item: DocEnum) => {
         const { _id } = item;
         return { key: _id, ...item };
@@ -30,9 +29,7 @@ export default function EnumManager({ title, path, setUser, setWaiting: setWaiti
       setEnumList(enumList);
     }).catch((reason) => {
       console.error(reason);
-    }).finally(() => {
-      setWaiting(false);
-    })
+    });
   }, [path])
 
   useEffect(() => {
@@ -40,7 +37,10 @@ export default function EnumManager({ title, path, setUser, setWaiting: setWaiti
     axios.get('/authenticate').then((response) => {
       const { data: user } = response;
       setUser?.(user);
-      getEnumList();
+      setWaiting(true);
+      getEnumList().finally(() => {
+        setWaiting(false);
+      });
     }).catch((reason) => {
       setUser?.(undefined);
       history.push(`/login?redirect=${url}`);
