@@ -157,20 +157,40 @@ export function serviceUser(app: Express, db: Database) {
       trx = await db.beginTransaction({
         read: collectionUser,
       });
-      const { username } = req.query;
-      const usernameFilter = username ? 'FILTER CONTAINS(UPPER(user.username), UPPER(@username))' : '';
-      const bindVarsUsernameFilter = username ? { username } : {};
-      const cursorUserList = await trx.step(() => db.query({
-        query: `
-          FOR user in @@collectionUser
-            ${usernameFilter}
-            RETURN UNSET(user, "password")
-        `,
-        bindVars: { '@collectionUser': collectionUser.name, ...bindVarsUsernameFilter },
-      }));
-      const userList = await cursorUserList.all();
-      await trx.commit();
-      return res.json(userList);
+      const { seqVal: seqValList, username } = req.query;
+      if (seqValList && username) {
+        await trx.abort();
+        return res.status(400).end();
+      }
+      if (seqValList) {
+        const userIdList = (seqValList as string[]).map((seqVal) => `${collectionUser.name}/${seqVal}`);
+        const cursorUserList = await trx.step(() => db.query({
+          query: `
+            FOR user IN @@collectionUser
+              FILTER POSITION(@userIdList, user._id)
+              RETURN UNSET(user, "password")
+          `,
+          bindVars: { '@collectionUser': collectionUser.name, userIdList },
+        }));
+        const userList = await cursorUserList.all();
+        await trx.commit();
+        return res.json(userList);
+      }
+      if (username) {
+        const usernameFilter = username ? 'FILTER CONTAINS(UPPER(user.username), UPPER(@username))' : '';
+        const bindVarsUsernameFilter = username ? { username } : {};
+        const cursorUserList = await trx.step(() => db.query({
+          query: `
+            FOR user in @@collectionUser
+              ${usernameFilter}
+              RETURN UNSET(user, "password")
+          `,
+          bindVars: { '@collectionUser': collectionUser.name, ...bindVarsUsernameFilter },
+        }));
+        const userList = await cursorUserList.all();
+        await trx.commit();
+        return res.json(userList);
+      }
     } catch (e) {
       if (trx) {
         await trx.abort();
