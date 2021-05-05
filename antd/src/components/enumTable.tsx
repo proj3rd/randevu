@@ -131,7 +131,7 @@ function EditableCell({ record, dataIndex, editing, children, ...props }: any) {
       {
         editing ? (
           <Form.Item
-            name={dataIndex} rules={[ { required: true }]}
+            name={dataIndex} rules={[ { required: true }]} help={false}
             style={{ margin: 0 }}
           >
             <Input />
