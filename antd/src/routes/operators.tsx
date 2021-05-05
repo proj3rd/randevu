@@ -126,6 +126,7 @@ export default function Operators({ user, setUser, setWaiting: setWaitingApp }: 
                 cell: EditableCell,
               },
             }}
+            pagination={false}
           />
         </Form>
       </Spin>
