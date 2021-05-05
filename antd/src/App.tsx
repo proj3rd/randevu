@@ -63,10 +63,18 @@ function App() {
                 <Menu.Item>
                   <Link to='/deployment-options'>Deployment options</Link>
                   </Menu.Item>
-                {/* <Menu.Item>Duplex modes</Menu.Item> */}
-                {/* <Menu.Item>Network elements</Menu.Item> */}
-                {/* <Menu.Item>Products</Menu.Item> */}
-                {/* <Menu.Item>RAN sharing</Menu.Item> */}
+                <Menu.Item>
+                  <Link to='/duplex-modes'>Duplex modes</Link>
+                </Menu.Item>
+                <Menu.Item>
+                  <Link to='/network-elements'>Network elements</Link>
+                </Menu.Item>
+                <Menu.Item>
+                  <Link to='/products'>Products</Link>
+                </Menu.Item>
+                <Menu.Item>
+                  <Link to='/ran-sharing'>RAN sharing</Link>
+                </Menu.Item>
               </Menu.SubMenu>
               <Menu.Item></Menu.Item>
               {
@@ -97,6 +105,10 @@ function App() {
               Landing
             </Route>
             <Route path='/deployment-options' render={() => <EnumManager title='Deployment options' path='/deployment-options' />} />
+            <Route path='/duplex-modes' render={() => <EnumManager title='Duplex modes' path='/duplex-modes' />} />
+            <Route path='/network-elements' render={() => <EnumManager title='Network elements' path='/network-elements' />} />
+            <Route path='/products' render={() => <EnumManager title='Products' path='/products' />} />
+            <Route path='/ran-sharing' render={() => <EnumManager title='RAN sharing' path='/ran-sharing' />} />
             <Route path='/join' render={() => <Join setWaiting={setWaiting} setUser={setUser} />} />
             <Route path='/login' render={() => <Login setWaiting={setWaiting} setUser={setUser} />} />
           </Switch>
