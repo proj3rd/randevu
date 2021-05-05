@@ -1,14 +1,15 @@
 import { Form, Input, Table, Typography } from "antd";
 import { CheckOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons'
-import { DocEnum } from "randevu-shared/dist/types";
+import { DocEnum, DocUser } from "randevu-shared/dist/types";
 import { useState } from "react";
 
 type Props = {
-  dataSource: any[];
+  enumList: DocEnum[];
+  user?: DocUser;
   onChangeEnum: (_id: string, name: string) => void;
 }
 
-export default function EnumTable({ dataSource, onChangeEnum }: Props) {
+export default function EnumTable({ enumList, user, onChangeEnum }: Props) {
   const [form] = Form.useForm();
   const [editingKey, setEditingKey] = useState('');
 
@@ -22,20 +23,27 @@ export default function EnumTable({ dataSource, onChangeEnum }: Props) {
       key: 'actions', dataIndex: 'actions', title: 'Actions',
       width: '25%',
       render: (_: any, record: any) => {
-        return isEditing(record) ? (
+        const editable = isEditing(record);
+        return user?.role !== 'admin' ? (
+          <></>
+        ) : record.key === '' ? (
+          <Typography.Link onClick={() => onClickSave(record)} disabled={!editable}>
+            <CheckOutlined /> Save
+          </Typography.Link>
+        ) : !editable ? (
+          <Typography.Link onClick={() => onClickEdit(record)} disabled={editingKey !== ''}>
+            <EditOutlined /> Edit
+          </Typography.Link>
+        ) : (
           <>
             <Typography.Link onClick={() => onClickSave(record)}>
               <CheckOutlined /> Save
             </Typography.Link>
             {' '}
-            <Typography.Link onClick={() => setEditingKey('')}>
+            <Typography.Link onClick={() => onClickCancel()}>
               <CloseOutlined /> Cancel
             </Typography.Link>
           </>
-        ) : (
-          <Typography.Link onClick={() => onClickEdit(record)} disabled={editingKey !== ''}>
-            <EditOutlined /> Edit
-          </Typography.Link>
         )
       }
     },
@@ -58,6 +66,11 @@ export default function EnumTable({ dataSource, onChangeEnum }: Props) {
     return editingKey === record.key;
   }
 
+  function onClickCancel() {
+    form.setFieldsValue({ name: '' });
+    setEditingKey('');
+  }
+
   function onClickEdit(record: DocEnum) {
     const { name } = record
     const key = (record as any).key;
@@ -69,13 +82,24 @@ export default function EnumTable({ dataSource, onChangeEnum }: Props) {
     form.validateFields().then((value) => {
       const { key, _id } = record;
       const { name } = value;
-      const indexFound = dataSource.findIndex((enumItem) => enumItem.key === key);
+      const indexFound = enumList.findIndex((enumItem) => enumItem._id === key);
       if (indexFound !== -1) {
         onChangeEnum(_id, name);
       }
     }).catch((reason) => {
       console.error(reason);
     });
+  }
+
+  const dataSource = [
+    // { key: '', name: '' },
+    ...enumList.map((enumItem) => {
+      const { _id } = enumItem;
+      return { key: _id, ...enumItem };
+    }),
+  ];
+  if (user?.role === 'admin') {
+    dataSource.unshift({ key: '', name: '', _id: '' });
   }
 
   return (

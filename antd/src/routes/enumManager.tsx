@@ -1,7 +1,7 @@
 import { Spin } from "antd";
 import Title from "antd/lib/typography/Title";
 import axios from "axios";
-import { DocEnum, DocUser } from "randevu-shared/dist/types";
+import { DocUser } from "randevu-shared/dist/types";
 import { seqValOf } from 'randevu-shared/dist/utils';
 import { useCallback, useEffect, useState } from "react";
 import { useHistory, useRouteMatch } from "react-router";
@@ -10,11 +10,12 @@ import EnumTable from "../components/enumTable";
 type Props = {
   title: string;
   path: string;
+  user?: DocUser;
   setUser?: (user: DocUser | undefined) => void;
   setWaiting?: (waiting: boolean) => void;
 }
 
-export default function EnumManager({ title, path, setUser, setWaiting: setWaitingApp }: Props) {
+export default function EnumManager({ title, path, user, setUser, setWaiting: setWaitingApp }: Props) {
   const history = useHistory();
   const { url } = useRouteMatch();
 
@@ -23,10 +24,7 @@ export default function EnumManager({ title, path, setUser, setWaiting: setWaiti
 
   const getEnumList = useCallback(() => {
     return axios.get(path).then((response) => {
-      const enumList = response.data.map((item: DocEnum) => {
-        const { _id } = item;
-        return { key: _id, ...item };
-      });
+      const { data: enumList } = response;
       setEnumList(enumList);
     }).catch((reason) => {
       console.error(reason);
@@ -66,7 +64,7 @@ export default function EnumManager({ title, path, setUser, setWaiting: setWaiti
     <>
       <Title level={3}>{title}</Title>
       <Spin spinning={waiting}>
-        <EnumTable dataSource={enumList} onChangeEnum={onChangeEnum} />
+        <EnumTable enumList={enumList} onChangeEnum={onChangeEnum} user={user} />
       </Spin>
     </>
   );

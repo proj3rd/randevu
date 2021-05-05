@@ -104,11 +104,11 @@ function App() {
             <Route exact path='/'>
               Landing
             </Route>
-            <Route path='/deployment-options' render={() => <EnumManager title='Deployment options' path='/deployment-options' />} />
-            <Route path='/duplex-modes' render={() => <EnumManager title='Duplex modes' path='/duplex-modes' />} />
-            <Route path='/network-elements' render={() => <EnumManager title='Network elements' path='/network-elements' />} />
-            <Route path='/products' render={() => <EnumManager title='Products' path='/products' />} />
-            <Route path='/ran-sharing' render={() => <EnumManager title='RAN sharing' path='/ran-sharing' />} />
+            <Route path='/deployment-options' render={() => <EnumManager title='Deployment options' path='/deployment-options' user={user} />} />
+            <Route path='/duplex-modes' render={() => <EnumManager title='Duplex modes' path='/duplex-modes' user={user} />} />
+            <Route path='/network-elements' render={() => <EnumManager title='Network elements' path='/network-elements' user={user} />} />
+            <Route path='/products' render={() => <EnumManager title='Products' path='/products' user={user} />} />
+            <Route path='/ran-sharing' render={() => <EnumManager title='RAN sharing' path='/ran-sharing' user={user} />} />
             <Route path='/join' render={() => <Join setWaiting={setWaiting} setUser={setUser} />} />
             <Route path='/login' render={() => <Login setWaiting={setWaiting} setUser={setUser} />} />
           </Switch>
