@@ -2,6 +2,7 @@ import { Form, Input, Table, Typography } from "antd";
 import { CheckOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons'
 import { DocEnum, DocUser } from "randevu-shared/dist/types";
 import { useState } from "react";
+import { isAdmin } from "randevu-shared/dist/utils";
 
 type Props = {
   enumList: DocEnum[];
@@ -98,7 +99,7 @@ export default function EnumTable({ enumList, user, onChangeEnum }: Props) {
       return { key: _id, ...enumItem };
     }),
   ];
-  if (user?.role === 'admin') {
+  if (isAdmin(user)) {
     dataSource.unshift({ key: '', name: '', _id: '' });
   }
 

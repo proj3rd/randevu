@@ -9,6 +9,7 @@ import axios from 'axios';
 import Join from './routes/join';
 import Login from './routes/login';
 import EnumManager from './routes/enumManager';
+import { isAdmin } from 'randevu-shared/dist/utils';
 
 const { api } = config;
 const { host, port } = api;
@@ -78,7 +79,7 @@ function App() {
               </Menu.SubMenu>
               <Menu.Item></Menu.Item>
               {
-                user?.role === 'admin' ? (
+                isAdmin(user) ? (
                   <Menu.Item>Admin</Menu.Item>
                 ) : (<></>)
               }
