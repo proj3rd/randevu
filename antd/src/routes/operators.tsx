@@ -3,7 +3,7 @@ import Title from "antd/lib/typography/Title";
 import { CheckOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons';
 import axios from "axios";
 import { DocOperator, DocUser } from "randevu-shared/dist/types";
-import { isAdmin } from "randevu-shared/dist/utils";
+import { isAdmin, seqValOf } from "randevu-shared/dist/utils";
 import { useCallback, useEffect, useState } from "react";
 import { useHistory, useRouteMatch } from "react-router";
 
@@ -32,7 +32,7 @@ export default function Operators({ user, setUser, setWaiting: setWaitingApp }: 
         return !isAdmin(user) ? (
           <></>
         ) : record.key === '' ? (
-          <Typography.Link disabled={!editable}>
+          <Typography.Link onClick={() => onClickSave(record)} disabled={!editable}>
             <CheckOutlined /> Save
           </Typography.Link>
         ) : !editable ? (
@@ -41,7 +41,7 @@ export default function Operators({ user, setUser, setWaiting: setWaitingApp }: 
           </Typography.Link>
         ) : (
           <>
-            <Typography.Link>
+            <Typography.Link onClick={() => onClickSave(record)}>
               <CheckOutlined /> Save
             </Typography.Link>
             {' '}
@@ -108,6 +108,29 @@ export default function Operators({ user, setUser, setWaiting: setWaitingApp }: 
     const key = (record as any).key;
     form.setFieldsValue({ name, owner });
     setEditingKey(key);
+  }
+
+  function onClickSave(record: DocOperator) {
+    form.validateFields().then((value) => {
+      const { _id } = record;
+      const key = (record as any).key;
+      const { name, owner } = value;
+      const indexFound = operatorList.findIndex((operator) => operator._id === _id);
+      if (key === '' || indexFound !== -1) {
+        setWaiting(true);
+        axios.post(`/operators/${seqValOf(_id)}`, {
+          name, owner,
+        }).then((response) => {
+          getOperatorList().finally(() => {
+            setWaiting(false);
+          });
+        }).catch((reason) => {
+          setWaiting(false);
+        });
+      }
+    }).catch((reason) => {
+      console.error(reason);
+    });
   }
 
   const dataSource = operatorList.map((operator) => {
