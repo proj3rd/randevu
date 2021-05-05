@@ -2,7 +2,7 @@ import { Spin } from "antd";
 import Title from "antd/lib/typography/Title";
 import axios from "axios";
 import { DocEnum, DocUser } from "randevu-shared/dist/types";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useHistory, useRouteMatch } from "react-router";
 import EnumTable from "../components/enumTable";
 
@@ -20,21 +20,7 @@ export default function EnumManager({ title, path, setUser, setWaiting: setWaiti
   const [waiting, setWaiting] = useState(false);
   const [enumList, setEnumList] = useState<any[]>([]);
 
-  useEffect(() => {
-    setWaitingApp?.(true);
-    axios.get('/authenticate').then((response) => {
-      const { data: user } = response;
-      setUser?.(user);
-      getEnumList();
-    }).catch((reason) => {
-      setUser?.(undefined);
-      history.push(`/login?redirect=${url}`);
-    }).finally(() => {
-      setWaitingApp?.(false);
-    })
-  }, [history, url, setUser, setWaitingApp]);
-
-  function getEnumList() {
+  const getEnumList = useCallback(() => {
     setWaiting(true);
     axios.get(path).then((response) => {
       const enumList = response.data.map((item: DocEnum) => {
@@ -47,7 +33,21 @@ export default function EnumManager({ title, path, setUser, setWaiting: setWaiti
     }).finally(() => {
       setWaiting(false);
     })
-  }
+  }, [path])
+
+  useEffect(() => {
+    setWaitingApp?.(true);
+    axios.get('/authenticate').then((response) => {
+      const { data: user } = response;
+      setUser?.(user);
+      getEnumList();
+    }).catch((reason) => {
+      setUser?.(undefined);
+      history.push(`/login?redirect=${url}`);
+    }).finally(() => {
+      setWaitingApp?.(false);
+    })
+  }, [history, url, setUser, setWaitingApp, getEnumList]);
 
   return (
     <>
