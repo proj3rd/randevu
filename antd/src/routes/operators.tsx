@@ -137,6 +137,10 @@ export default function Operators({ user, setUser, setWaiting: setWaitingApp }: 
     const { _id } = operator;
     return { key: _id, ...operator };
   });
+  if (isAdmin(user)) {
+    dataSource.unshift({ key: '', name: '', _id: '', owner: '' });
+  }
+
   return (
     <>
       <Title level={3}>Operators</Title>
