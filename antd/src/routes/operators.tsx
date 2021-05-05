@@ -67,10 +67,35 @@ export default function Operators({ user, setUser, setWaiting: setWaitingApp }: 
     }
   });
 
-  const getOperatorList = useCallback(() => {
-    return axios.get('/operators?include[]=owner').then((response) => {
-      const { data: operatorList } = response;
-      setOperatorList(operatorList);
+  const getOperatorList = useCallback(async () => {
+    return axios.get('/operators?include[]=owner').then(async (response) => {
+      const operatorList = response.data as DocOperator[];
+      const ownerList = Array.from(
+        new Set(
+          operatorList.map((operator) => {
+            const { owner } = operator;
+            return seqValOf(owner ?? '');
+          })
+        )
+      );
+      return axios.get('/users', {
+        params: {
+          seqVal: ownerList,
+        }
+      }).then((response) => {
+        const userList = response.data as DocUser[];
+        operatorList.forEach((operator) => {
+          const { owner } = operator;
+          const userFound = userList.find((user) => user._id === owner);
+          if (userFound) {
+            const { username } = userFound;
+            (operator as any).username = username;
+          }
+        })
+        setOperatorList(operatorList);
+      }).catch((reason) => {
+        console.error(reason);
+      });
     }).catch((reason) => {
       console.error(reason);
     });
