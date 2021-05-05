@@ -1,7 +1,9 @@
-import { Spin, Table } from "antd";
+import { Form, Input, Select, Skeleton, Spin, Table, Typography } from "antd";
 import Title from "antd/lib/typography/Title";
+import { CheckOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons';
 import axios from "axios";
 import { DocOperator, DocUser } from "randevu-shared/dist/types";
+import { isAdmin } from "randevu-shared/dist/utils";
 import { useCallback, useEffect, useState } from "react";
 import { useHistory, useRouteMatch } from "react-router";
 
@@ -16,13 +18,54 @@ export default function Operators({ user, setUser, setWaiting: setWaitingApp }: 
   const { url } = useRouteMatch();
 
   const [waiting, setWaiting] = useState(false);
+  const [form] = Form.useForm();
   const [operatorList, setOperatorList] = useState<DocOperator[]>([]);
+  const [editingKey, setEditingKey] = useState('');
 
-  const columns = [
-    { key: 'name', dataIndex: 'name', title: 'Name', width: '50%' },
-    { key: 'owner', dataIndex: 'owner', title: 'Owner', width: '25%' },
-    { key: 'actions', dataIndex: 'actions', title: 'actions', width: '25%' },
-  ];
+  const columns: any[] = [
+    { key: 'name', dataIndex: 'name', title: 'Name', width: '50%', editable: true },
+    { key: 'owner', dataIndex: 'owner', title: 'Owner', width: '25%', editable: true },
+    {
+      key: 'actions', dataIndex: 'actions', title: 'Actions', width: '25%',
+      render: (_: any, record: any) => {
+        const editable = isEditing(record);
+        return !isAdmin(user) ? (
+          <></>
+        ) : record.key === '' ? (
+          <Typography.Link disabled={!editable}>
+            <CheckOutlined /> Save
+          </Typography.Link>
+        ) : !editable ? (
+          <Typography.Link onClick={() => onClickEdit(record)} disabled={editingKey !== ''}>
+            <EditOutlined /> Edit
+          </Typography.Link>
+        ) : (
+          <>
+            <Typography.Link>
+              <CheckOutlined /> Save
+            </Typography.Link>
+            {' '}
+            <Typography.Link onClick={onClickCancel}>
+              <CloseOutlined /> Cancel
+            </Typography.Link>
+          </>
+        )
+      }
+    },
+  ].map((column) => {
+    const { dataIndex, editable } = column;
+    if (!editable) {
+      return column;
+    }
+    return {
+      ...column,
+      onCell: (record: any) => ({
+        record,
+        dataIndex,
+        editing: isEditing(record),
+      }),
+    }
+  });
 
   const getOperatorList = useCallback(() => {
     return axios.get('/operators?include[]=owner').then((response) => {
@@ -37,6 +80,7 @@ export default function Operators({ user, setUser, setWaiting: setWaitingApp }: 
     setWaitingApp?.(true);
     axios.get('/authenticate').then((response) => {
       const { data: user } = response;
+      setUser?.(user);
       setWaiting(true);
       getOperatorList().finally(() => {
         setWaiting(false);
@@ -48,7 +92,23 @@ export default function Operators({ user, setUser, setWaiting: setWaitingApp }: 
     }).finally(() => {
       setWaitingApp?.(false);
     });
-  }, []);
+  }, [getOperatorList, history, setUser, setWaitingApp, url]);
+
+  function isEditing(record: any) {
+    return record.key === editingKey;
+  }
+
+  function onClickCancel() {
+    form.setFieldsValue({ name: '', owner: '' });
+    setEditingKey('');
+  }
+
+  function onClickEdit(record: DocOperator) {
+    const { name, owner } = record;
+    const key = (record as any).key;
+    form.setFieldsValue({ name, owner });
+    setEditingKey(key);
+  }
 
   const dataSource = operatorList.map((operator) => {
     const { _id } = operator;
@@ -58,8 +118,44 @@ export default function Operators({ user, setUser, setWaiting: setWaitingApp }: 
     <>
       <Title level={3}>Operators</Title>
       <Spin spinning={waiting}>
-        <Table dataSource={dataSource} columns={columns} />
+        <Form form={form} component={false}>
+          <Table
+            dataSource={dataSource} columns={columns}
+            components={{
+              body: {
+                cell: EditableCell,
+              },
+            }}
+          />
+        </Form>
       </Spin>
     </>
+  )
+}
+
+function EditableCell({ record, dataIndex, editing, children, ...props }: any) {
+  return (
+    <td {...props}>
+      {
+        editing && dataIndex === 'name' ? (
+          <Form.Item
+            name={dataIndex} rules={[ { required: true }]}
+            style={{ margin: 0 }}
+          >
+            <Input />
+          </Form.Item>
+        ) : editing && dataIndex === 'owner' ? (
+          <Form.Item
+            style={{ margin: 0 }}
+          >
+            <Select />
+          </Form.Item>
+        ) : record?.key === '' ? (
+          <Skeleton.Input style={{ width: 200 }} />
+        ) : (
+          children
+        )
+      }
+    </td>
   )
 }
