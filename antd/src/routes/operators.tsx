@@ -174,6 +174,7 @@ function EditableCell({ record, dataIndex, editing, children, ...props }: any) {
           </Form.Item>
         ) : editing && dataIndex === 'owner' ? (
           <Form.Item
+            name={dataIndex} rules={[ {required: true }]} help={false}
             style={{ margin: 0 }}
           >
             <Select />
