@@ -2,6 +2,7 @@ import { Spin } from "antd";
 import Title from "antd/lib/typography/Title";
 import axios from "axios";
 import { DocEnum, DocUser } from "randevu-shared/dist/types";
+import { seqValOf } from 'randevu-shared/dist/utils';
 import { useCallback, useEffect, useState } from "react";
 import { useHistory, useRouteMatch } from "react-router";
 import EnumTable from "../components/enumTable";
@@ -49,11 +50,23 @@ export default function EnumManager({ title, path, setUser, setWaiting: setWaiti
     })
   }, [history, url, setUser, setWaitingApp, getEnumList]);
 
+  function onChangeEnum(_id: string, name: string) {
+    setWaiting(true);
+    axios.post(`${path}/${seqValOf(_id)}`, { name }).then((response) => {
+      getEnumList().finally(() => {
+        setWaiting(false);
+      });
+    }).catch((reason) => {
+      console.error(reason);
+      setWaiting(false);
+    });
+  }
+
   return (
     <>
       <Title level={3}>{title}</Title>
       <Spin spinning={waiting}>
-        <EnumTable dataSource={enumList} />
+        <EnumTable dataSource={enumList} onChangeEnum={onChangeEnum} />
       </Spin>
     </>
   );

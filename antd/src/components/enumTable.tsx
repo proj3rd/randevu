@@ -4,10 +4,11 @@ import { DocEnum } from "randevu-shared/dist/types";
 import { useState } from "react";
 
 type Props = {
-  dataSource?: any[];
+  dataSource: any[];
+  onChangeEnum: (_id: string, name: string) => void;
 }
 
-export default function EnumTable({ dataSource }: Props) {
+export default function EnumTable({ dataSource, onChangeEnum }: Props) {
   const [form] = Form.useForm();
   const [editingKey, setEditingKey] = useState('');
 
@@ -23,7 +24,7 @@ export default function EnumTable({ dataSource }: Props) {
       render: (_: any, record: any) => {
         return isEditing(record) ? (
           <>
-            <Typography.Link>
+            <Typography.Link onClick={() => onClickSave(record)}>
               <CheckOutlined /> Save
             </Typography.Link>
             {' '}
@@ -62,6 +63,19 @@ export default function EnumTable({ dataSource }: Props) {
     const key = (record as any).key;
     form.setFieldsValue({ name });
     setEditingKey(key);
+  }
+
+  async function onClickSave(record: any) {
+    form.validateFields().then((value) => {
+      const { key, _id } = record;
+      const { name } = value;
+      const indexFound = dataSource.findIndex((enumItem) => enumItem.key === key);
+      if (indexFound !== -1) {
+        onChangeEnum(_id, name);
+      }
+    }).catch((reason) => {
+      console.error(reason);
+    });
   }
 
   return (
