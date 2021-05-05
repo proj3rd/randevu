@@ -48,15 +48,16 @@ export default function EnumManager({ title, path, user, setUser, setWaiting: se
     })
   }, [history, url, setUser, setWaitingApp, getEnumList]);
 
-  function onChangeEnum(_id: string, name: string) {
+  async function onChangeEnum(_id: string, name: string) {
     setWaiting(true);
-    axios.post(`${path}/${seqValOf(_id)}`, { name }).then((response) => {
+    return axios.post(`${path}/${seqValOf(_id)}`, { name }).then((response) => {
       getEnumList().finally(() => {
         setWaiting(false);
       });
     }).catch((reason) => {
       console.error(reason);
       setWaiting(false);
+      return Error();
     });
   }
 

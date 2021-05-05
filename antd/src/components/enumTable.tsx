@@ -7,7 +7,7 @@ import { isAdmin } from "randevu-shared/dist/utils";
 type Props = {
   enumList: DocEnum[];
   user?: DocUser;
-  onChangeEnum: (_id: string, name: string) => void;
+  onChangeEnum: (_id: string, name: string) => Promise<void | Error>;
 }
 
 export default function EnumTable({ enumList, user, onChangeEnum }: Props) {
@@ -84,8 +84,12 @@ export default function EnumTable({ enumList, user, onChangeEnum }: Props) {
       const { key, _id } = record;
       const { name } = value;
       const indexFound = enumList.findIndex((enumItem) => enumItem._id === key);
-      if (indexFound !== -1) {
-        onChangeEnum(_id, name);
+      if (key === '' || indexFound !== -1) {
+        onChangeEnum(_id, name).then((result) => {
+          if (!(result instanceof Error)) {
+            onClickCancel();
+          }
+        });
       }
     }).catch((reason) => {
       console.error(reason);
