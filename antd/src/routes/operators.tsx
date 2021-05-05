@@ -181,6 +181,8 @@ function EditableCell({ record, dataIndex, editing, children, ...props }: any) {
           </Form.Item>
         ) : record?.key === '' ? (
           <Skeleton.Input style={{ width: 200 }} />
+        ) : dataIndex === 'owner' ? (
+          record.username || <Skeleton.Input style={{ width: 200 }} />
         ) : (
           children
         )
