@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Join from './routes/join';
 import Login from './routes/login';
+import EnumManager from './routes/enumManager';
 
 const { api } = config;
 const { host, port } = api;
@@ -59,7 +60,9 @@ function App() {
               {/* <Menu.Item>Packages</Menu.Item> */}
               {/* <Menu.Item>Requirements</Menu.Item> */}
               <Menu.SubMenu title='Collections'>
-                <Menu.Item>Deployment options</Menu.Item>
+                <Menu.Item>
+                  <Link to='/deployment-options'>Deployment options</Link>
+                  </Menu.Item>
                 {/* <Menu.Item>Duplex modes</Menu.Item> */}
                 {/* <Menu.Item>Network elements</Menu.Item> */}
                 {/* <Menu.Item>Products</Menu.Item> */}
@@ -93,6 +96,7 @@ function App() {
             <Route exact path='/'>
               Landing
             </Route>
+            <Route path='/deployment-options' render={() => <EnumManager title='Deployment options' path='/deployment-options' />} />
             <Route path='/join' render={() => <Join setWaiting={setWaiting} setUser={setUser} />} />
             <Route path='/login' render={() => <Login setWaiting={setWaiting} setUser={setUser} />} />
           </Switch>
