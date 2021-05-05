@@ -83,7 +83,7 @@ export default function EnumTable({ enumList, user, onChangeEnum }: Props) {
     form.validateFields().then((value) => {
       const { key, _id } = record;
       const { name } = value;
-      const indexFound = enumList.findIndex((enumItem) => enumItem._id === key);
+      const indexFound = enumList.findIndex((enumItem) => enumItem._id === _id);
       if (key === '' || indexFound !== -1) {
         onChangeEnum(_id, name).then((result) => {
           if (!(result instanceof Error)) {
