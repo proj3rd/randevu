@@ -1,4 +1,4 @@
-import { Form, Input, Select, Skeleton, Spin, Table, Typography } from "antd";
+import { Form, Input, Skeleton, Spin, Table, Typography } from "antd";
 import Title from "antd/lib/typography/Title";
 import { CheckOutlined } from '@ant-design/icons';
 import axios from "axios";
@@ -6,16 +6,13 @@ import { DocOperator, DocUser } from "randevu-shared/dist/types";
 import { isAdmin, seqValOf } from "randevu-shared/dist/utils";
 import { useCallback, useEffect, useState } from "react";
 import { useHistory, useRouteMatch } from "react-router";
+import DebounceSelect from "../components/debounceSelect";
 
 type Props = {
   user?: DocUser | undefined;
   setUser?: (user: DocUser | undefined) => void;
   setWaiting?: (waiting: boolean) => void;
 }
-
-const dummyOptions = [
-  { value: 'value', label: 'label' },
-];
 
 export default function Operators({ user, setUser, setWaiting: setWaitingApp }: Props) {
   const history = useHistory();
@@ -84,21 +81,17 @@ export default function Operators({ user, setUser, setWaiting: setWaitingApp }: 
   function onClickSave(record: DocOperator) {
     form.validateFields().then((value) => {
       const { _id } = record;
-      const key = (record as any).key;
       const { name, owner } = value;
-      const indexFound = operatorList.findIndex((operator) => operator._id === _id);
-      if (key === '' || indexFound !== -1) {
-        setWaiting(true);
-        axios.post(`/operators/${seqValOf(_id)}`, {
-          name, owner,
-        }).then((response) => {
-          getOperatorList().finally(() => {
-            setWaiting(false);
-          });
-        }).catch((reason) => {
+      setWaiting(true);
+      axios.post(`/operators/${seqValOf(_id)}`, {
+        name, owner,
+      }).then((response) => {
+        getOperatorList().finally(() => {
           setWaiting(false);
         });
-      }
+      }).catch((reason) => {
+        setWaiting(false);
+      });
     }).catch((reason) => {
       console.error(reason);
     });
@@ -132,7 +125,20 @@ export default function Operators({ user, setUser, setWaiting: setWaitingApp }: 
   )
 }
 
-function EditableCell({ record, dataIndex, children, ...props }: any) {
+async function getUserList(username: string) {
+  return axios.get(`/users?username=${username}`).then((response) => {
+    const userList = response.data as DocUser[];
+    return userList.map((user) => {
+      const { _id, username } = user;
+      return { key: _id, value: _id, label: username };
+    });
+  }).catch((reason) => {
+    console.error(reason);
+    return [];
+  });
+}
+
+function EditableCell({ record, dataIndex, children, onChangeOwner, ...props }: any) {
   return (
     <td {...props}>
       {
@@ -148,12 +154,13 @@ function EditableCell({ record, dataIndex, children, ...props }: any) {
             name={dataIndex} rules={[ {required: true }]} help={false}
             style={{ margin: 0 }}
           >
-            <Select
+            <DebounceSelect
               showSearch
-              options={dummyOptions}
               filterOption={(input, option) => {
                 return (option?.label?.toString() ?? '').toLocaleLowerCase().includes(input.toLocaleLowerCase());
               }}
+              fetchFunc={getUserList}
+              timeout={500}
             />
           </Form.Item>
         ) : record?.key === '' ? (
