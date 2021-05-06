@@ -1,16 +1,16 @@
 import './App.css';
-import { Col, Menu, Row, Spin } from "antd";
+import { Col, Row, Spin } from "antd";
 import { config } from 'randevu-shared/dist/config';
 import { DocUser } from 'randevu-shared/dist/types';
-import { Link, Route, Switch, useHistory } from 'react-router-dom';
+import { Route, Switch, useHistory } from 'react-router-dom';
 import { Content } from 'antd/lib/layout/layout';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Join from './routes/join';
 import Login from './routes/login';
 import EnumManager from './routes/enumManager';
-import { isAdmin } from 'randevu-shared/dist/utils';
 import Operators from './routes/operators';
+import AppMenu from './components/appMenu';
 
 const { api } = config;
 const { host, port } = api;
@@ -52,55 +52,7 @@ function App() {
       <Spin spinning={waiting}>
         <Row >
           <Col span={24}>
-            <Menu mode='horizontal'>
-              <Menu.Item>
-                <Link to='/'>RANdevU</Link>
-              </Menu.Item>
-              <Menu.Item></Menu.Item>
-              {/* <Menu.Item>Features</Menu.Item> */}
-              <Menu.Item>
-                <Link to='/operators'>Operators</Link>
-              </Menu.Item>
-              {/* <Menu.Item>Packages</Menu.Item> */}
-              {/* <Menu.Item>Requirements</Menu.Item> */}
-              <Menu.SubMenu title='Collections'>
-                <Menu.Item>
-                  <Link to='/deployment-options'>Deployment options</Link>
-                  </Menu.Item>
-                <Menu.Item>
-                  <Link to='/duplex-modes'>Duplex modes</Link>
-                </Menu.Item>
-                <Menu.Item>
-                  <Link to='/network-elements'>Network elements</Link>
-                </Menu.Item>
-                <Menu.Item>
-                  <Link to='/products'>Products</Link>
-                </Menu.Item>
-                <Menu.Item>
-                  <Link to='/ran-sharing'>RAN sharing</Link>
-                </Menu.Item>
-              </Menu.SubMenu>
-              <Menu.Item></Menu.Item>
-              {
-                isAdmin(user) ? (
-                  <Menu.Item>Admin</Menu.Item>
-                ) : (<></>)
-              }
-              {
-                user ? (
-                  <Menu.Item onClick={onClickLogout}>Logout</Menu.Item>
-                ) : (
-                  <>
-                    <Menu.Item>
-                      <Link to='/login'>Login</Link>
-                    </Menu.Item>
-                    <Menu.Item>
-                      <Link to='/join'>Join</Link>
-                    </Menu.Item>
-                  </>
-                )
-              }
-            </Menu>
+            <AppMenu user={user} onClickLogout={onClickLogout} />
           </Col>
         </Row>
         <Content style={{ padding: '1em' }}>
