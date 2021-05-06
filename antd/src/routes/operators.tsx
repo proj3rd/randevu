@@ -1,6 +1,6 @@
 import { Form, Input, Select, Skeleton, Spin, Table, Typography } from "antd";
 import Title from "antd/lib/typography/Title";
-import { CheckOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons';
+import { CheckOutlined } from '@ant-design/icons';
 import axios from "axios";
 import { DocOperator, DocUser } from "randevu-shared/dist/types";
 import { isAdmin, seqValOf } from "randevu-shared/dist/utils";
@@ -24,7 +24,6 @@ export default function Operators({ user, setUser, setWaiting: setWaitingApp }: 
   const [waiting, setWaiting] = useState(false);
   const [form] = Form.useForm();
   const [operatorList, setOperatorList] = useState<DocOperator[]>([]);
-  const [editingKey, setEditingKey] = useState('');
 
   const columns: any[] = [
     { key: 'name', dataIndex: 'name', title: 'Name', width: '50%', editable: true },
@@ -32,27 +31,12 @@ export default function Operators({ user, setUser, setWaiting: setWaitingApp }: 
     {
       key: 'actions', dataIndex: 'actions', title: 'Actions', width: '25%',
       render: (_: any, record: any) => {
-        const editable = isEditing(record);
-        return !isAdmin(user) ? (
-          <></>
-        ) : record.key === '' ? (
-          <Typography.Link onClick={() => onClickSave(record)} disabled={!editable}>
+        return isAdmin(user) && record.key === '' ? (
+          <Typography.Link onClick={() => onClickSave(record)}>
             <CheckOutlined /> Save
           </Typography.Link>
-        ) : !editable ? (
-          <Typography.Link onClick={() => onClickEdit(record)} disabled={editingKey !== ''}>
-            <EditOutlined /> Edit
-          </Typography.Link>
         ) : (
-          <>
-            <Typography.Link onClick={() => onClickSave(record)}>
-              <CheckOutlined /> Save
-            </Typography.Link>
-            {' '}
-            <Typography.Link onClick={onClickCancel}>
-              <CloseOutlined /> Cancel
-            </Typography.Link>
-          </>
+          <></>
         )
       }
     },
@@ -66,40 +50,14 @@ export default function Operators({ user, setUser, setWaiting: setWaitingApp }: 
       onCell: (record: any) => ({
         record,
         dataIndex,
-        editing: isEditing(record),
       }),
     }
   });
 
   const getOperatorList = useCallback(async () => {
-    return axios.get('/operators?include[]=owner').then(async (response) => {
+    return axios.get('/operators').then(async (response) => {
       const operatorList = response.data as DocOperator[];
-      const ownerList = Array.from(
-        new Set(
-          operatorList.map((operator) => {
-            const { owner } = operator;
-            return seqValOf(owner ?? '');
-          })
-        )
-      );
-      return axios.get('/users', {
-        params: {
-          seqVal: ownerList,
-        }
-      }).then((response) => {
-        const userList = response.data as DocUser[];
-        operatorList.forEach((operator) => {
-          const { owner } = operator;
-          const userFound = userList.find((user) => user._id === owner);
-          if (userFound) {
-            const { username } = userFound;
-            (operator as any).username = username;
-          }
-        })
-        setOperatorList(operatorList);
-      }).catch((reason) => {
-        console.error(reason);
-      });
+      setOperatorList(operatorList);
     }).catch((reason) => {
       console.error(reason);
     });
@@ -122,23 +80,6 @@ export default function Operators({ user, setUser, setWaiting: setWaitingApp }: 
       setWaitingApp?.(false);
     });
   }, [getOperatorList, history, setUser, setWaitingApp, url]);
-
-  function isEditing(record: any) {
-    return record.key === editingKey;
-  }
-
-  function onClickCancel() {
-    form.setFieldsValue({ name: '', owner: '' });
-    setEditingKey('');
-  }
-
-  function onClickEdit(record: DocOperator) {
-    const { name } = record;
-    const username = (record as any).username ?? '';
-    const key = (record as any).key;
-    form.setFieldsValue({ name, owner: username });
-    setEditingKey(key);
-  }
 
   function onClickSave(record: DocOperator) {
     form.validateFields().then((value) => {
@@ -191,18 +132,18 @@ export default function Operators({ user, setUser, setWaiting: setWaitingApp }: 
   )
 }
 
-function EditableCell({ record, dataIndex, editing, children, ...props }: any) {
+function EditableCell({ record, dataIndex, children, ...props }: any) {
   return (
     <td {...props}>
       {
-        editing && dataIndex === 'name' ? (
+        record?.key === '' && dataIndex === 'name' ? (
           <Form.Item
             name={dataIndex} rules={[ { required: true }]} help={false}
             style={{ margin: 0 }}
           >
             <Input />
           </Form.Item>
-        ) : editing && dataIndex === 'owner' ? (
+        ) : record?.key === '' && dataIndex === 'owner' ? (
           <Form.Item
             name={dataIndex} rules={[ {required: true }]} help={false}
             style={{ margin: 0 }}
@@ -218,7 +159,7 @@ function EditableCell({ record, dataIndex, editing, children, ...props }: any) {
         ) : record?.key === '' ? (
           <Skeleton.Input style={{ width: 200 }} />
         ) : dataIndex === 'owner' ? (
-          record.username || <Skeleton.Input style={{ width: 200 }} />
+          <Skeleton.Input style={{ width: 200 }} />
         ) : (
           children
         )
