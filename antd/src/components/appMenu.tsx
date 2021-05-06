@@ -19,7 +19,9 @@ export default function AppMenu({ user, onClickLogout }: Props) {
       <Menu.Item>
         <Link to='/operators'>Operators</Link>
       </Menu.Item>
-      {/* <Menu.Item>Packages</Menu.Item> */}
+      <Menu.Item>
+        <Link to='/packages'>Packages</Link>
+      </Menu.Item>
       {/* <Menu.Item>Requirements</Menu.Item> */}
       <Menu.SubMenu title='Collections'>
         <Menu.Item>
