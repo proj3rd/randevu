@@ -1,4 +1,4 @@
-import { Form, Input, Skeleton, Spin, Table, Typography } from "antd";
+import { Form, Input, Skeleton, Table, Typography } from "antd";
 import Title from "antd/lib/typography/Title";
 import { CheckOutlined } from '@ant-design/icons';
 import axios from "axios";
@@ -108,19 +108,18 @@ export default function Operators({ user, setUser, setWaiting: setWaitingApp }: 
   return (
     <>
       <Title level={3}>Operators</Title>
-      <Spin spinning={waiting}>
-        <Form form={form} component={false}>
-          <Table
-            dataSource={dataSource} columns={columns}
-            components={{
-              body: {
-                cell: EditableCell,
-              },
-            }}
-            pagination={false}
-          />
-        </Form>
-      </Spin>
+      <Form form={form} component={false}>
+        <Table
+          dataSource={dataSource} columns={columns}
+          components={{
+            body: {
+              cell: EditableCell,
+            },
+          }}
+          pagination={false}
+          loading={waiting}
+        />
+      </Form>
     </>
   )
 }
