@@ -26,6 +26,16 @@ get:
           enum:
             - previous
             - owner
+    - name: per
+      description: Maximum number of main packages per page. If absent, returns all main packages
+      in: query
+      schema:
+        type: integer
+    - name: page
+      description: Page number for getting main packages. If absent, returns all main packages
+      in: query
+      schema:
+        type: integer
   responses:
     "200":
       description: Ok
