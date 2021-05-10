@@ -922,7 +922,6 @@ export function servicePackage(app: Express, db: Database) {
       const bindVarsOperatorFilter = (operatorList && operatorList.length ? { '@collectionTargets': collectionTargets.name, operatorList } : {}) as any;
       const mainFilter = operatorList && operatorList.length ?
         `numPackageSub > 0` : `${nameFilter('packageMain')} OR numPackageSub > 0`;
-      const limit = per && page ? `LIMIT ${(page - 1) * per}` : '';
       // Main packages
       const cursorPackageMainList = await trx.step(() => db.query({
         query: `
@@ -935,7 +934,6 @@ export function servicePackage(app: Express, db: Database) {
             )
             FILTER ${mainFilter}
             SORT packageMain.name
-            ${limit}
             RETURN packageMain
         `,
         bindVars: {
@@ -946,16 +944,19 @@ export function servicePackage(app: Express, db: Database) {
         },
       }));
       const packageMainList = (await cursorPackageMainList.all()) as DocPackage[];
-      const packageMainIdList = packageMainList.map((packageMain) => packageMain._id);
+      const countMain = packageMainList.length;
+      const packageMainListLimited = !(per && page) ? packageMainList
+        : packageMainList.slice((page - 1) * per, page * per);
+      const packageMainIdListLimited = packageMainListLimited.map((packageMain) => packageMain._id);
       // Sub packages
       const cursorPackageSubList = await trx.step(() => db.query({
         query: `
-          FOR packageMainId IN @packageMainIdList
+          FOR packageMainId IN @packageMainIdListLimited
             FOR packageSub IN INBOUND packageMainId @@collectionDerivedFrom
               RETURN MERGE(packageSub, { main: packageMainId })
         `,
         bindVars: {
-          packageMainIdList,
+          packageMainIdListLimited,
           '@collectionDerivedFrom': collectionDerivedFrom.name,
         },
       }));
@@ -999,8 +1000,8 @@ export function servicePackage(app: Express, db: Database) {
         mergeObjectList(packageSubList, previousList, '_id');
       }
       await trx.commit();
-      const packageList = [...packageMainList, ...packageSubList];
-      return res.json(packageList);
+      const packageList = [...packageMainListLimited, ...packageSubList];
+      return res.json({ packageList, countMain });
     } catch (e) {
       if (trx) {
         await trx.abort();
