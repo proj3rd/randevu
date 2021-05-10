@@ -42,29 +42,34 @@ get:
       content:
         "application/json":
           schema:
-            type: array
-            items:
-              type: object
-              properties:
-                _id:
-                  type: string
-                name:
-                  type: string
-                main:
-                  type: string
-                  description: Document ID of main package
-                operator:
-                  type: string
-                  description: Document ID of operator
-                previous:
-                  type: string
-                  description: Document ID of previous sub package
-                owner:
-                  type: string
-                  description: Document ID of owner
-              required:
-                - _id
-                - name
+            type: object
+            properties:
+              packageList:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                    name:
+                      type: string
+                    main:
+                      type: string
+                      description: Document ID of main package
+                    operator:
+                      type: string
+                      description: Document ID of operator
+                    previous:
+                      type: string
+                      description: Document ID of previous sub package
+                    owner:
+                      type: string
+                      description: Document ID of owner
+                  required:
+                    - _id
+                    - name
+              countMain:
+                type: integer
     "400":
       description: Invalid input
     "403":
