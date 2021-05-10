@@ -22,6 +22,8 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
   const [isModalVisible, setModalVisible] = useState(false);
   const [form] = useForm();
   const [packageList, setPackageList] = useState<DocOperator[]>([]);
+  const [pageCurrent, setPageCurrent] = useState(1);
+  const [pageTotal, setPageTotal] = useState(1);
 
   const columns: any[] = [
     { key: 'name', dataIndex: 'name', title: 'Name', editable: true, width: '40%' },
@@ -56,6 +58,10 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
     axios.get('/authenticate').then((response) => {
       const { data: user } = response;
       setUser?.(user);
+      setWaiting(true);
+      getPackageList().finally(() => {
+        setWaiting(false);
+      });
     }).catch((reason) => {
       console.error(reason);
       setUser?.(undefined);
@@ -70,6 +76,22 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
     return { key: _id, ...pkg };
   });
   dataSource.unshift({ key: '' } as any);
+
+  async function getPackageList(query?: any) {
+    const params = {
+      per: 3,
+      page: 1,
+      ...query, // If `query` includes, `page`, it will override the above `page`
+    };
+    return axios.get('/packages', { params }).then((response) => {
+      const { packageList, countMain } = response.data;
+      setPackageList(packageList);
+      setPageCurrent(params.page);
+      setPageTotal(countMain);
+    }).catch((reason) => {
+      console.error(reason);
+    });
+  }
 
   function onCancelModalCreatePackage() {
     setModalVisible(false);
@@ -91,6 +113,13 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
             body: {
               cell: EditableCell,
             },
+          }}
+          pagination={{
+            pageSize: packageList.length,
+            current: pageCurrent,
+            total: pageTotal * packageList.length, // To render `pageTotal' pagination buttons
+            showSizeChanger: false,
+            showTotal: () => `${pageTotal} main packages`,
           }}
           loading={waiting}
         />
