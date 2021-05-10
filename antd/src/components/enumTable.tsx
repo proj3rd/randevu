@@ -1,4 +1,5 @@
 import { Form, Input, Skeleton, Table, Typography } from "antd";
+import { SpinProps } from 'antd/lib/spin';
 import { CheckOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons'
 import { DocEnum, DocUser } from "randevu-shared/dist/types";
 import { useState } from "react";
@@ -8,9 +9,10 @@ type Props = {
   enumList: DocEnum[];
   user?: DocUser;
   onChangeEnum: (_id: string, name: string) => Promise<void | Error>;
+  loading?: boolean | SpinProps;
 }
 
-export default function EnumTable({ enumList, user, onChangeEnum }: Props) {
+export default function EnumTable({ enumList, user, onChangeEnum, loading }: Props) {
   const [form] = Form.useForm();
   const [editingKey, setEditingKey] = useState('');
 
@@ -120,6 +122,7 @@ export default function EnumTable({ enumList, user, onChangeEnum }: Props) {
           },
         }}
         pagination={false}
+        loading={loading}
       />
     </Form>
   );

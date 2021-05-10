@@ -1,4 +1,3 @@
-import { Spin } from "antd";
 import Title from "antd/lib/typography/Title";
 import axios from "axios";
 import { DocUser } from "randevu-shared/dist/types";
@@ -64,9 +63,10 @@ export default function EnumManager({ title, path, user, setUser, setWaiting: se
   return (
     <>
       <Title level={3}>{title}</Title>
-      <Spin spinning={waiting}>
-        <EnumTable enumList={enumList} onChangeEnum={onChangeEnum} user={user} />
-      </Spin>
+      <EnumTable
+        enumList={enumList} onChangeEnum={onChangeEnum} user={user}
+        loading={waiting}
+      />
     </>
   );
 }
