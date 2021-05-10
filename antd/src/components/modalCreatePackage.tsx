@@ -1,12 +1,18 @@
 import { Collapse, Form, Input, Modal, Select, Switch } from "antd";
+import { ModalProps } from 'antd/lib/modal';
 import { useState } from "react";
+
+type Props = {
+  onOk?: (e: React.MouseEvent<HTMLElement>) => void;
+  onCancel?: (e: React.MouseEvent<HTMLElement>) => void;
+} & ModalProps;
 
 const layout = {
   labelCol: { span: 8 },
   wrapperCol: { span: 16 },
 };
 
-export default function ModalCreatePackage() {
+export default function ModalCreatePackage({ ...modalProps }: Props) {
   const [type, setType] = useState('');
 
   function onChangeType(checked: boolean, event: MouseEvent) {
@@ -16,9 +22,8 @@ export default function ModalCreatePackage() {
 
   return (
     <Modal
-      title='Create a package' visible={true}
-      onCancel={undefined}
-      onOk={undefined}
+      {...modalProps}
+      title='Create a package'
     >
       <Form {...layout}>
         <Form.Item

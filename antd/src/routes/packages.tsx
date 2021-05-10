@@ -19,6 +19,7 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
   const { url } = useRouteMatch();
 
   const [waiting, setWaiting] = useState(false);
+  const [isModalVisible, setModalVisible] = useState(false);
   const [form] = useForm();
   const [packageList, setPackageList] = useState<DocOperator[]>([]);
 
@@ -70,10 +71,18 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
   });
   dataSource.unshift({ key: '' } as any);
 
+  function onCancelModalCreatePackage() {
+    setModalVisible(false);
+  }
+
+  function onOkModalCreatePackage() {
+    // TODO
+  }
+
   return (
     <>
       <Title level={3}>Packages</Title>
-      <Button>Create a package</Button>
+      <Button onClick={() => setModalVisible(true)}>Create a package</Button>
       <Form form={form}>
         <Table
           columns={columns}
@@ -86,7 +95,11 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
           loading={waiting}
         />
       </Form>
-      <ModalCreatePackage />
+      <ModalCreatePackage
+        visible={isModalVisible}
+        onCancel={onCancelModalCreatePackage}
+        onOk={onOkModalCreatePackage}
+      />
     </>
   )
 }
