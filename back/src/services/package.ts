@@ -3,7 +3,7 @@ import { Transaction } from "arangojs/transaction";
 import { Express } from 'express';
 import { differenceWith } from 'lodash';
 import { COLLECTION_DEPLOYMENT_OPTION, COLLECTION_OPERATOR, COLLECTION_PACKAGE_MAIN, COLLECTION_PACKAGE_SUB, COLLECTION_PRODUCTS, COLLECTION_RADIO_ACCESS_TECH, COLLECTION_RAN_SHARING, COLLECTION_USER, EDGE_COLLECTION_DERIVED_FROM, EDGE_COLLECTION_OWNS, EDGE_COLLECTION_REQUIRES, EDGE_COLLECTION_SUCCEEDS, EDGE_COLLECTION_TARGETS } from "../constants";
-import { DocUser } from "randevu-shared/dist/types";
+import { DocPackage, DocUser } from "randevu-shared/dist/types";
 import { mergeObjectList, validateString, validateStringList } from "../utils";
 import { DocumentCollection, EdgeCollection } from "arangojs/collection";
 
@@ -945,20 +945,17 @@ export function servicePackage(app: Express, db: Database) {
           ...bindVarsOperatorFilter,
         },
       }));
-      const packageMainList = await cursorPackageMainList.all();
+      const packageMainList = (await cursorPackageMainList.all()) as DocPackage[];
+      const packageMainIdList = packageMainList.map((packageMain) => packageMain._id);
       // Sub packages
-      // TODO: I believe this can be simplified
       const cursorPackageSubList = await trx.step(() => db.query({
         query: `
-          FOR package IN @@collectionPackageSub
-            FILTER ${nameFilter}
-            ${operatorFilter}
-            FOR packageMain IN OUTBOUND package._id @@collectionDerivedFrom
-              RETURN MERGE(package, { main: packageMain._id })
+          FOR packageMainId IN @packageMainIdList
+            FOR packageSub IN INBOUND packageMainId @@collectionDerivedFrom
+              RETURN MERGE(packageSub, { main: packageMainId })
         `,
         bindVars: {
-          '@collectionPackageSub': collectionPackageSub.name,
-          ...bindVarsNameFilter, ...bindVarsOperatorFilter,
+          packageMainIdList,
           '@collectionDerivedFrom': collectionDerivedFrom.name,
         },
       }));
