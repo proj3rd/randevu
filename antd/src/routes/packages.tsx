@@ -30,11 +30,11 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
     {
       key: 'actions', dataIndex: 'actions', title: 'Actions', width: '20%',
       render: (_: any, record: any) => {
-        return (
+        return record.key === '' ? (
           <Typography.Link>
             <SearchOutlined /> Search
           </Typography.Link>
-        )
+        ) : (null);
       }
     },
   ].map((column) => {
