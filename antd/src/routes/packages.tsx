@@ -6,6 +6,7 @@ import { DocOperator, DocUser } from "randevu-shared/dist/types";
 import { useEffect, useState } from 'react';
 import { useHistory, useRouteMatch } from 'react-router';
 import { useForm } from 'antd/lib/form/Form';
+import ModalCreatePackage from '../components/modalCreatePackage';
 
 type Props = {
   user?: DocUser | undefined;
@@ -85,6 +86,7 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
           loading={waiting}
         />
       </Form>
+      <ModalCreatePackage />
     </>
   )
 }
