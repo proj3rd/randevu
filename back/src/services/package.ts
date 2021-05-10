@@ -881,6 +881,8 @@ export function servicePackage(app: Express, db: Database) {
       return res.status(403).end();
     }
     const { name: nameList, operator: operatorList, include: includeList } = req.query;
+    const per = Number(req.query.per) | 0;
+    const page = Number(req.query.page) | 0;
     if (nameList && !validateStringList(nameList)) {
       return res.status(400).end();
     }
@@ -888,6 +890,12 @@ export function servicePackage(app: Express, db: Database) {
       return res.status(400).end();
     }
     if (includeList && !validateStringList(includeList)) {
+      return res.status(400).end();
+    }
+    if (per && per <= 0) {
+      return res.status(400).end();
+    }
+    if (page && page <= 0) {
       return res.status(400).end();
     }
     let trx: Transaction | undefined;
@@ -903,30 +911,47 @@ export function servicePackage(app: Express, db: Database) {
       trx = await db.beginTransaction({
         read: [collectionDerivedFrom, collectionPackageMain, collectionPackageSub, collectionOperator, collectionOwns, collectionTargets, collectionSucceeds, collectionUser],
       });
-      const nameFilter = nameList && nameList.length ?
-      'FILTER @nameList[** FILTER CONTAINS(UPPER(package.name), UPPER(CURRENT))].length > 0' : '';
+      const nameFilter = (viewName: string) =>  nameList && nameList.length ?
+      `LENGTH(@nameList[** FILTER CONTAINS(UPPER(${viewName}.name), UPPER(CURRENT))]) > 0` : 'true';
       const bindVarsNameFilter = (nameList && nameList.length ? { nameList } : {}) as any;
+      const operatorFilter = operatorList && operatorList.length ?
+        `
+          FOR operator IN OUTBOUND packageSub._id @@collectionTargets
+            FILTER LENGTH(@operatorList[** FILTER CONTAINS(UPPER(operator.name), UPPER(CURRENT))]) > 0
+        ` : '';
+      const bindVarsOperatorFilter = (operatorList && operatorList.length ? { '@collectionTargets': collectionTargets.name, operatorList } : {}) as any;
+      const mainFilter = operatorList && operatorList.length ?
+        `numPackageSub > 0` : `${nameFilter('packageMain')} OR numPackageSub > 0`;
+      const limit = per && page ? `LIMIT ${(page - 1) * per}` : '';
       // Main packages
       const cursorPackageMainList = await trx.step(() => db.query({
         query: `
-          FOR package IN @@collectionPackageMain
-            ${nameFilter}
-            RETURN package
+          FOR packageMain IN @@collectionPackageMain
+            let numPackageSub = COUNT(
+              FOR packageSub IN INBOUND packageMain._id @@collectionDerivedFrom
+                FILTER ${nameFilter('packageSub')}
+                ${operatorFilter}
+                RETURN packageSub
+            )
+            FILTER ${mainFilter}
+            SORT packageMain.name
+            ${limit}
+            RETURN packageMain
         `,
-        bindVars: { '@collectionPackageMain': collectionPackageMain.name, ...bindVarsNameFilter },
+        bindVars: {
+          '@collectionPackageMain': collectionPackageMain.name,
+          '@collectionDerivedFrom': collectionDerivedFrom.name,
+          ...bindVarsNameFilter,
+          ...bindVarsOperatorFilter,
+        },
       }));
       const packageMainList = await cursorPackageMainList.all();
       // Sub packages
-      const operatorFilter = operatorList && operatorList.length ?
-        `
-          FOR operator IN OUTBOUND package._id @@collectionTargets
-            FILTER @operatorList[** FILTER CONTAINS(UPPER(operator.name), UPPER(CURRENT))].length > 0
-        ` : '';
-      const bindVarsOperatorFilter = (operatorList && operatorList.length ? { '@collectionTargets': collectionTargets.name, operatorList } : {}) as any;
+      // TODO: I believe this can be simplified
       const cursorPackageSubList = await trx.step(() => db.query({
         query: `
           FOR package IN @@collectionPackageSub
-            ${nameFilter}
+            FILTER ${nameFilter}
             ${operatorFilter}
             FOR packageMain IN OUTBOUND package._id @@collectionDerivedFrom
               RETURN MERGE(package, { main: packageMain._id })
