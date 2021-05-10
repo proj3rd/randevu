@@ -1,4 +1,4 @@
 type: array
-dscription: Array of document ID of deployment options.
+description: Array of document ID of deployment options.
 items:
   type: string
