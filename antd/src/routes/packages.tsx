@@ -1,4 +1,4 @@
-import { Button, Form, Input, Select, Skeleton, Table, Typography } from 'antd/lib';
+import { Button, Form, Input, Pagination, Select, Skeleton, Table, Typography } from 'antd/lib';
 import Title from "antd/lib/typography/Title";
 import { SearchOutlined } from '@ant-design/icons';
 import axios from 'axios';
@@ -13,6 +13,8 @@ type Props = {
   setUser?: (user: DocUser | undefined) => void;
   setWaiting?: (waiting: boolean) => void;
 };
+
+const PER = 3;
 
 export default function Packages({ user, setUser, setWaiting: setWaitingApp }: Props) {
   const history = useHistory();
@@ -71,15 +73,9 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
     });
   }, [history, setUser, setWaitingApp, url]);
 
-  const dataSource = packageList.map((pkg) => {
-    const { _id } = pkg;
-    return { key: _id, ...pkg };
-  });
-  dataSource.unshift({ key: '' } as any);
-
   async function getPackageList(query?: any) {
     const params = {
-      per: 3,
+      per: PER,
       page: 1,
       ...query, // If `query` includes, `page`, it will override the above `page`
     };
@@ -97,9 +93,25 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
     setModalVisible(false);
   }
 
+  function onChangePagination(page: number, pageSize?: number | undefined) {
+    if (page === pageCurrent) {
+      return;
+    }
+    setWaiting(true);
+    getPackageList({ page }).finally(() => {
+      setWaiting(false);
+    });
+  }
+
   function onOkModalCreatePackage() {
     // TODO
   }
+
+  const dataSource = packageList.map((pkg) => {
+    const { _id } = pkg;
+    return { key: _id, ...pkg };
+  });
+  dataSource.unshift({ key: '' } as any);
 
   return (
     <>
@@ -114,14 +126,20 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
               cell: EditableCell,
             },
           }}
-          pagination={{
-            pageSize: packageList.length,
-            current: pageCurrent,
-            total: pageTotal * packageList.length, // To render `pageTotal' pagination buttons
-            showSizeChanger: false,
-            showTotal: () => `${pageTotal} main packages`,
-          }}
           loading={waiting}
+          pagination={false}
+        />
+        <Pagination
+          pageSize={PER}
+          current={pageCurrent}
+          total={pageTotal}
+          showSizeChanger={false}
+          showTotal={(total, range) => `${range[0]}-${range[1]} of ${pageTotal} main packages`}
+          onChange={onChangePagination}
+          style={{
+            display: 'flex', justifyContent: 'flex-end',
+            marginTop: '1em', marginBottom: '1em'
+          }}
         />
       </Form>
       <ModalCreatePackage
