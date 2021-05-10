@@ -117,6 +117,18 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
     <>
       <Title level={3}>Packages</Title>
       <Button onClick={() => setModalVisible(true)}>Create a package</Button>
+      <Pagination
+        pageSize={PER}
+        current={pageCurrent}
+        total={pageTotal}
+        showSizeChanger={false}
+        showTotal={(total, range) => `${range[0]}-${range[1]} of ${pageTotal} main packages`}
+        onChange={onChangePagination}
+        style={{
+          display: 'flex', justifyContent: 'flex-end',
+          marginTop: '1em', marginBottom: '1em'
+        }}
+      />
       <Form form={form}>
         <Table
           columns={columns}
@@ -129,19 +141,19 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
           loading={waiting}
           pagination={false}
         />
-        <Pagination
-          pageSize={PER}
-          current={pageCurrent}
-          total={pageTotal}
-          showSizeChanger={false}
-          showTotal={(total, range) => `${range[0]}-${range[1]} of ${pageTotal} main packages`}
-          onChange={onChangePagination}
-          style={{
-            display: 'flex', justifyContent: 'flex-end',
-            marginTop: '1em', marginBottom: '1em'
-          }}
-        />
       </Form>
+      <Pagination
+        pageSize={PER}
+        current={pageCurrent}
+        total={pageTotal}
+        showSizeChanger={false}
+        showTotal={(total, range) => `${range[0]}-${range[1]} of ${pageTotal} main packages`}
+        onChange={onChangePagination}
+        style={{
+          display: 'flex', justifyContent: 'flex-end',
+          marginTop: '1em', marginBottom: '1em'
+        }}
+      />
       <ModalCreatePackage
         visible={isModalVisible}
         onCancel={onCancelModalCreatePackage}
