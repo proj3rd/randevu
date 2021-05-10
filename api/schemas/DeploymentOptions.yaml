@@ -1,4 +1,4 @@
 type: array
-dscription: Array of document ID of RAN sharing.
+description: Array of document ID of RAN sharing.
 items:
   type: string
