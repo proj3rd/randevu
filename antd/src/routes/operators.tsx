@@ -61,10 +61,25 @@ export default function Operators({ user, setUser, setWaiting: setWaitingApp }: 
     }).then(async (response) => {
       const operatorList = response.data as DocOperator[];
       setOperatorList(operatorList);
-      return operatorList;
+      const ownerList = Array.from(
+        new Set(
+          operatorList
+            .map((operator) => seqValOf(operator.owner ?? ""))
+            .filter((owner) => !!owner)
+        )
+      );
+      axios.get('/users', {
+        params: {
+          seqVal: ownerList,
+        },
+      }).then((response) => {
+        const ownerList = response.data as DocUser[];
+        setOwnerList(ownerList);
+      }).catch((reason) => {
+        console.error(reason);
+      });
     }).catch((reason) => {
       console.error(reason);
-      throw Error();
     });
   }, []);
 
@@ -74,27 +89,7 @@ export default function Operators({ user, setUser, setWaiting: setWaitingApp }: 
       const { data: user } = response;
       setUser?.(user);
       setWaiting(true);
-      getOperatorList().then((operatorList) => {
-        const ownerList = Array.from(
-          new Set(
-            operatorList
-              .map((operator) => seqValOf(operator.owner ?? ""))
-              .filter((owner) => !!owner)
-          )
-        );
-        axios.get('/users', {
-          params: {
-            seqVal: ownerList,
-          },
-        }).then((response) => {
-          const ownerList = response.data as DocUser[];
-          setOwnerList(ownerList);
-        }).catch((reason) => {
-          console.error(reason);
-        });
-      }).catch((reason) => {
-        console.error(reason);
-      }).finally(() => {
+      getOperatorList().finally(() => {
         setWaiting(false);
       });
     }).catch((reason) => {
