@@ -41,7 +41,8 @@ export default function DebounceSelect(props: Props) {
     <Select
       options={options}
       onSearch={debounceFetcher}
-      notFoundContent={waiting ? <Spin /> : <></>}
+      notFoundContent={waiting ? <Spin /> : null}
+      loading={waiting}
       {...restProps}
     />
   );
