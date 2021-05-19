@@ -21,6 +21,7 @@ export default function Operators({ user, setUser, setWaiting: setWaitingApp }: 
   const [waiting, setWaiting] = useState(false);
   const [form] = Form.useForm();
   const [operatorList, setOperatorList] = useState<DocOperator[]>([]);
+  const [ownerList, setOwnerList] = useState<DocUser[]>([]);
 
   const columns: any[] = [
     { key: 'name', dataIndex: 'name', title: 'Name', width: '50%', editable: true },
@@ -52,11 +53,17 @@ export default function Operators({ user, setUser, setWaiting: setWaitingApp }: 
   });
 
   const getOperatorList = useCallback(async () => {
-    return axios.get('/operators').then(async (response) => {
+    return axios.get('/operators', {
+      params: {
+        include: ['owner'],
+      },
+    }).then(async (response) => {
       const operatorList = response.data as DocOperator[];
       setOperatorList(operatorList);
+      return operatorList;
     }).catch((reason) => {
       console.error(reason);
+      throw Error();
     });
   }, []);
 
@@ -66,7 +73,27 @@ export default function Operators({ user, setUser, setWaiting: setWaitingApp }: 
       const { data: user } = response;
       setUser?.(user);
       setWaiting(true);
-      getOperatorList().finally(() => {
+      getOperatorList().then((operatorList) => {
+        const ownerList = Array.from(
+          new Set(
+            operatorList
+              .map((operator) => seqValOf(operator.owner ?? ""))
+              .filter((owner) => !!owner)
+          )
+        );
+        axios.get('/users', {
+          params: {
+            seqVal: ownerList,
+          },
+        }).then((response) => {
+          const ownerList = response.data as DocUser[];
+          setOwnerList(ownerList);
+        }).catch((reason) => {
+          console.error(reason);
+        });
+      }).catch((reason) => {
+        console.error(reason);
+      }).finally(() => {
         setWaiting(false);
       });
     }).catch((reason) => {
