@@ -48,6 +48,7 @@ export default function Operators({ user, setUser, setWaiting: setWaitingApp }: 
       onCell: (record: any) => ({
         record,
         dataIndex,
+        owner: ownerList.find((owner) => owner._id === record.owner)?.username,
       }),
     }
   });
@@ -164,7 +165,7 @@ async function getUserList(username: string) {
   });
 }
 
-function EditableCell({ record, dataIndex, children, onChangeOwner, ...props }: any) {
+function EditableCell({ record, dataIndex, owner, children, onChangeOwner, ...props }: any) {
   return (
     <td {...props}>
       {
@@ -189,10 +190,8 @@ function EditableCell({ record, dataIndex, children, onChangeOwner, ...props }: 
               timeout={500}
             />
           </Form.Item>
-        ) : record?.key === '' ? (
-          <Skeleton.Input style={{ width: 200 }} />
         ) : dataIndex === 'owner' ? (
-          <Skeleton.Input style={{ width: 200 }} />
+          owner ?? <Skeleton.Input style={{ width: 200 }} />
         ) : (
           children
         )
