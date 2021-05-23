@@ -18,6 +18,7 @@ type Props = {
 type Query = {
   per?: number;
   page?: number;
+  seqVal?: string[];
 };
 
 const PER = 3;
@@ -33,6 +34,7 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
   const [pageCurrent, setPageCurrent] = useState(1);
   const [pageTotal, setPageTotal] = useState(0);
   const [operatorList, setOperatorList] = useState<DocOperator[]>([]);
+  const [seqValList, setSeqValList] = useState<string[]>([]);
 
   const columns: any[] = [
     { key: 'name', dataIndex: 'name', title: 'Name', editable: true, width: '40%' },
@@ -55,11 +57,16 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
     }
     return {
       ...column,
-      onCell: (record: any) => ({
-        record,
-        dataIndex,
-        operator: operatorList.find((operator) => operator._id === record.operator)?.name,
-      }),
+      onCell: (record: any) => {
+        const editableCellProps: EditableCellProps = {
+          record,
+          dataIndex,
+          operator: operatorList.find((operator) => operator._id === record.operator)?.name,
+          onChangeOperatorList,
+          operatorList,
+        };
+        return editableCellProps;
+      },
     }
   });
 
@@ -69,7 +76,10 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
       const { data: user } = response;
       setUser?.(user);
       axios.get('/operators').then((response) => {
-        const { data: operatorList } = response;
+        const operatorList = response.data as DocOperator[];
+        operatorList.sort((firstOperator, secondOperator) => {
+          return firstOperator.name.localeCompare(secondOperator.name);
+        });
         setOperatorList(operatorList);
       });
     }).catch((reason) => {
@@ -102,19 +112,26 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
     setModalVisible(false);
   }
 
+  function onChangeOperatorList(value: string[], option: any) {
+    const seqValList = value.map((item) => seqValOf(item));
+    setSeqValList(seqValList);
+  }
+
   function onChangePagination(page: number, pageSize?: number | undefined) {
     if (page === pageCurrent) {
       return;
     }
     setWaiting(true);
-    getPackageList({ page }).finally(() => {
+    getPackageList({ page, seqVal: seqValList }).finally(() => {
       setWaiting(false);
     });
   }
 
   function onClickSearch() {
     setWaiting(true);
-    getPackageList().finally(() => {
+    getPackageList({
+      seqVal: seqValList,
+    }).finally(() => {
       setWaiting(false);
     });
   }
@@ -179,32 +196,56 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
   )
 }
 
-function EditableCell({ record, dataIndex, operator, children, ...props }: any) {
+type EditableCellProps = {
+  record?: any;
+  dataIndex: string;
+  operator?: string;
+  operatorList?: DocOperator[];
+  onChangeOperatorList?: (value: string[], option: any) => void
+  children?: React.DetailedHTMLProps<React.TdHTMLAttributes<HTMLTableDataCellElement>, HTMLTableDataCellElement>;
+};
+
+function EditableCell({
+  record,
+  dataIndex,
+  operator,
+  operatorList,
+  onChangeOperatorList,
+  children,
+  ...props
+}: EditableCellProps) {
   return (
     <td {...props}>
-      {
-        record?.key === '' && dataIndex === 'name' ? (
-          <Form.Item
-            name={dataIndex} help={false}
-            style={{ margin: 0 }}
+      {record?.key === "" && dataIndex === "name" ? (
+        <Form.Item name={dataIndex} help={false} style={{ margin: 0 }}>
+          <Input />
+        </Form.Item>
+      ) : record?.key === "" && dataIndex === "operator" ? (
+        <Form.Item name={dataIndex} help={false} style={{ margin: 0 }}>
+          <Select
+            mode="multiple"
+            allowClear
+            onChange={onChangeOperatorList}
           >
-            <Input />
-          </Form.Item>
-        ) : record?.key === '' && dataIndex === 'operator' ? (
-          <Form.Item
-            name={dataIndex} help={false}
-            style={{ margin: 0 }}
-          >
-            <Select />
-          </Form.Item>
-        ) : record?.key === '' && dataIndex === 'owner' ? (
-          <Skeleton.Input style={{ width: 200 }} />
-        ) : dataIndex === 'operator' ? (
-          operator ?? <Skeleton.Input style={{ width: 200 }} />
-        ) : (
-          children
-        )
-      }
+            {operatorList
+              ? operatorList.map((operator) => {
+                  const { _id, name } = operator;
+                  return (
+                    <Select.Option key={_id} value={_id}>
+                      {name}
+                    </Select.Option>
+                  );
+                })
+              : null}
+          </Select>
+        </Form.Item>
+      ) : record?.key === "" && dataIndex === "owner" ? (
+        <Skeleton.Input style={{ width: 200 }} />
+      ) : dataIndex === "operator" ? (
+        operator ?? <Skeleton.Input style={{ width: 200 }} />
+      ) : (
+        children
+      )}
     </td>
   );
 }
