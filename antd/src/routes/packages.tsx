@@ -32,6 +32,7 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
   const [packageList, setPackageList] = useState<DocOperator[]>([]);
   const [pageCurrent, setPageCurrent] = useState(1);
   const [pageTotal, setPageTotal] = useState(0);
+  const [operatorList, setOperatorList] = useState<DocOperator[]>([]);
 
   const columns: any[] = [
     { key: 'name', dataIndex: 'name', title: 'Name', editable: true, width: '40%' },
@@ -57,6 +58,7 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
       onCell: (record: any) => ({
         record,
         dataIndex,
+        operator: operatorList.find((operator) => operator._id === record.operator)?.name,
       }),
     }
   });
@@ -94,6 +96,16 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
             .filter((operator) => !!operator)
         )
       );
+      axios.get('/operators', {
+        params: {
+          seqVal: operatorList,
+        },
+      }).then((response) => {
+        const { data: operatorList } = response;
+        setOperatorList(operatorList);
+      }).catch((reason) => {
+        console.error(reason);
+      });
     }).catch((reason) => {
       console.error(reason);
     });
@@ -180,7 +192,7 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
   )
 }
 
-function EditableCell({ record, dataIndex, children, ...props }: any) {
+function EditableCell({ record, dataIndex, operator, children, ...props }: any) {
   return (
     <td {...props}>
       {
@@ -200,6 +212,8 @@ function EditableCell({ record, dataIndex, children, ...props }: any) {
           </Form.Item>
         ) : record?.key === '' && dataIndex === 'owner' ? (
           <Skeleton.Input style={{ width: 200 }} />
+        ) : dataIndex === 'operator' ? (
+          operator ?? <Skeleton.Input style={{ width: 200 }} />
         ) : (
           children
         )
