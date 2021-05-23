@@ -4,10 +4,17 @@ get:
   summary: Get a list of user information
   parameters:
     - name: username
-      description: Username. Case insensitive and support partial match.
+      description: Username. Case insensitive and support partial match. Shall not be used with `seqVal`
       in: query
       schema:
         type: string
+    - name: seqVal
+      description: A list of operators' sequence values. Shall not be used with `username`
+      in: query
+      schema:
+        type: array
+        items:
+          type: string
   responses:
     "200":
       description: Ok
