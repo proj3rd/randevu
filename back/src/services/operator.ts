@@ -11,10 +11,19 @@ export function serviceOperator(app: Express, db: Database) {
     if(!user) {
       return res.status(403).end();
     }
-    const { include } = req.query;
+    const { include, name, seqVal: seqValList } = req.query;
     if (include
         && (!(include instanceof Array)
             || include.some((item: any) => !validateString(item)))) {
+      return res.status(400).end();
+    }
+    if (name && !validateString(name)) {
+      return res.status(400).end();
+    }
+    if (seqValList && !validateStringList(seqValList)) {
+      return res.status(400).end();
+    }
+    if (name && seqValList) {
       return res.status(400).end();
     }
     let trx: Transaction | undefined;
@@ -24,17 +33,26 @@ export function serviceOperator(app: Express, db: Database) {
       trx = await db.beginTransaction({
         read: [collectionOperator, collectionOwns],
       });
-      const { name } = req.query;
       const nameFilter = name ? 'FILTER CONTAINS(UPPER(operator.name), UPPER(@name))' : '';
       const bindVarsNameFilter = name ? { name } : {};
-      const cursorOperatorList = await trx.step(() => db.query({
-        query: `
+      const seqValListFilter = seqValList ? 'FILTER POSITION(@operatorIdList, operator._id)' : '';
+      const operatorIdListForFilter = seqValList ? (seqValList as string[]).map((seqVal) => `${collectionOperator.name}/${seqVal}`) : [];
+      const bindVarsSeqValListFilter = seqValList ? { operatorIdList: operatorIdListForFilter } : {};
+      const cursorOperatorList = await trx.step(() =>
+        db.query({
+          query: `
           FOR operator IN @@collectionOperator
             ${nameFilter}
+            ${seqValListFilter}
             RETURN operator
         `,
-        bindVars: { '@collectionOperator': collectionOperator.name, ...bindVarsNameFilter },
-      }));
+          bindVars: {
+            "@collectionOperator": collectionOperator.name,
+            ...bindVarsNameFilter,
+            ...bindVarsSeqValListFilter,
+          },
+        })
+      );
       const operatorList = (await cursorOperatorList.all()) as DocOperator[];
       const operatorIdList = operatorList.map((operator) => operator._id);
       if (include && (include as string[]).includes('owner')) {
