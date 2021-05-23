@@ -914,9 +914,15 @@ export function servicePackage(app: Express, db: Database) {
       const nameFilter = (viewName: string) =>  nameList && nameList.length ?
       `LENGTH(@nameList[** FILTER CONTAINS(UPPER(${viewName}.name), UPPER(CURRENT))]) > 0` : 'true';
       const bindVarsNameFilter = (nameList && nameList.length ? { nameList } : {}) as any
-      const operatorFilter = operatorList ? 'POSITION(@operatorIdList, operator._id)' : 'true';
+      const operatorFilter = operatorList ? `
+        FOR operator IN OUTBOUND packageSub._id @@collectionTargets
+          FILTER POSITION(@operatorIdList, operator._id)
+          LIMIT 1
+        ` : '';
       const operatorIdList = operatorList ? (operatorList as string[]).map((operator) => `${collectionOperator.name}/${operator}`) : [];
-      const bindVarsOperatorFilter = operatorList ? { operatorIdList } : {};
+      const bindVarsOperatorFilter = operatorList
+        ? { operatorIdList, "@collectionTargets": collectionTargets.name }
+        : {};
       const mainFilter = operatorList && operatorList.length ?
         `numPackageSub > 0` : `${nameFilter('packageMain')} OR numPackageSub > 0`;
       // Main packages
@@ -925,7 +931,8 @@ export function servicePackage(app: Express, db: Database) {
           FOR packageMain IN @@collectionPackageMain
             let numPackageSub = COUNT(
               FOR packageSub IN INBOUND packageMain._id @@collectionDerivedFrom
-                FILTER ${nameFilter('packageSub')} AND ${operatorFilter}
+                FILTER ${nameFilter('packageSub')}
+                ${operatorFilter}
                 RETURN packageSub
             )
             FILTER ${mainFilter}
