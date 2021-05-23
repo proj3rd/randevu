@@ -35,7 +35,7 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
       key: 'actions', dataIndex: 'actions', title: 'Actions', width: '20%',
       render: (_: any, record: any) => {
         return record.key === '' ? (
-          <Typography.Link>
+          <Typography.Link onClick={onClickSearch}>
             <SearchOutlined /> Search
           </Typography.Link>
         ) : (null);
@@ -60,10 +60,6 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
     axios.get('/authenticate').then((response) => {
       const { data: user } = response;
       setUser?.(user);
-      setWaiting(true);
-      getPackageList().finally(() => {
-        setWaiting(false);
-      });
     }).catch((reason) => {
       console.error(reason);
       setUser?.(undefined);
@@ -99,6 +95,13 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
     }
     setWaiting(true);
     getPackageList({ page }).finally(() => {
+      setWaiting(false);
+    });
+  }
+
+  function onClickSearch() {
+    setWaiting(true);
+    getPackageList().finally(() => {
       setWaiting(false);
     });
   }
