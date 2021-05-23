@@ -2,11 +2,12 @@ import { Button, Form, Input, Pagination, Select, Skeleton, Table, Typography } 
 import Title from "antd/lib/typography/Title";
 import { SearchOutlined } from '@ant-design/icons';
 import axios from 'axios';
-import { DocOperator, DocUser } from "randevu-shared/dist/types";
+import { DocOperator, DocPackage, DocUser } from "randevu-shared/dist/types";
 import { useEffect, useState } from 'react';
 import { useHistory, useRouteMatch } from 'react-router';
 import { useForm } from 'antd/lib/form/Form';
 import ModalCreatePackage from '../components/modalCreatePackage';
+import { seqValOf } from 'randevu-shared/dist/utils';
 
 type Props = {
   user?: DocUser | undefined;
@@ -81,10 +82,18 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
       ...query, // If `query` includes `page`, it will override the above `page`
     };
     return axios.get('/packages', { params }).then((response) => {
-      const { packageList, countMain } = response.data;
+      const packageList = response.data.packageList as DocPackage[];
+      const { countMain } = response.data;
       setPackageList(packageList);
       setPageCurrent(params.page);
       setPageTotal(countMain);
+      const operatorList = Array.from(
+        new Set(
+          packageList
+            .map((pkg) => seqValOf(pkg.operator ?? ""))
+            .filter((operator) => !!operator)
+        )
+      );
     }).catch((reason) => {
       console.error(reason);
     });
