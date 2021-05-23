@@ -7,6 +7,7 @@ import passport from 'passport';
 import passportLocal from 'passport-local';
 import { COLLECTION_USER } from '../constants';
 import { DocUser } from 'randevu-shared/dist/types';
+import { validateString, validateStringList } from '../utils';
 
 const SECRET = 'RANdevU aims to make RAN development easy';
 
@@ -151,46 +152,45 @@ export function serviceUser(app: Express, db: Database) {
     if (!user) {
       return res.status(403).end();
     }
+    const { seqVal: seqValList, username } = req.query;
+    if (seqValList && !validateStringList(seqValList)) {
+      return res.status(400).end();
+    }
+    if (username && !validateString(username)) {
+      return res.status(400).end();
+    }
+    if  (seqValList && username) {
+      return res.status(400).end();
+    }
     let trx: Transaction | undefined;
     try {
       const collectionUser = db.collection(COLLECTION_USER);
       trx = await db.beginTransaction({
         read: collectionUser,
       });
-      const { seqVal: seqValList, username } = req.query;
-      if (seqValList && username) {
-        await trx.abort();
-        return res.status(400).end();
-      }
-      if (seqValList) {
-        const userIdList = (seqValList as string[]).map((seqVal) => `${collectionUser.name}/${seqVal}`);
-        const cursorUserList = await trx.step(() => db.query({
+      const seqValListFilter = seqValList ? 'FILTER POSITION(@userIdList, user._id)' : '';
+      const userIdList = seqValList ? (seqValList as string[]).map((seqVal) => `${collectionUser.name}/${seqVal}`) : [];
+      const bindVarsSeqValListFilter = seqValList ? { userIdList } : {};
+      const usernameFilter = username ? 'FILTER CONTAINS(UPPER(user.username), UPPER(@username))' : '';
+      const bindVarsUsernameFilter = username ? { username } : {};
+      const cursorUserList = await trx.step(() =>
+        db.query({
           query: `
-            FOR user IN @@collectionUser
-              FILTER POSITION(@userIdList, user._id)
-              RETURN UNSET(user, "password")
-          `,
-          bindVars: { '@collectionUser': collectionUser.name, userIdList },
-        }));
-        const userList = await cursorUserList.all();
-        await trx.commit();
-        return res.json(userList);
-      }
-      if (username) {
-        const usernameFilter = username ? 'FILTER CONTAINS(UPPER(user.username), UPPER(@username))' : '';
-        const bindVarsUsernameFilter = username ? { username } : {};
-        const cursorUserList = await trx.step(() => db.query({
-          query: `
-            FOR user in @@collectionUser
-              ${usernameFilter}
-              RETURN UNSET(user, "password")
-          `,
-          bindVars: { '@collectionUser': collectionUser.name, ...bindVarsUsernameFilter },
-        }));
-        const userList = await cursorUserList.all();
-        await trx.commit();
-        return res.json(userList);
-      }
+          FOR user IN @@collectionUser
+            ${seqValListFilter}
+            ${usernameFilter}
+            RETURN UNSET(user, "password")
+        `,
+          bindVars: {
+            "@collectionUser": collectionUser.name,
+            ...bindVarsSeqValListFilter,
+            ...bindVarsUsernameFilter,
+          },
+        })
+      );
+      const userList = await cursorUserList.all();
+      await trx.commit();
+      return res.json(userList);
     } catch (e) {
       if (trx) {
         await trx.abort();
