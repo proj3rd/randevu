@@ -11,7 +11,7 @@ get:
         items:
           type: string
     - name: operator
-      description: A list of operator names. Case insensitive and support partial match.
+      description: A list of operators' sequence values
       in: query
       schema:
         type: array
