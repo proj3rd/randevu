@@ -18,7 +18,6 @@ type Props = {
 type Query = {
   per?: number;
   page?: number;
-  operator?: string[];
 };
 
 const PER = 3;
@@ -96,6 +95,7 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
       per: PER,
       page: 1,
       ...query, // If `query` includes `page`, it will override the above `page`
+      operator: operatorSeqValList,
     };
     return axios.get('/packages', { params }).then((response) => {
       const packageList = response.data.packageList as DocPackage[];
@@ -122,16 +122,14 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
       return;
     }
     setWaiting(true);
-    getPackageList({ page, operator: operatorSeqValList }).finally(() => {
+    getPackageList({ page }).finally(() => {
       setWaiting(false);
     });
   }
 
   function onClickSearch() {
     setWaiting(true);
-    getPackageList({
-      operator: operatorSeqValList,
-    }).finally(() => {
+    getPackageList().finally(() => {
       setWaiting(false);
     });
   }
