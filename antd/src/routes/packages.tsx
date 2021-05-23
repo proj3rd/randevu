@@ -68,6 +68,10 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
     axios.get('/authenticate').then((response) => {
       const { data: user } = response;
       setUser?.(user);
+      axios.get('/operators').then((response) => {
+        const { data: operatorList } = response;
+        setOperatorList(operatorList);
+      });
     }).catch((reason) => {
       console.error(reason);
       setUser?.(undefined);
@@ -89,23 +93,6 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
       setPackageList(packageList);
       setPageCurrent(params.page);
       setPageTotal(countMain);
-      const operatorList = Array.from(
-        new Set(
-          packageList
-            .map((pkg) => seqValOf(pkg.operator ?? ""))
-            .filter((operator) => !!operator)
-        )
-      );
-      axios.get('/operators', {
-        params: {
-          seqVal: operatorList,
-        },
-      }).then((response) => {
-        const { data: operatorList } = response;
-        setOperatorList(operatorList);
-      }).catch((reason) => {
-        console.error(reason);
-      });
     }).catch((reason) => {
       console.error(reason);
     });
