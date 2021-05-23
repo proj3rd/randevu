@@ -18,7 +18,7 @@ type Props = {
 type Query = {
   per?: number;
   page?: number;
-  seqVal?: string[];
+  operator?: string[];
 };
 
 const PER = 3;
@@ -34,7 +34,7 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
   const [pageCurrent, setPageCurrent] = useState(1);
   const [pageTotal, setPageTotal] = useState(0);
   const [operatorList, setOperatorList] = useState<DocOperator[]>([]);
-  const [seqValList, setSeqValList] = useState<string[]>([]);
+  const [operatorSeqValList, setOperatorSeqValList] = useState<string[]>([]);
 
   const columns: any[] = [
     { key: 'name', dataIndex: 'name', title: 'Name', editable: true, width: '40%' },
@@ -114,7 +114,7 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
 
   function onChangeOperatorList(value: string[], option: any) {
     const seqValList = value.map((item) => seqValOf(item));
-    setSeqValList(seqValList);
+    setOperatorSeqValList(seqValList);
   }
 
   function onChangePagination(page: number, pageSize?: number | undefined) {
@@ -122,7 +122,7 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
       return;
     }
     setWaiting(true);
-    getPackageList({ page, seqVal: seqValList }).finally(() => {
+    getPackageList({ page, operator: operatorSeqValList }).finally(() => {
       setWaiting(false);
     });
   }
@@ -130,7 +130,7 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
   function onClickSearch() {
     setWaiting(true);
     getPackageList({
-      seqVal: seqValList,
+      operator: operatorSeqValList,
     }).finally(() => {
       setWaiting(false);
     });
