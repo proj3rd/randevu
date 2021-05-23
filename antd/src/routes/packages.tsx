@@ -98,8 +98,14 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
     };
     return axios.get('/packages', { params }).then((response) => {
       const packageList = response.data.packageList as DocPackage[];
+      const packageListOrdered: DocPackage[] = packageList.filter((pkg) => !pkg.main);
+      for (let i = packageListOrdered.length - 1; i >= 0; i -= 1) {
+        const { _id } = packageListOrdered[i];
+        const packageListFiltered = packageList.filter((pkg) => pkg.main === _id);
+        packageListOrdered.splice(i + 1, 0, ...packageListFiltered);
+      }
       const { countMain } = response.data;
-      setPackageList(packageList);
+      setPackageList(packageListOrdered);
       setPageCurrent(params.page);
       setPageTotal(countMain);
     }).catch((reason) => {
