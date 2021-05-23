@@ -14,6 +14,11 @@ type Props = {
   setWaiting?: (waiting: boolean) => void;
 };
 
+type Query = {
+  per?: number;
+  page?: number;
+};
+
 const PER = 3;
 
 export default function Packages({ user, setUser, setWaiting: setWaitingApp }: Props) {
@@ -69,11 +74,11 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
     });
   }, [history, setUser, setWaitingApp, url]);
 
-  async function getPackageList(query?: any) {
+  async function getPackageList(query?: Query) {
     const params = {
       per: PER,
       page: 1,
-      ...query, // If `query` includes, `page`, it will override the above `page`
+      ...query, // If `query` includes `page`, it will override the above `page`
     };
     return axios.get('/packages', { params }).then((response) => {
       const { packageList, countMain } = response.data;
