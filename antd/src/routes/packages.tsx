@@ -30,7 +30,7 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
   const [form] = useForm();
   const [packageList, setPackageList] = useState<DocOperator[]>([]);
   const [pageCurrent, setPageCurrent] = useState(1);
-  const [pageTotal, setPageTotal] = useState(1);
+  const [pageTotal, setPageTotal] = useState(0);
 
   const columns: any[] = [
     { key: 'name', dataIndex: 'name', title: 'Name', editable: true, width: '40%' },
