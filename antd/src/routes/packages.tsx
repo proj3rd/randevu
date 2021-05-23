@@ -33,7 +33,6 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
   const [pageCurrent, setPageCurrent] = useState(1);
   const [pageTotal, setPageTotal] = useState(0);
   const [operatorList, setOperatorList] = useState<DocOperator[]>([]);
-  const [operatorSeqValList, setOperatorSeqValList] = useState<string[]>([]);
 
   const columns: any[] = [
     { key: 'name', dataIndex: 'name', title: 'Name', editable: true, width: '40%' },
@@ -61,7 +60,6 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
           record,
           dataIndex,
           operator: operatorList.find((operator) => operator._id === record.operator)?.name,
-          onChangeOperatorList,
           operatorList,
         };
         return editableCellProps;
@@ -95,7 +93,7 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
       per: PER,
       page: 1,
       ...query, // If `query` includes `page`, it will override the above `page`
-      operator: operatorSeqValList,
+      operator: form.getFieldValue('operator')?.map((operatorId: string) => seqValOf(operatorId)) ?? [],
     };
     return axios.get('/packages', { params }).then((response) => {
       const packageList = response.data.packageList as DocPackage[];
@@ -110,11 +108,6 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
 
   function onCancelModalCreatePackage() {
     setModalVisible(false);
-  }
-
-  function onChangeOperatorList(value: string[], option: any) {
-    const seqValList = value.map((item) => seqValOf(item));
-    setOperatorSeqValList(seqValList);
   }
 
   function onChangePagination(page: number, pageSize?: number | undefined) {
@@ -199,7 +192,6 @@ type EditableCellProps = {
   dataIndex: string;
   operator?: string;
   operatorList?: DocOperator[];
-  onChangeOperatorList?: (value: string[], option: any) => void
   children?: React.DetailedHTMLProps<React.TdHTMLAttributes<HTMLTableDataCellElement>, HTMLTableDataCellElement>;
 };
 
@@ -208,7 +200,6 @@ function EditableCell({
   dataIndex,
   operator,
   operatorList,
-  onChangeOperatorList,
   children,
   ...props
 }: EditableCellProps) {
@@ -223,7 +214,6 @@ function EditableCell({
           <Select
             mode="multiple"
             allowClear
-            onChange={onChangeOperatorList}
           >
             {operatorList
               ? operatorList.map((operator) => {
