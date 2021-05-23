@@ -5,9 +5,16 @@ get:
   parameters:
     - name: name
       in: query
-      description: Operator name. Case insensitive and support partial match.
+      description: Operator name. Case insensitive and support partial match. Shall not be used with `seqVal`
       schema:
         type: string
+    - name: seqVal
+      in: query
+      description: A list of operators' sequence value. Shall not be used with `name`
+      schema:
+        type: array
+        items:
+          type: string
     - name: include
       in: query
       description: Includes related information in a response
