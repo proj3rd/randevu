@@ -1,0 +1,27 @@
+get:
+  tags:
+    - Package
+  summary: Get a list of main packages
+  responses:
+    "200":
+      description: Ok
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                _id:
+                  type: string
+                name:
+                  type: string
+              required:
+                - _id
+                - name
+    "403":
+      description: Unauthorized
+    "404":
+      description: Main package not found
+    "500":
+      description: Internal failure

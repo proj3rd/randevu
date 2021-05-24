@@ -46,6 +46,8 @@ paths:
   # Package
   /packages:
     $ref: './paths/packages.yaml'
+  /packages/main:
+    $ref: './paths/packages_main.yaml'
   /packages/main/{seqVal}:
     $ref: './paths/packages_main_seqVal.yaml'
   /packages/main/{seqVal}/sub:
