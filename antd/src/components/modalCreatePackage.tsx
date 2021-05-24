@@ -36,7 +36,12 @@ export default function ModalCreatePackage({ ...modalProps }: Props) {
         });
       }
       if (!packageMainList.length) {
-        // TODO
+        axios.get('/packages/main').then((response) => {
+          const packageMainList = response.data as DocPackage[];
+          setPackageMainList(packageMainList);
+        }).catch((reason) => {
+          console.error(reason);
+        });
       }
       if (!deploymentOptionList.length) {
         axios.get('/deployment-options').then((response) => {
@@ -98,7 +103,16 @@ export default function ModalCreatePackage({ ...modalProps }: Props) {
               label='Main package'
               name='main'
             >
-              <Select />
+              <Select>
+                {
+                  packageMainList.map((packageMain) => {
+                    const { _id, name } = packageMain;
+                    return (
+                      <Select.Option key={_id} value={_id}>{name}</Select.Option>
+                    )
+                  })
+                }
+              </Select>
             </Form.Item>
             <Form.Item
               label='Operator'
