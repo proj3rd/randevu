@@ -4,12 +4,10 @@ get:
   summary: Get a list of packages
   parameters:
     - name: name
-      description: A list of package names. Case insensitive and support partial match.
+      description: Package name. Case insensitive and support partial match.
       in: query
       schema:
-        type: array
-        items:
-          type: string
+        type: string
     - name: operator
       description: A list of operators' sequence values
       in: query

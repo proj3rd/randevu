@@ -93,7 +93,7 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
       per: PER,
       page: 1,
       ...query, // If `query` includes `page`, it will override the above `page`
-      name: form.getFieldValue('name') ? [form.getFieldValue('name')] : undefined,
+      name: form.getFieldValue('name') || undefined,
       operator: form.getFieldValue('operator')?.map((operatorId: string) => seqValOf(operatorId)) ?? [],
     };
     return axios.get('/packages', { params }).then((response) => {

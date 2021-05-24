@@ -880,10 +880,10 @@ export function servicePackage(app: Express, db: Database) {
     if(!user) {
       return res.status(403).end();
     }
-    const { name: nameList, operator: operatorList, include: includeList } = req.query;
+    const { name, operator: operatorList, include: includeList } = req.query;
     const per = Number(req.query.per) | 0;
     const page = Number(req.query.page) | 0;
-    if (nameList && !validateStringList(nameList)) {
+    if (name && !validateString(name)) {
       return res.status(400).end();
     }
     if (operatorList && !validateStringList(operatorList)) {
@@ -911,9 +911,9 @@ export function servicePackage(app: Express, db: Database) {
       trx = await db.beginTransaction({
         read: [collectionDerivedFrom, collectionPackageMain, collectionPackageSub, collectionOperator, collectionOwns, collectionTargets, collectionSucceeds, collectionUser],
       });
-      const nameFilter = (viewName: string) =>  nameList && nameList.length ?
-      `LENGTH(@nameList[** FILTER CONTAINS(UPPER(${viewName}.name), UPPER(CURRENT))]) > 0` : 'true';
-      const bindVarsNameFilter = (nameList && nameList.length ? { nameList } : {}) as any
+      const nameFilter = (viewName: string) =>  name ?
+      `CONTAINS(UPPER(${viewName}.name), UPPER(@name))` : 'true';
+      const bindVarsNameFilter = (name ? { name } : {}) as any
       const operatorFilter = operatorList ? `
         FOR operator IN OUTBOUND packageSub._id @@collectionTargets
           FILTER POSITION(@operatorIdList, operator._id)
