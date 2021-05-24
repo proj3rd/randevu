@@ -1,4 +1,4 @@
-import { Collapse, Form, Input, Modal, Select, Switch } from "antd";
+import { Collapse, Form, Input, Modal, Radio, RadioChangeEvent, Select } from "antd";
 import { ModalProps } from 'antd/lib/modal';
 import { useState } from "react";
 
@@ -13,19 +13,21 @@ const layout = {
 };
 
 export default function ModalCreatePackage({ ...modalProps }: Props) {
-  const [type, setType] = useState('');
+  const [packageType, setPackageType] = useState('main');
 
-  function onChangeType(checked: boolean, event: MouseEvent) {
-    const type = checked ? 'sub' : 'main';
-    setType(type);
+  function onChangePackageType(e: RadioChangeEvent) {
+    setPackageType(e.target.value ?? 'main');
   }
 
   return (
     <Modal
       {...modalProps}
       title='Create a package'
+      forceRender={true}
     >
-      <Form {...layout}>
+      <Form
+        {...layout}
+      >
         <Form.Item
           label='Name'
           name='name'
@@ -44,13 +46,12 @@ export default function ModalCreatePackage({ ...modalProps }: Props) {
           label='Package type'
           name='type'
         >
-          <Switch
-            checkedChildren='Sub'
-            unCheckedChildren='Main'
-            onChange={onChangeType}
-          />
+          <Radio.Group name='packageType' defaultValue={packageType} onChange={onChangePackageType}>
+            <Radio value='main'>Main</Radio>
+            <Radio value='sub'>Sub</Radio>
+          </Radio.Group>
         </Form.Item>
-        <Collapse activeKey={type}>
+        <Collapse activeKey={packageType}>
           <Collapse.Panel header='Sub package information' key='sub'>
             <Form.Item
               label='Operator'
