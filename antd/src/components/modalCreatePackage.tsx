@@ -95,6 +95,12 @@ export default function ModalCreatePackage({ ...modalProps }: Props) {
         <Collapse activeKey={packageType}>
           <Collapse.Panel header='Sub package information' key='sub'>
             <Form.Item
+              label='Main package'
+              name='main'
+            >
+              <Select />
+            </Form.Item>
+            <Form.Item
               label='Operator'
               name='operator'
             >
@@ -108,12 +114,6 @@ export default function ModalCreatePackage({ ...modalProps }: Props) {
                   })
                 }
               </Select>
-            </Form.Item>
-            <Form.Item
-              label='Main package'
-              name='main'
-            >
-              <Select />
             </Form.Item>
             <Form.Item
               label='Owner'
