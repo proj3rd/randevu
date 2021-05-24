@@ -21,7 +21,15 @@ export default function ModalCreatePackage({ ...modalProps }: Props) {
   const [productList, setProductList] = useState<DocEnum[]>([]);
   const [ranSharingList, setRanSharingList] = useState<DocEnum[]>([]);
 
+  const [name, setName] = useState('');
   const [packageType, setPackageType] = useState('main');
+  const [packageMain, setPackageMain] = useState('');
+  const [operator, setOperator] = useState('');
+  const [owner, setOwner] = useState('');
+  const [previous, setPrevious] = useState('');
+  const [selectedDeploymentOptionList, setSelectedDeploymentOptionList] = useState<string[]>([]);
+  const [selectedProductList, setSelectedProductList] = useState<string[]>([]);
+  const [selectedRanSharingList, setSelectedRanSharingList] = useState<string[]>([]);
 
   function onChangePackageType(e: RadioChangeEvent) {
     const packageType = e.target.value ?? 'main';
@@ -83,10 +91,9 @@ export default function ModalCreatePackage({ ...modalProps }: Props) {
       >
         <Form.Item
           label='Name'
-          name='name'
           rules={[{ required: true }]}
         >
-          <Input />
+          <Input value={name} onChange={(e) => {setName(e.target.value)}} />
         </Form.Item>
         <Form.Item
           label='Package type'
