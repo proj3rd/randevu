@@ -134,6 +134,36 @@ export function servicePackage(app: Express, db: Database) {
     }
   });
 
+  app.get('/packages/main', async (req, res) => {
+    const user = req.user as DocUser;
+    if (!user) {
+      return res.status(403).end();
+    }
+    let trx: Transaction | undefined;
+    try {
+      let collectionPackageMain = db.collection(COLLECTION_PACKAGE_MAIN);
+      trx = await db.beginTransaction({
+        read: [collectionPackageMain],
+      });
+      const cursorPackageMainList = await trx.step(() => db.query({
+        query: `
+          FOR packageMain IN @@collectionPackageMain
+            RETURN packageMain
+        `,
+        bindVars: { '@collectionPackageMain': collectionPackageMain.name },
+      }));
+      const packageMainList = await cursorPackageMainList.all();
+      await trx.commit();
+      return res.json(packageMainList);
+    } catch (e) {
+      if (trx) {
+        await trx.abort();
+      }
+      console.error(e);
+      return res.status(500).end();
+    }
+  });
+
   app.get('/packages/sub/:seqVal/deployment-options', async (req, res) => {
     const user = req.user as DocUser;
     if (!user) {
