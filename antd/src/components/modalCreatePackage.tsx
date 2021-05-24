@@ -36,13 +36,6 @@ export default function ModalCreatePackage({ ...modalProps }: Props) {
           <Input />
         </Form.Item>
         <Form.Item
-          label='Owner'
-          name='owner'
-          rules={[{ required: true }]}
-        >
-            <Select />
-        </Form.Item>
-        <Form.Item
           label='Package type'
           name='type'
         >
@@ -64,6 +57,12 @@ export default function ModalCreatePackage({ ...modalProps }: Props) {
               name='main'
             >
               <Select />
+            </Form.Item>
+            <Form.Item
+              label='Owner'
+              name='owner'
+            >
+                <Select />
             </Form.Item>
             <Form.Item
               label='Previous package'
