@@ -1,4 +1,5 @@
 import { Collapse, Form, Input, Modal, Radio, RadioChangeEvent, Select } from "antd";
+import { useForm } from "antd/lib/form/Form";
 import { ModalProps } from 'antd/lib/modal';
 import axios from "axios";
 import { DocEnum, DocOperator, DocPackage } from "randevu-shared/dist/types";
@@ -15,21 +16,15 @@ const layout = {
 };
 
 export default function ModalCreatePackage({ ...modalProps }: Props) {
+  const [form] = useForm();
+
   const [operatorList, setOperatorList] = useState<DocOperator[]>([]);
   const [packageMainList, setPackageMainList] = useState<DocPackage[]>([]);
   const [deploymentOptionList, setDeploymentOptionList] = useState<DocEnum[]>([]);
   const [productList, setProductList] = useState<DocEnum[]>([]);
   const [ranSharingList, setRanSharingList] = useState<DocEnum[]>([]);
 
-  const [name, setName] = useState('');
   const [packageType, setPackageType] = useState('main');
-  const [packageMain, setPackageMain] = useState('');
-  const [operator, setOperator] = useState('');
-  const [owner, setOwner] = useState('');
-  const [previous, setPrevious] = useState('');
-  const [selectedDeploymentOptionList, setSelectedDeploymentOptionList] = useState<string[]>([]);
-  const [selectedProductList, setSelectedProductList] = useState<string[]>([]);
-  const [selectedRanSharingList, setSelectedRanSharingList] = useState<string[]>([]);
 
   function onChangePackageType(e: RadioChangeEvent) {
     const packageType = e.target.value ?? 'main';
@@ -84,22 +79,24 @@ export default function ModalCreatePackage({ ...modalProps }: Props) {
       title='Create a package'
     >
       <Form
+        form={form}
         initialValues={{
           packageType: 'main',
         }}
         {...layout}
       >
         <Form.Item
+          name='name'
           label='Name'
           rules={[{ required: true }]}
         >
-          <Input value={name} onChange={(e) => {setName(e.target.value)}} />
+          <Input />
         </Form.Item>
         <Form.Item
           label='Package type'
           name='packageType'
         >
-          <Radio.Group value={packageType} onChange={onChangePackageType}>
+          <Radio.Group onChange={onChangePackageType}>
             <Radio value='main'>Main</Radio>
             <Radio value='sub'>Sub</Radio>
           </Radio.Group>
