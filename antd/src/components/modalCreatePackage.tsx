@@ -39,6 +39,7 @@ export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
       ranSharingList: [],
     });
     setPackageType('main');
+    setWaiting(false);
     onClose?.();
   }
 
