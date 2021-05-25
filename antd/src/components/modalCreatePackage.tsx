@@ -106,6 +106,7 @@ export default function ModalCreatePackage({ ...modalProps }: Props) {
             <Form.Item
               label='Main package'
               name='main'
+              rules={[{ required: packageType === 'sub' }]}
             >
               <Select>
                 {
@@ -121,6 +122,7 @@ export default function ModalCreatePackage({ ...modalProps }: Props) {
             <Form.Item
               label='Operator'
               name='operator'
+              rules={[{ required: packageType === 'sub' }]}
             >
               <Select>
                 {
@@ -136,6 +138,7 @@ export default function ModalCreatePackage({ ...modalProps }: Props) {
             <Form.Item
               label='Owner'
               name='owner'
+              rules={[{ required: packageType === 'sub' }]}
             >
                 <Select />
             </Form.Item>
