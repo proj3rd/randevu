@@ -113,8 +113,11 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
     });
   }
 
-  function onCloseModalCreatePackage() {
+  function onCloseModalCreatePackage(refresh?: boolean) {
     setModalVisible(false);
+    if (refresh) {
+      // TODO
+    }
   }
 
   function onChangePagination(page: number, pageSize?: number | undefined) {
@@ -132,10 +135,6 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
     getPackageList().finally(() => {
       setWaiting(false);
     });
-  }
-
-  function onSubmitModalCreatePackage() {
-    // TODO
   }
 
   const dataSource = packageList.map((pkg) => {
@@ -188,7 +187,6 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
       <ModalCreatePackage
         visible={isModalVisible}
         onClose={onCloseModalCreatePackage}
-        onSubmit={onSubmitModalCreatePackage}
       />
     </>
   )
