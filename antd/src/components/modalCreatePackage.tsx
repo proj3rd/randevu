@@ -1,4 +1,4 @@
-import { Collapse, Form, Input, Modal, Radio, RadioChangeEvent, Select } from "antd";
+import { Button, Collapse, Form, Input, Modal, Radio, RadioChangeEvent, Select, Spin } from "antd";
 import { useForm } from "antd/lib/form/Form";
 import { ModalProps } from 'antd/lib/modal';
 import axios from "axios";
@@ -24,6 +24,7 @@ export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
   const [ranSharingList, setRanSharingList] = useState<DocEnum[]>([]);
 
   const [packageType, setPackageType] = useState('main');
+  const [waiting, setWaiting] = useState(false);
 
   function onCancel() {
     form.setFieldsValue({
@@ -88,139 +89,155 @@ export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
     }
   }
 
+  function onSubmit() {
+    form.validateFields().then((value) => {
+      setWaiting(true);
+      // TODO
+    }).catch((reason) => {
+      console.error(reason);
+    });
+  }
+
   return (
     <Modal
       {...modalProps}
       title='Create a package'
       onCancel={onCancel}
+      onOk={onSubmit}
     >
-      <Form
-        form={form}
-        initialValues={{
-          packageType: 'main',
-        }}
-        {...layout}
-      >
-        <Form.Item
-          name='name'
-          label='Name'
-          rules={[{ required: true }]}
+      <Spin spinning={waiting}>
+        <Form
+          form={form}
+          initialValues={{
+            packageType: 'main',
+          }}
+          {...layout}
+          onFinish={onSubmit}
         >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          label='Package type'
-          name='packageType'
-        >
-          <Radio.Group onChange={onChangePackageType}>
-            <Radio value='main'>Main</Radio>
-            <Radio value='sub'>Sub</Radio>
-          </Radio.Group>
-        </Form.Item>
-        <Collapse activeKey={packageType}>
-          <Collapse.Panel header='Sub package information' key='sub'>
-            <Form.Item
-              label='Main package'
-              name='main'
-              rules={[{ required: packageType === 'sub' }]}
-            >
-              <Select>
-                {
-                  packageMainList.map((packageMain) => {
-                    const { _id, name } = packageMain;
-                    return (
-                      <Select.Option key={_id} value={_id}>{name}</Select.Option>
-                    )
-                  })
-                }
-              </Select>
-            </Form.Item>
-            <Form.Item
-              label='Operator'
-              name='operator'
-              rules={[{ required: packageType === 'sub' }]}
-            >
-              <Select>
-                {
-                  operatorList.map((operator) => {
-                    const { _id, name } = operator;
-                    return (
-                      <Select.Option key={_id} value={_id}>{name}</Select.Option>
-                    )
-                  })
-                }
-              </Select>
-            </Form.Item>
-            <Form.Item
-              label='Owner'
-              name='owner'
-              rules={[{ required: packageType === 'sub' }]}
-            >
+          <Form.Item
+            name='name'
+            label='Name'
+            rules={[{ required: true }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            label='Package type'
+            name='packageType'
+          >
+            <Radio.Group onChange={onChangePackageType}>
+              <Radio value='main'>Main</Radio>
+              <Radio value='sub'>Sub</Radio>
+            </Radio.Group>
+          </Form.Item>
+          <Collapse activeKey={packageType}>
+            <Collapse.Panel header='Sub package information' key='sub'>
+              <Form.Item
+                label='Main package'
+                name='main'
+                rules={[{ required: packageType === 'sub' }]}
+              >
+                <Select>
+                  {
+                    packageMainList.map((packageMain) => {
+                      const { _id, name } = packageMain;
+                      return (
+                        <Select.Option key={_id} value={_id}>{name}</Select.Option>
+                      )
+                    })
+                  }
+                </Select>
+              </Form.Item>
+              <Form.Item
+                label='Operator'
+                name='operator'
+                rules={[{ required: packageType === 'sub' }]}
+              >
+                <Select>
+                  {
+                    operatorList.map((operator) => {
+                      const { _id, name } = operator;
+                      return (
+                        <Select.Option key={_id} value={_id}>{name}</Select.Option>
+                      )
+                    })
+                  }
+                </Select>
+              </Form.Item>
+              <Form.Item
+                label='Owner'
+                name='owner'
+                rules={[{ required: packageType === 'sub' }]}
+              >
+                  <Select />
+              </Form.Item>
+              <Form.Item
+                label='Previous package'
+                name='previous'
+              >
                 <Select />
-            </Form.Item>
-            <Form.Item
-              label='Previous package'
-              name='previous'
-            >
-              <Select />
-            </Form.Item>
-            <Form.Item
-              label='Deployment options'
-              name='deploymentOptionList'
-            >
-              <Select
-                mode='multiple'
-                allowClear
+              </Form.Item>
+              <Form.Item
+                label='Deployment options'
+                name='deploymentOptionList'
               >
-                {
-                  deploymentOptionList.map((deploymentOption) => {
-                    const { _id, name } = deploymentOption;
-                    return (
-                      <Select.Option key={_id} value={_id}>{name}</Select.Option>
-                    )
-                  })
-                }
-              </Select>
-            </Form.Item>
-            <Form.Item
-              label='Products'
-              name='productList'
-            >
-              <Select
-                mode='multiple'
-                allowClear
+                <Select
+                  mode='multiple'
+                  allowClear
+                >
+                  {
+                    deploymentOptionList.map((deploymentOption) => {
+                      const { _id, name } = deploymentOption;
+                      return (
+                        <Select.Option key={_id} value={_id}>{name}</Select.Option>
+                      )
+                    })
+                  }
+                </Select>
+              </Form.Item>
+              <Form.Item
+                label='Products'
+                name='productList'
               >
-                {
-                  productList.map((product) => {
-                    const { _id, name } = product;
-                    return (
-                      <Select.Option key={_id} value={_id}>{name}</Select.Option>
-                    )
-                  })
-                }
-              </Select>
-            </Form.Item>
-            <Form.Item
-              label='RAN sharing'
-              name='ranSharingList'
-            >
-              <Select
-                mode='multiple'
-                allowClear
+                <Select
+                  mode='multiple'
+                  allowClear
+                >
+                  {
+                    productList.map((product) => {
+                      const { _id, name } = product;
+                      return (
+                        <Select.Option key={_id} value={_id}>{name}</Select.Option>
+                      )
+                    })
+                  }
+                </Select>
+              </Form.Item>
+              <Form.Item
+                label='RAN sharing'
+                name='ranSharingList'
               >
-                {
-                  ranSharingList.map((ranSharing) => {
-                    const { _id, name } = ranSharing;
-                    return (
-                      <Select.Option key={_id} value={_id}>{name}</Select.Option>
-                    )
-                  })
-                }
-              </Select>
-            </Form.Item>
-          </Collapse.Panel>
-        </Collapse>
-      </Form>
+                <Select
+                  mode='multiple'
+                  allowClear
+                >
+                  {
+                    ranSharingList.map((ranSharing) => {
+                      const { _id, name } = ranSharing;
+                      return (
+                        <Select.Option key={_id} value={_id}>{name}</Select.Option>
+                      )
+                    })
+                  }
+                </Select>
+              </Form.Item>
+            </Collapse.Panel>
+          </Collapse>
+          <Form.Item>
+            <Button htmlType='submit' hidden></Button>
+          </Form.Item>
+        </Form>
+      </Spin>
     </Modal>
   )
 }
