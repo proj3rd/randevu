@@ -221,6 +221,9 @@ function EditableCell({
           <Select
             mode="multiple"
             allowClear
+            filterOption={(input, option) => {
+              return (option?.children.toLocaleString() ?? '').toLocaleLowerCase().indexOf(input.toLocaleLowerCase()) !== -1;
+            }}
           >
             {operatorList
               ? operatorList.map((operator) => {
