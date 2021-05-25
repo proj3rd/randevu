@@ -26,6 +26,22 @@ export default function ModalCreatePackage({ onClose, onSubmit, ...modalProps }:
 
   const [packageType, setPackageType] = useState('main');
 
+  function onCancel() {
+    form.setFieldsValue({
+      name: '',
+      packageType: 'main',
+      main: undefined,
+      operator: undefined,
+      owner: undefined,
+      previous: undefined,
+      deploymentOptionList: [],
+      productList: [],
+      ranSharingList: [],
+    });
+    setPackageType('main');
+    onClose?.();
+  }
+
   function onChangePackageType(e: RadioChangeEvent) {
     const packageType = e.target.value ?? 'main';
     setPackageType(packageType);
@@ -77,6 +93,7 @@ export default function ModalCreatePackage({ onClose, onSubmit, ...modalProps }:
     <Modal
       {...modalProps}
       title='Create a package'
+      onCancel={onCancel}
     >
       <Form
         form={form}
