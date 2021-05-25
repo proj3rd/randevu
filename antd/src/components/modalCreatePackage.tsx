@@ -6,8 +6,8 @@ import { DocEnum, DocOperator, DocPackage } from "randevu-shared/dist/types";
 import { useState } from "react";
 
 type Props = {
-  onOk?: (e: React.MouseEvent<HTMLElement>) => void;
-  onCancel?: (e: React.MouseEvent<HTMLElement>) => void;
+  onClose?: () => void;
+  onSubmit?: () => void;
 } & ModalProps;
 
 const layout = {
@@ -15,7 +15,7 @@ const layout = {
   wrapperCol: { span: 16 },
 };
 
-export default function ModalCreatePackage({ ...modalProps }: Props) {
+export default function ModalCreatePackage({ onClose, onSubmit, ...modalProps }: Props) {
   const [form] = useForm();
 
   const [operatorList, setOperatorList] = useState<DocOperator[]>([]);

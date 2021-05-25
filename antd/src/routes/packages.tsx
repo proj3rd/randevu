@@ -113,7 +113,7 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
     });
   }
 
-  function onCancelModalCreatePackage() {
+  function onCloseModalCreatePackage() {
     setModalVisible(false);
   }
 
@@ -134,7 +134,7 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
     });
   }
 
-  function onOkModalCreatePackage() {
+  function onSubmitModalCreatePackage() {
     // TODO
   }
 
@@ -187,8 +187,8 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
       />
       <ModalCreatePackage
         visible={isModalVisible}
-        onCancel={onCancelModalCreatePackage}
-        onOk={onOkModalCreatePackage}
+        onClose={onCloseModalCreatePackage}
+        onSubmit={onSubmitModalCreatePackage}
       />
     </>
   )
