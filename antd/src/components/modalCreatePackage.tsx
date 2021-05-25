@@ -138,7 +138,12 @@ export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
                 name='main'
                 rules={[{ required: packageType === 'sub' }]}
               >
-                <Select>
+                <Select
+                  showSearch
+                  filterOption={(input, option) => {
+                    return (option?.children.toLocaleString() ?? '').toLocaleLowerCase().indexOf(input.toLocaleLowerCase()) !== -1;
+                  }}
+                >
                   {
                     packageMainList.map((packageMain) => {
                       const { _id, name } = packageMain;
@@ -154,7 +159,12 @@ export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
                 name='operator'
                 rules={[{ required: packageType === 'sub' }]}
               >
-                <Select>
+                <Select
+                  showSearch
+                  filterOption={(input, option) => {
+                    return (option?.children.toLocaleString() ?? '').toLocaleLowerCase().indexOf(input.toLocaleLowerCase()) !== -1;
+                  }}
+                >
                   {
                     operatorList.map((operator) => {
                       const { _id, name } = operator;
@@ -185,6 +195,9 @@ export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
                 <Select
                   mode='multiple'
                   allowClear
+                  filterOption={(input, option) => {
+                    return (option?.children.toLocaleString() ?? '').toLocaleLowerCase().indexOf(input.toLocaleLowerCase()) !== -1;
+                  }}
                 >
                   {
                     deploymentOptionList.map((deploymentOption) => {
@@ -203,6 +216,9 @@ export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
                 <Select
                   mode='multiple'
                   allowClear
+                  filterOption={(input, option) => {
+                    return (option?.children.toLocaleString() ?? '').toLocaleLowerCase().indexOf(input.toLocaleLowerCase()) !== -1;
+                  }}
                 >
                   {
                     productList.map((product) => {
@@ -221,6 +237,9 @@ export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
                 <Select
                   mode='multiple'
                   allowClear
+                  filterOption={(input, option) => {
+                    return (option?.children.toLocaleString() ?? '').toLocaleLowerCase().indexOf(input.toLocaleLowerCase()) !== -1;
+                  }}
                 >
                   {
                     ranSharingList.map((ranSharing) => {
