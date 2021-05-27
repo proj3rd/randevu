@@ -5,6 +5,8 @@ import { SelectValue } from "antd/lib/select";
 import axios from "axios";
 import { DocEnum, DocOperator, DocPackage } from "randevu-shared/dist/types";
 import { useState } from "react";
+import { getUserListForSelect } from "../utils";
+import DebounceSelect from "./debounceSelect";
 
 type Props = {
   onClose?: (refresh?: boolean) => void;
@@ -220,7 +222,14 @@ export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
                 name='owner'
                 rules={[{ required: packageType === 'sub' }]}
               >
-                  <Select />
+                <DebounceSelect
+                  showSearch
+                  filterOption={(input, option) => {
+                    return (option?.label?.toString() ?? '').toLocaleLowerCase().includes(input.toLocaleLowerCase());
+                  }}
+                  fetchFunc={getUserListForSelect}
+                  timeout={500}
+                />
               </Form.Item>
               <Form.Item
                 label='Previous package'

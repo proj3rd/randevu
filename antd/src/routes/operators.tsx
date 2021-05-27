@@ -7,6 +7,7 @@ import { isAdmin, seqValOf } from "randevu-shared/dist/utils";
 import { useCallback, useEffect, useState } from "react";
 import { useHistory, useRouteMatch } from "react-router";
 import DebounceSelect from "../components/debounceSelect";
+import { getUserListForSelect } from "../utils";
 
 type Props = {
   user?: DocUser | undefined;
@@ -147,19 +148,6 @@ export default function Operators({ user, setUser, setWaiting: setWaitingApp }: 
   )
 }
 
-async function getUserList(username: string) {
-  return axios.get(`/users?username=${username}`).then((response) => {
-    const userList = response.data as DocUser[];
-    return userList.map((user) => {
-      const { _id, username } = user;
-      return { key: _id, value: _id, label: username };
-    });
-  }).catch((reason) => {
-    console.error(reason);
-    return [];
-  });
-}
-
 function EditableCell({ record, dataIndex, owner, children, onChangeOwner, ...props }: any) {
   return (
     <td {...props}>
@@ -181,7 +169,7 @@ function EditableCell({ record, dataIndex, owner, children, onChangeOwner, ...pr
               filterOption={(input, option) => {
                 return (option?.label?.toString() ?? '').toLocaleLowerCase().includes(input.toLocaleLowerCase());
               }}
-              fetchFunc={getUserList}
+              fetchFunc={getUserListForSelect}
               timeout={500}
             />
           </Form.Item>
