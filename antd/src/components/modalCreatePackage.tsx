@@ -32,10 +32,10 @@ export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
       packageType: 'main',
       main: undefined,
       operator: undefined,
+      product: undefined,
       owner: undefined,
       previous: undefined,
       deploymentOptionList: [],
-      productList: [],
       ranSharingList: [],
     });
     setPackageType('main');
@@ -176,6 +176,27 @@ export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
                 </Select>
               </Form.Item>
               <Form.Item
+                label='Product'
+                name='product'
+                rules={[{ required: packageType === 'sub' }]}
+              >
+                <Select
+                  showSearch
+                  filterOption={(input, option) => {
+                    return (option?.children.toLocaleString() ?? '').toLocaleLowerCase().indexOf(input.toLocaleLowerCase()) !== -1;
+                  }}
+                >
+                  {
+                    productList.map((product) => {
+                      const { _id, name } = product;
+                      return (
+                        <Select.Option key={_id} value={_id}>{name}</Select.Option>
+                      )
+                    })
+                  }
+                </Select>
+              </Form.Item>
+              <Form.Item
                 label='Owner'
                 name='owner'
                 rules={[{ required: packageType === 'sub' }]}
@@ -186,7 +207,12 @@ export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
                 label='Previous package'
                 name='previous'
               >
-                <Select />
+                <Select
+                  showSearch
+                  filterOption={(input, option) => {
+                    return (option?.children.toLocaleString() ?? '').toLocaleLowerCase().indexOf(input.toLocaleLowerCase()) !== -1;
+                  }}
+                />
               </Form.Item>
               <Form.Item
                 label='Deployment options'
@@ -202,27 +228,6 @@ export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
                   {
                     deploymentOptionList.map((deploymentOption) => {
                       const { _id, name } = deploymentOption;
-                      return (
-                        <Select.Option key={_id} value={_id}>{name}</Select.Option>
-                      )
-                    })
-                  }
-                </Select>
-              </Form.Item>
-              <Form.Item
-                label='Products'
-                name='productList'
-              >
-                <Select
-                  mode='multiple'
-                  allowClear
-                  filterOption={(input, option) => {
-                    return (option?.children.toLocaleString() ?? '').toLocaleLowerCase().indexOf(input.toLocaleLowerCase()) !== -1;
-                  }}
-                >
-                  {
-                    productList.map((product) => {
-                      const { _id, name } = product;
                       return (
                         <Select.Option key={_id} value={_id}>{name}</Select.Option>
                       )
