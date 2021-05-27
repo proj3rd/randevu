@@ -1,6 +1,7 @@
 import { Button, Collapse, Form, Input, Modal, Radio, RadioChangeEvent, Select, Spin } from "antd";
 import { useForm } from "antd/lib/form/Form";
 import { ModalProps } from 'antd/lib/modal';
+import { SelectValue } from "antd/lib/select";
 import axios from "axios";
 import { DocEnum, DocOperator, DocPackage } from "randevu-shared/dist/types";
 import { useState } from "react";
@@ -24,6 +25,9 @@ export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
   const [ranSharingList, setRanSharingList] = useState<DocEnum[]>([]);
 
   const [packageType, setPackageType] = useState('main');
+  const [main, setMain] = useState('');
+  const [operator, setOperator] = useState('');
+  const [product, setProduct] = useState('');
   const [waiting, setWaiting] = useState(false);
 
   function onCancel() {
@@ -41,6 +45,21 @@ export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
     setPackageType('main');
     setWaiting(false);
     onClose?.();
+  }
+
+  function onChangeMain(value: SelectValue, option: any[] | any) {
+    const main = option.children ?? '';
+    setMain(main);
+  }
+
+  function onChangeOperator(value: SelectValue, option: any[] | any) {
+    const operator = option.children ?? '';
+    setOperator(operator);
+  }
+
+  function onChangeProduct(value: SelectValue, option: any[] | any) {
+    const product = option.children ?? '';
+    setProduct(product);
   }
 
   function onChangePackageType(e: RadioChangeEvent) {
@@ -116,13 +135,6 @@ export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
           onFinish={onSubmit}
         >
           <Form.Item
-            name='name'
-            label='Name'
-            rules={[{ required: true }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
             label='Package type'
             name='packageType'
           >
@@ -132,7 +144,21 @@ export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
             </Radio.Group>
           </Form.Item>
           <Collapse activeKey={packageType}>
+            <Collapse.Panel header='Main package information' key='main'>
+              <Form.Item
+                label='Name'
+                name='name'
+                rules={[{ required: packageType === 'main' }]}
+              >
+                <Input />
+              </Form.Item>
+            </Collapse.Panel>
             <Collapse.Panel header='Sub package information' key='sub'>
+              <Form.Item
+                label='Name'
+              >
+                <Input value={`${main}.${operator}.${product}`} disabled />
+              </Form.Item>
               <Form.Item
                 label='Main package'
                 name='main'
@@ -143,6 +169,7 @@ export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
                   filterOption={(input, option) => {
                     return (option?.children.toLocaleString() ?? '').toLocaleLowerCase().indexOf(input.toLocaleLowerCase()) !== -1;
                   }}
+                  onChange={onChangeMain}
                 >
                   {
                     packageMainList.map((packageMain) => {
@@ -164,6 +191,7 @@ export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
                   filterOption={(input, option) => {
                     return (option?.children.toLocaleString() ?? '').toLocaleLowerCase().indexOf(input.toLocaleLowerCase()) !== -1;
                   }}
+                  onChange={onChangeOperator}
                 >
                   {
                     operatorList.map((operator) => {
@@ -185,6 +213,7 @@ export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
                   filterOption={(input, option) => {
                     return (option?.children.toLocaleString() ?? '').toLocaleLowerCase().indexOf(input.toLocaleLowerCase()) !== -1;
                   }}
+                  onChange={onChangeProduct}
                 >
                   {
                     productList.map((product) => {
