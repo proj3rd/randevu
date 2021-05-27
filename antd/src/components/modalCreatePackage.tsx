@@ -31,17 +31,7 @@ export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
   const [waiting, setWaiting] = useState(false);
 
   function onCancel() {
-    form.setFieldsValue({
-      name: '',
-      packageType: 'main',
-      main: undefined,
-      operator: undefined,
-      product: undefined,
-      owner: undefined,
-      previous: undefined,
-      deploymentOptionList: [],
-      ranSharingList: [],
-    });
+    form.resetFields();
     setPackageType('main');
     setWaiting(false);
     onClose?.();
