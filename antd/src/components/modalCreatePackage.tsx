@@ -4,6 +4,7 @@ import { ModalProps } from 'antd/lib/modal';
 import { SelectValue } from "antd/lib/select";
 import axios from "axios";
 import { DocEnum, DocOperator, DocPackage } from "randevu-shared/dist/types";
+import { seqValOf } from "randevu-shared/dist/utils";
 import { useState } from "react";
 import { getUserListForSelect } from "../utils";
 import DebounceSelect from "./debounceSelect";
@@ -20,16 +21,18 @@ const layout = {
 export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
   const [form] = useForm();
 
-  const [operatorList, setOperatorList] = useState<DocOperator[]>([]);
   const [packageMainList, setPackageMainList] = useState<DocPackage[]>([]);
-  const [deploymentOptionList, setDeploymentOptionList] = useState<DocEnum[]>([]);
+  const [operatorList, setOperatorList] = useState<DocOperator[]>([]);
   const [productList, setProductList] = useState<DocEnum[]>([]);
+  const [packagePrevList, setPackagePrevList] = useState<DocPackage[]>([]);
+  const [deploymentOptionList, setDeploymentOptionList] = useState<DocEnum[]>([]);
   const [ranSharingList, setRanSharingList] = useState<DocEnum[]>([]);
 
   const [packageType, setPackageType] = useState('main');
   const [main, setMain] = useState('');
   const [operator, setOperator] = useState('');
   const [product, setProduct] = useState('');
+  const [waitingPrev, setWaitingPrev] = useState(false);
   const [waiting, setWaiting] = useState(false);
 
   function onCancel() {
@@ -47,6 +50,16 @@ export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
   function onChangeOperator(value: SelectValue, option: any[] | any) {
     const operator = option.children ?? '';
     setOperator(operator);
+    setWaitingPrev(true);
+    axios.get(`/operators/${seqValOf(value as string)}/packages`).then((response) => {
+      const { data: packagePrevList } = response;
+      setPackagePrevList(packagePrevList);
+    }).catch((reason) => {
+      console.error(reason);
+      setPackagePrevList([]);
+    }).finally(() => {
+      setWaitingPrev(false);
+    });
   }
 
   function onChangeProduct(value: SelectValue, option: any[] | any) {
@@ -240,7 +253,17 @@ export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
                   filterOption={(input, option) => {
                     return (option?.children.toLocaleString() ?? '').toLocaleLowerCase().indexOf(input.toLocaleLowerCase()) !== -1;
                   }}
-                />
+                  loading={waitingPrev}
+                >
+                  {
+                    packagePrevList.map((packagePrev) => {
+                      const { _id, name } = packagePrev;
+                      return (
+                        <Select.Option key={_id} value={_id}>{name}</Select.Option>
+                      )
+                    })
+                  }
+                </Select>
               </Form.Item>
               <Form.Item
                 label='Deployment options'
