@@ -1,4 +1,0 @@
-type: array
-description: Array of document ID of products.
-items:
-  type: string

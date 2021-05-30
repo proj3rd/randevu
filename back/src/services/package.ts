@@ -1081,11 +1081,11 @@ export function servicePackage(app: Express, db: Database) {
         await trx.commit();
         return res.status(200).end();
       } else {
-        const { main, operator, previous, owner, deploymentOptions, products, radioAccessTechnologies, ranSharing } = sub;
+        const { main, operator, previous, owner, deploymentOptions, product, radioAccessTechnologies, ranSharing } = sub;
         if (!validateString(main) || !validateString(operator) || !validateString(owner)
             || (previous && !validateString(previous))
             || (deploymentOptions && !validateStringList(deploymentOptions))
-            || (products && !validateStringList(products))
+            || !product || !validateString(product)
             || (radioAccessTechnologies && !validateStringList(radioAccessTechnologies))
             || (ranSharing && !validateStringList(ranSharing))
           ) {
@@ -1145,13 +1145,10 @@ export function servicePackage(app: Express, db: Database) {
           }));
         }
         // Sub -requires-> Products
-        for (let i = 0; i < products.length; i += 1) {
-          const product_id = products[i];
-          await trx.step(() => collectionRequires.save({
-            _from: packageSub._id,
-            _to: product_id,
-          }));
-        }
+        await trx.step(() => collectionRequires.save({
+          _from: packageSub._id,
+          _to: product,
+        }));
         // Sub -requires-> Radio access technologies
         for (let i = 0; i < radioAccessTechnologies.length; i += 1) {
           const radioAccessTechnology_id = radioAccessTechnologies[i];

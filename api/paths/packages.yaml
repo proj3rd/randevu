@@ -104,8 +104,9 @@ post:
                   description: Document ID of a user.
                 deploymentOptions:
                   $ref: '../schemas/DeploymentOptions.yaml'
-                products:
-                  $ref: '../schemas/Products.yaml'
+                product:
+                  type: string
+                  description: Document ID of a product
                 radioAccessTechnologies:
                   $ref: '../schemas/RadioAccessTechnologies.yaml'
                 ranSharing:
@@ -114,6 +115,7 @@ post:
                 - main
                 - operator
                 - owner
+                - product
           required:
             - name
   responses:
