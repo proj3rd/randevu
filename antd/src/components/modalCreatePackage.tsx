@@ -26,6 +26,7 @@ export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
   const [productList, setProductList] = useState<DocEnum[]>([]);
   const [packagePrevList, setPackagePrevList] = useState<DocPackage[]>([]);
   const [deploymentOptionList, setDeploymentOptionList] = useState<DocEnum[]>([]);
+  const [radioAccessTechnologyList, setRadioAccessTechnologyList] = useState<DocEnum[]>([]);
   const [ranSharingList, setRanSharingList] = useState<DocEnum[]>([]);
 
   const [packageType, setPackageType] = useState('main');
@@ -103,6 +104,14 @@ export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
         axios.get('/products').then((response) => {
           const productList = response.data as DocEnum[];
           setProductList(productList);
+        }).catch((reason) => {
+          console.error(reason);
+        });
+      }
+      if (!radioAccessTechnologyList.length) {
+        axios.get('/radio-access-technologies').then((response) => {
+          const radioAccessTechnologyList = response.data as DocEnum[];
+          setRadioAccessTechnologyList(radioAccessTechnologyList);
         }).catch((reason) => {
           console.error(reason);
         });
@@ -299,6 +308,27 @@ export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
                   {
                     deploymentOptionList.map((deploymentOption) => {
                       const { _id, name } = deploymentOption;
+                      return (
+                        <Select.Option key={_id} value={_id}>{name}</Select.Option>
+                      )
+                    })
+                  }
+                </Select>
+              </Form.Item>
+              <Form.Item
+                label='Radio access technologies'
+                name='radioAccessTechnologyList'
+              >
+                <Select
+                  mode='multiple'
+                  allowClear
+                  filterOption={(input, option) => {
+                    return (option?.children.toLocaleString() ?? '').toLocaleLowerCase().indexOf(input.toLocaleLowerCase()) !== -1;
+                  }}
+                >
+                  {
+                    radioAccessTechnologyList.map((radioAccessTechnology) => {
+                      const { _id, name } = radioAccessTechnology;
                       return (
                         <Select.Option key={_id} value={_id}>{name}</Select.Option>
                       )
