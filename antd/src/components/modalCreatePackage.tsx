@@ -35,6 +35,10 @@ export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
   const [waitingPrev, setWaitingPrev] = useState(false);
   const [waiting, setWaiting] = useState(false);
 
+  function nameSub() {
+    return `${main}.${operator}.${product}`;
+  }
+
   function onCancel() {
     form.resetFields();
     setPackageType('main');
@@ -115,11 +119,27 @@ export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
   }
 
   function onSubmit() {
+    setWaiting(true);
     form.validateFields().then((value) => {
-      setWaiting(true);
-      // TODO
+      if (packageType === 'main') {
+        console.log(form.getFieldValue('name'));
+        // TODO
+      } else {
+        const {
+          main,
+          operator,
+          product,
+          owner,
+          previous,
+          deploymentOptionList,
+          ranSharingList,
+        } = form.getFieldsValue();
+        // TODO
+      }
     }).catch((reason) => {
       console.error(reason);
+    }).finally(() => {
+      setWaiting(false);
     });
   }
 
@@ -153,7 +173,7 @@ export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
               <Form.Item
                 label='Name'
               >
-                <Input value={`${main}.${operator}.${product}`} disabled />
+                <Input value={`${nameSub()}`} disabled />
               </Form.Item>
               <Form.Item
                 label='Main package'
