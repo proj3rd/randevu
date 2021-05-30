@@ -18,7 +18,7 @@ const layout = {
   wrapperCol: { span: 16 },
 };
 
-export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
+export default function ModalCreatePackage({ onClose: onCloseParent, ...modalProps }: Props) {
   const [form] = useForm();
 
   const [packageMainList, setPackageMainList] = useState<DocPackage[]>([]);
@@ -40,11 +40,11 @@ export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
     return `${main}.${operator}.${product}`;
   }
 
-  function onCancel() {
+  function onClose() {
     form.resetFields();
     setPackageType('main');
     setWaiting(false);
-    onClose?.();
+    onCloseParent?.();
   }
 
   function onChangeMain(value: SelectValue, option: any[] | any) {
@@ -130,30 +130,37 @@ export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
   function onSubmit() {
     setWaiting(true);
     form.validateFields().then((value) => {
-      if (packageType === 'main') {
-        const name = form.getFieldValue('name');
-        axios.post('/packages', { name }).then((response) => {
-          message.success(`Package ${name} has been created`);
-          onClose();
-        }).catch((reason) => {
-          console.error(reason);
-          const errorMessage = reason.response?.data.reason ?? 'Something went wrong. Try again later';
-          message.error(errorMessage);
-        }).finally(() => {
-          setWaiting(false);
-        });
-      } else {
-        const {
-          main,
-          operator,
-          product,
-          owner,
-          previous,
-          deploymentOptionList,
-          ranSharingList,
-        } = form.getFieldsValue();
-        // TODO
+      const name = packageType === 'main' ? form.getFieldValue('name') : nameSub();
+      const {
+        main,
+        operator,
+        product,
+        owner,
+        previous,
+        deploymentOptionList: deploymentOptions,
+        radioAccessTechnologyList: radioAccessTechnologies,
+        ranSharingList: ranSharing,
+      } = form.getFieldsValue();
+      const sub = packageType === 'main' ? undefined : {
+        main,
+        operator,
+        product,
+        owner,
+        previous,
+        deploymentOptions,
+        radioAccessTechnologies,
+        ranSharing,
       }
+      axios.post('/packages', { name, sub }).then((response) => {
+        message.success(`Package ${name} has been created`);
+        onClose();
+      }).catch((reason) => {
+        console.error(reason);
+        const errorMessage = reason.response?.data.reason ?? 'Something went wrong. Try again later';
+        message.error(errorMessage);
+      }).finally(() => {
+        setWaiting(false);
+      });
     }).catch((reason) => {
       console.error(reason);
     }).finally(() => {
