@@ -1,4 +1,4 @@
-import { Button, Form, Input, Modal, Select, Spin, Tabs } from "antd";
+import { Button, Form, Input, message, Modal, Select, Spin, Tabs } from "antd";
 import { useForm } from "antd/lib/form/Form";
 import { ModalProps } from 'antd/lib/modal';
 import { SelectValue } from "antd/lib/select";
@@ -122,8 +122,17 @@ export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
     setWaiting(true);
     form.validateFields().then((value) => {
       if (packageType === 'main') {
-        console.log(form.getFieldValue('name'));
-        // TODO
+        const name = form.getFieldValue('name');
+        axios.post('/packages', { name }).then((response) => {
+          message.success(`Package ${name} has been created`);
+          onClose();
+        }).catch((reason) => {
+          console.error(reason);
+          const errorMessage = reason.response?.data.reason ?? 'Something went wrong. Try again later';
+          message.error(errorMessage);
+        }).finally(() => {
+          setWaiting(false);
+        });
       } else {
         const {
           main,
@@ -147,7 +156,7 @@ export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
     <Modal
       {...modalProps}
       title='Create a package'
-      onCancel={onCancel}
+      onCancel={onClose}
       onOk={onSubmit}
     >
       <Spin spinning={waiting}>
