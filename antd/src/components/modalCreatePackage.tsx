@@ -1,4 +1,4 @@
-import { Button, Collapse, Form, Input, Modal, Radio, RadioChangeEvent, Select, Spin } from "antd";
+import { Button, Form, Input, Modal, Select, Spin, Tabs } from "antd";
 import { useForm } from "antd/lib/form/Form";
 import { ModalProps } from 'antd/lib/modal';
 import { SelectValue } from "antd/lib/select";
@@ -67,8 +67,8 @@ export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
     setProduct(product);
   }
 
-  function onChangePackageType(e: RadioChangeEvent) {
-    const packageType = e.target.value ?? 'main';
+  function onChangePackageType(activeKey: string) {
+    const packageType = activeKey;
     setPackageType(packageType);
     if (packageType === 'sub') {
       if (!operatorList.length) {
@@ -139,17 +139,8 @@ export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
           {...layout}
           onFinish={onSubmit}
         >
-          <Form.Item
-            label='Package type'
-            name='packageType'
-          >
-            <Radio.Group onChange={onChangePackageType}>
-              <Radio value='main'>Main</Radio>
-              <Radio value='sub'>Sub</Radio>
-            </Radio.Group>
-          </Form.Item>
-          <Collapse activeKey={packageType}>
-            <Collapse.Panel header='Main package information' key='main'>
+          <Tabs defaultActiveKey='main' onChange={onChangePackageType}>
+            <Tabs.TabPane tab='Main' key='main'>
               <Form.Item
                 label='Name'
                 name='name'
@@ -157,8 +148,8 @@ export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
               >
                 <Input />
               </Form.Item>
-            </Collapse.Panel>
-            <Collapse.Panel header='Sub package information' key='sub'>
+            </Tabs.TabPane>
+            <Tabs.TabPane tab='Sub' key='sub'>
               <Form.Item
                 label='Name'
               >
@@ -307,8 +298,8 @@ export default function ModalCreatePackage({ onClose, ...modalProps }: Props) {
                   }
                 </Select>
               </Form.Item>
-            </Collapse.Panel>
-          </Collapse>
+            </Tabs.TabPane>
+          </Tabs>
           <Form.Item>
             <Button htmlType='submit' hidden></Button>
           </Form.Item>
