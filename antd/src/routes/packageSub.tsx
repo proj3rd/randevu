@@ -33,6 +33,10 @@ export default function PackageSub() {
       const { data: owner } = response;
       setOwner(owner);
     });
+    axios.get(`/packages/sub/${seqVal}/previous`).then((response) => {
+      const { data: previous } = response;
+      setPrevious(previous || null);
+    });
     axios.get(`/packages/sub/${seqVal}/deployment-options`).then((response) => {
       const { data: deploymentOptionList } = response;
       setDeploymentOptionList(deploymentOptionList);
@@ -80,7 +84,7 @@ export default function PackageSub() {
         </Descriptions.Item>
         <Descriptions.Item label='Previous package'>
           {
-            previous?.name ?? <Skeleton.Button active />
+            previous ? previous.name : previous !== undefined ? 'None' : <Skeleton.Button active />
           }
         </Descriptions.Item>
         <Descriptions.Item label='Deployment options'>
