@@ -208,6 +208,8 @@ function EditableCell({
   children,
   ...props
 }: EditableCellProps) {
+  const { _id, main } = record ?? {};
+  const packageType = main ? 'sub' : 'main';
   return (
     <td {...props}>
       {record?.key === "" && dataIndex === "name" ? (
@@ -239,6 +241,10 @@ function EditableCell({
         <Skeleton.Input style={{ width: 200 }} />
       ) : dataIndex === "operator" ? (
         operator ?? <Skeleton.Input style={{ width: 200 }} />
+      ) : dataIndex === "name" ? (
+        <Typography.Link href={`/packages/${packageType}/${seqValOf(_id)}`}>
+          {children}
+        </Typography.Link>
       ) : (
         children
       )}
