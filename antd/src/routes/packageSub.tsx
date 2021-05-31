@@ -20,20 +20,30 @@ export default function PackageSub() {
 
   useEffect(() => {
     axios.get(`/packages/sub/${seqVal}`).then((response) => {
-      const {
-        name,
-        main,
-        operator,
-        product,
-        owner,
-        previous,
-        deploymentOptions,
-        radioAccessTechnologies,
-        ranSharing,
-      } = response.data as DocPackage;
+      const { name } = response.data as DocPackage;
       setName(name);
     }).catch((reason) => {
       console.error(reason);
+    });
+    axios.get(`/packages/sub/${seqVal}/operator`).then((response) => {
+      const { data: operator } = response;
+      setOperator(operator);
+    });
+    axios.get(`/packages/sub/${seqVal}/owner`).then((response) => {
+      const { data: owner } = response;
+      setOwner(owner);
+    });
+    axios.get(`/packages/sub/${seqVal}/deployment-options`).then((response) => {
+      const { data: deploymentOptionList } = response;
+      setDeploymentOptionList(deploymentOptionList);
+    });
+    axios.get(`/packages/sub/${seqVal}/radio-access-technologies`).then((response) => {
+      const { data: ratList } = response;
+      setRatList(ratList);
+    });
+    axios.get(`/packages/sub/${seqVal}/ran-sharing`).then((response) => {
+      const { data: ranSharingList } = response;
+      setRanSharingList(ranSharingList);
     });
   }, [seqVal]);
 
