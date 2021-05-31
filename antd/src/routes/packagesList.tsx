@@ -241,7 +241,7 @@ function EditableCell({
         <Skeleton.Input style={{ width: 200 }} />
       ) : dataIndex === "operator" ? (
         operator ?? <Skeleton.Input style={{ width: 200 }} />
-      ) : dataIndex === "name" ? (
+      ) : dataIndex === "name" && packageType === "sub" ? (
         <Typography.Link href={`/packages/${packageType}/${seqValOf(_id)}`}>
           {children}
         </Typography.Link>
