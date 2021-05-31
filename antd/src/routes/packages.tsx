@@ -2,7 +2,7 @@ import axios from 'axios';
 import { DocUser } from "randevu-shared/dist/types";
 import { useEffect } from 'react';
 import { Route, useHistory, useRouteMatch } from 'react-router';
-import PackageMain from './packageMain';
+import PackageSub from './packageSub';
 import PackageList from './packagesList';
 
 type Props = {
@@ -31,8 +31,8 @@ export default function Packages({ user, setUser, setWaiting: setWaitingApp }: P
 
   return (
     <>
-      <Route exact path={path} render={() => <PackageList user={user} />}></Route>
-      <Route path={`${path}/sub/:seqVal`}></Route>
+      <Route exact path={path} render={() => <PackageList user={user} />} />
+      <Route path={`${path}/sub/:seqVal`} render={() => <PackageSub />} />
     </>
   )
 }
