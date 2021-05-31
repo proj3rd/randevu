@@ -40,7 +40,7 @@ export type DocPackage = {
   previous?: string;
   owner?: string;
   deploymentOptions?: string[];
-  products?: string[];
+  product?: string[];
   radioAccessTechnologies?: string[];
   ranSharing?: string[]
 }
