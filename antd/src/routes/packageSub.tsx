@@ -1,7 +1,8 @@
-import { Breadcrumb, Descriptions, Skeleton, Spin, Tag } from "antd";
+import { Breadcrumb, Descriptions, Skeleton, Tag } from "antd";
 import Title from "antd/lib/typography/Title";
+import axios from "axios";
 import { DocEnum, DocOperator, DocPackage, DocUser } from "randevu-shared/dist/types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 
 export default function PackageSub() {
@@ -16,6 +17,25 @@ export default function PackageSub() {
   const [deploymentOptionList, setDeploymentOptionList] = useState<DocEnum[] | undefined>(undefined);
   const [ratList, setRatList] = useState<DocEnum[] | undefined>(undefined);
   const [ranSharingList, setRanSharingList] = useState<DocEnum[] | undefined>(undefined);
+
+  useEffect(() => {
+    axios.get(`/packages/sub/${seqVal}`).then((response) => {
+      const {
+        name,
+        main,
+        operator,
+        product,
+        owner,
+        previous,
+        deploymentOptions,
+        radioAccessTechnologies,
+        ranSharing,
+      } = response.data as DocPackage;
+      setName(name);
+    }).catch((reason) => {
+      console.error(reason);
+    });
+  }, [seqVal]);
 
   return (
     <>
