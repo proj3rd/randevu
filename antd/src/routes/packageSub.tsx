@@ -85,38 +85,38 @@ export default function PackageSub() {
         </Descriptions.Item>
         <Descriptions.Item label='Deployment options'>
           {
-            deploymentOptionList ? (
+            deploymentOptionList ? deploymentOptionList.length ? (
               deploymentOptionList.map((deploymentOption) => {
                 const { name } = deploymentOption;
                 return (
                   <Tag>{name}</Tag>
                 )
               })
-            ) : <Skeleton.Button active />
+            ) : 'None' : <Skeleton.Button active />
           }
         </Descriptions.Item>
         <Descriptions.Item label='Radio access technologies'>
           {
-            ratList ? (
+            ratList ? ratList.length ? (
               ratList.map((rat) => {
                 const { name } = rat;
                 return (
                   <Tag>{name}</Tag>
                 )
               })
-            ) : <Skeleton.Button active />
+            ) : 'None' : <Skeleton.Button active />
           }
         </Descriptions.Item>
         <Descriptions.Item label='RAN sahring'>
           {
-            ranSharingList ? (
+            ranSharingList ? ranSharingList.length ? (
               ranSharingList.map((ranSharing) => {
                 const { name } = ranSharing;
                 return (
                   <Tag>{name}</Tag>
                 )
               })
-            ) : <Skeleton.Button active />
+            ) : 'None' : <Skeleton.Button active />
           }
         </Descriptions.Item>
       </Descriptions>
