@@ -37,6 +37,12 @@ export default function PackageSub() {
     }).catch((reason) => {
       console.error(reason);
     });
+    axios.get(`/packages/sub/${seqVal}/product`).then((response) => {
+      const { data: product } = response;
+      setProduct(product);
+    }).catch((reason) => {
+      console.error(reason);
+    });
     axios.get(`/packages/sub/${seqVal}/owner`).then((response) => {
       const { data: owner } = response;
       setOwner(owner);
