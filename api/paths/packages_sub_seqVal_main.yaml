@@ -1,0 +1,31 @@
+get:
+  tags:
+    - Package
+  summary: Get a main package of a sub package
+  parameters:
+    - name: seqVal
+      in: path
+      required: true
+      schema:
+        type: string
+  responses:
+    "200":
+      description: Ok
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              _id:
+                type: string
+              name:
+                type: string
+            required:
+              - _id
+              - name
+    "403":
+      description: Unauthorized
+    "404":
+      description: Sub package not found
+    "500":
+      description: Internal failure
