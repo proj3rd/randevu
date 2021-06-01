@@ -28,26 +28,38 @@ export default function PackageSub() {
     axios.get(`/packages/sub/${seqVal}/operator`).then((response) => {
       const { data: operator } = response;
       setOperator(operator);
+    }).catch((reason) => {
+      console.error(reason);
     });
     axios.get(`/packages/sub/${seqVal}/owner`).then((response) => {
       const { data: owner } = response;
       setOwner(owner);
+    }).catch((reason) => {
+      console.error(reason);
     });
     axios.get(`/packages/sub/${seqVal}/previous`).then((response) => {
       const { data: previous } = response;
       setPrevious(previous || null);
+    }).catch((reason) => {
+      console.error(reason);
     });
     axios.get(`/packages/sub/${seqVal}/deployment-options`).then((response) => {
       const { data: deploymentOptionList } = response;
       setDeploymentOptionList(deploymentOptionList);
+    }).catch((reason) => {
+      console.error(reason);
     });
     axios.get(`/packages/sub/${seqVal}/radio-access-technologies`).then((response) => {
       const { data: ratList } = response;
       setRatList(ratList);
+    }).catch((reason) => {
+      console.error(reason);
     });
     axios.get(`/packages/sub/${seqVal}/ran-sharing`).then((response) => {
       const { data: ranSharingList } = response;
       setRanSharingList(ranSharingList);
+    }).catch((reason) => {
+      console.error(reason);
     });
   }, [seqVal]);
 
