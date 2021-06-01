@@ -25,6 +25,12 @@ export default function PackageSub() {
     }).catch((reason) => {
       console.error(reason);
     });
+    axios.get(`/packages/sub/${seqVal}/main`).then((response) => {
+      const { data: main } = response;
+      setMain(main);
+    }).catch((reason) => {
+      console.error(reason);
+    });
     axios.get(`/packages/sub/${seqVal}/operator`).then((response) => {
       const { data: operator } = response;
       setOperator(operator);
