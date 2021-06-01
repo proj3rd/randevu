@@ -66,8 +66,8 @@ paths:
     $ref: './paths/packages_sub_seqVal_followUps.yaml'
   /packages/sub/{seqVal}/deployment-options:
     $ref: './paths/packages_sub_seqVal_deploymentOptions.yaml'
-  /packages/sub/{seqVal}/products:
-    $ref: './paths/packages_sub_seqVal_products.yaml'
+  /packages/sub/{seqVal}/product:
+    $ref: './paths/packages_sub_seqVal_product.yaml'
   /packages/sub/{seqVal}/radio-access-technologies:
     $ref: './paths/packages_sub_seqVal_radioAccessTechnologies.yaml'
   /packages/sub/{seqVal}/ran-sharing:

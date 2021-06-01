@@ -1,7 +1,7 @@
 get:
   tags:
     - Package
-  summary: Get a list of products of a sub package
+  summary: Get a product for a sub package
   responses:
     "200":
       description: Ok
@@ -18,7 +18,7 @@ get:
 post:
   tags:
     - Package
-  summary: Update a list of products of a sub package
+  summary: Update a products for a sub package
   requestBody:
     content:
       application/json:
