@@ -1186,12 +1186,14 @@ export function servicePackage(app: Express, db: Database) {
           }));
         }
         // Sub -requires-> Deployment options
-        for (let i = 0; i < deploymentOptions.length; i += 1) {
-          const deploymentOption_id = deploymentOptions[i];
-          await trx.step(() => collectionRequires.save({
-            _from: packageSub._id,
-            _to: deploymentOption_id,
-          }));
+        if (deploymentOptions) {
+          for (let i = 0; i < deploymentOptions.length; i += 1) {
+            const deploymentOption_id = deploymentOptions[i];
+            await trx.step(() => collectionRequires.save({
+              _from: packageSub._id,
+              _to: deploymentOption_id,
+            }));
+          }
         }
         // Sub -requires-> Products
         await trx.step(() => collectionRequires.save({
@@ -1199,20 +1201,24 @@ export function servicePackage(app: Express, db: Database) {
           _to: product,
         }));
         // Sub -requires-> Radio access technologies
-        for (let i = 0; i < radioAccessTechnologies.length; i += 1) {
-          const radioAccessTechnology_id = radioAccessTechnologies[i];
-          await trx.step(() => collectionRequires.save({
-            _from: packageSub._id,
-            _to: radioAccessTechnology_id,
-          }));
+        if (radioAccessTechnologies) {
+          for (let i = 0; i < radioAccessTechnologies.length; i += 1) {
+            const radioAccessTechnology_id = radioAccessTechnologies[i];
+            await trx.step(() => collectionRequires.save({
+              _from: packageSub._id,
+              _to: radioAccessTechnology_id,
+            }));
+          }
         }
         // Sub -requires-> RAN sharing
-        for (let i = 0; i < ranSharing.length; i += 1) {
-          const ranSharing_id = ranSharing[i];
-          await trx.step(() => collectionRequires.save({
-            _from: packageSub._id,
-            _to: ranSharing_id,
-          }));
+        if (ranSharing) {
+          for (let i = 0; i < ranSharing.length; i += 1) {
+            const ranSharing_id = ranSharing[i];
+            await trx.step(() => collectionRequires.save({
+              _from: packageSub._id,
+              _to: ranSharing_id,
+            }));
+          }
         }
         await trx.commit();
         return res.status(200).end();
