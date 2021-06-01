@@ -590,7 +590,7 @@ export function servicePackage(app: Express, db: Database) {
     }
   });
 
-  app.get('/packages/sub/:seqVal/products', async (req, res) => {
+  app.get('/packages/sub/:seqVal/product', async (req, res) => {
     const user = req.user as DocUser;
     if (!user) {
       return res.status(403).end();
@@ -610,6 +610,7 @@ export function servicePackage(app: Express, db: Database) {
           FOR product IN @@collectionProduct
             FOR packageSub IN INBOUND product._id @@collectionRequires
               FILTER packageSub._id == @_id
+              LIMIT 1
               RETURN product
         `,
         bindVars: {
@@ -619,8 +620,12 @@ export function servicePackage(app: Express, db: Database) {
         },
       }));
       const productList = await cursorProductList.all();
+      const product = productList[0];
       await trx.commit();
-      return res.json(productList);
+      if (!product) {
+        return res.status(500).end();
+      }
+      return res.json(product);
     } catch (e) {
       if (trx) {
         await trx.abort();
@@ -630,14 +635,14 @@ export function servicePackage(app: Express, db: Database) {
     }
   });
 
-  app.post('/packages/sub/:seqVal/products', async (req, res) => {
+  app.post('/packages/sub/:seqVal/product', async (req, res) => {
     const user = req.user as DocUser;
     if (!user) {
       return res.status(403).end();
     }
     const { seqVal } = req.params;
-    const { products } = req.body;
-    if (!validateStringList(products)) {
+    const { product } = req.body;
+    if (!validateString(product)) {
       return res.status(400).end();
     }
     let trx: Transaction | undefined;
@@ -675,7 +680,7 @@ export function servicePackage(app: Express, db: Database) {
       if (!ownerList.length) {
         return res.status(403).end();
       }
-      await updateRequiredEnumList(db, trx, package_id, collectionRequires, collectionProducts, products);
+      await updateRequiredEnumList(db, trx, package_id, collectionRequires, collectionProducts, [product]);
       await trx.commit();
       return res.status(200).end();
     } catch (e) {
