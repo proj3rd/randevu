@@ -164,6 +164,50 @@ export function servicePackage(app: Express, db: Database) {
     }
   });
 
+  app.get('/packages/sub/:seqVal/main', async (req, res) => {
+    const user = req.user as DocUser;
+    if (!user) {
+      return res.status(403).end();
+    }
+    const { seqVal } = req.params;
+    let trx: Transaction | undefined;
+    try {
+      const collectionDerivedFrom = db.collection(EDGE_COLLECTION_DERIVED_FROM);
+      const collectionPackageMain = db.collection(COLLECTION_PACKAGE_MAIN);
+      const collectionPackageSub = db.collection(COLLECTION_PACKAGE_SUB);
+      trx = await db.beginTransaction({
+        read: [collectionDerivedFrom, collectionPackageMain, collectionPackageSub],
+      });
+      const packageSubId = `${collectionPackageSub.name}/${seqVal}`;
+      console.log(packageSubId);
+      const cursorPackageMainList = await trx.step(() => db.query({
+        query: `
+          FOR packageMain IN OUTBOUND @packageSubId @@collectionDerivedFrom
+            LIMIT 1
+            RETURN packageMain
+        `,
+        bindVars: {
+          packageSubId,
+          '@collectionDerivedFrom': collectionDerivedFrom.name,
+        },
+      }));
+      const packageMainList = await cursorPackageMainList.all();
+      console.log(packageMainList);
+      const packageMain = packageMainList[0];
+      await trx.commit();
+      if (!packageMain) {
+        return res.status(500).end();
+      }
+      return res.json(packageMain);
+    } catch (e) {
+      console.error(e);
+      if (trx) {
+        await trx.abort();
+      }
+      return res.status(500).end();
+    }
+  });
+
   app.get('/packages/sub/:seqVal/deployment-options', async (req, res) => {
     const user = req.user as DocUser;
     if (!user) {
