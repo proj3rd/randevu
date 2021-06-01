@@ -37,6 +37,9 @@ export default function AppMenu({ user, onClickLogout }: Props) {
           <Link to='/products'>Products</Link>
         </Menu.Item>
         <Menu.Item>
+          <Link to='/radio-access-technologies'>Radio access technologies</Link>
+        </Menu.Item>
+        <Menu.Item>
           <Link to='/ran-sharing'>RAN sharing</Link>
         </Menu.Item>
       </Menu.SubMenu>
