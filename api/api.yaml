@@ -91,6 +91,9 @@ paths:
   /ran-sharing/{seqVal}:
     $ref: './paths/ranSharing.yaml'
 
+  /regions:
+    $ref: './paths/regions.yaml'
+
   # Requirement
   /requirements:
     $ref: './paths/requirements.yaml'

@@ -1,0 +1,29 @@
+post:
+  tags:
+    - Region
+  summary: Add a region
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            name:
+              type: string
+            belong:
+              type: string
+              description: >
+                Document ID of a region which it belongs to.
+                If it is absent, attempt to add a top level region.
+                Note that only one top level region can exist.
+          required:
+            - name
+  responses:
+    "200":
+      description: Ok
+    "400":
+      description: Invalid input
+    "403":
+      description: Unauthorized
+    "500":
+      description: Internal failure
