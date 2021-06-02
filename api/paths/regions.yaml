@@ -10,7 +10,7 @@ post:
           properties:
             name:
               type: string
-            belong:
+            belongsTo:
               type: string
               description: >
                 Document ID of a region which it belongs to.
