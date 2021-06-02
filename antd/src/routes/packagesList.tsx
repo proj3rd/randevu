@@ -4,15 +4,12 @@ import { SearchOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { DocOperator, DocPackage, DocUser } from "randevu-shared/dist/types";
 import { useEffect, useState } from 'react';
-import { useHistory, useRouteMatch } from 'react-router';
 import { useForm } from 'antd/lib/form/Form';
 import ModalCreatePackage from '../components/modalCreatePackage';
 import { seqValOf } from 'randevu-shared/dist/utils';
 
 type Props = {
   user?: DocUser | undefined;
-  setUser?: (user: DocUser | undefined) => void;
-  setWaiting?: (waiting: boolean) => void;
 };
 
 type Query = {
@@ -22,10 +19,7 @@ type Query = {
 
 const PER = 3;
 
-export default function PackageList({ user, setUser, setWaiting: setWaitingApp }: Props) {
-  const history = useHistory();
-  const { url } = useRouteMatch();
-
+export default function PackageList({ user }: Props) {
   const [waiting, setWaiting] = useState(false);
   const [isModalVisible, setModalVisible] = useState(false);
   const [form] = useForm();
@@ -68,10 +62,6 @@ export default function PackageList({ user, setUser, setWaiting: setWaitingApp }
   });
 
   useEffect(() => {
-    setWaitingApp?.(true);
-    axios.get('/authenticate').then((response) => {
-      const { data: user } = response;
-      setUser?.(user);
       axios.get('/operators').then((response) => {
         const operatorList = response.data as DocOperator[];
         operatorList.sort((firstOperator, secondOperator) => {
@@ -79,14 +69,7 @@ export default function PackageList({ user, setUser, setWaiting: setWaitingApp }
         });
         setOperatorList(operatorList);
       });
-    }).catch((reason) => {
-      console.error(reason);
-      setUser?.(undefined);
-      history.push(`/login?redirect=${url}`);
-    }).finally(() => {
-      setWaitingApp?.(false);
-    });
-  }, [history, setUser, setWaitingApp, url]);
+  }, []);
 
   async function getPackageList(query?: Query) {
     const params = {
