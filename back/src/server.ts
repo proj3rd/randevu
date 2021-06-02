@@ -11,6 +11,7 @@ import { servicePackage } from './services/package';
 import { serviceProduct } from './services/product';
 import { serviceRadioAccessTech } from './services/radioAccessTechnology';
 import { serviceRanSharing } from './services/ranSharing';
+import { serviceRegion } from './services/region';
 import { serviceUser } from './services/user';
 
 if (require.main === module) {
@@ -39,6 +40,7 @@ if (require.main === module) {
   serviceProduct(app, db);
   serviceRadioAccessTech(app, db);
   serviceRanSharing(app, db);
+  serviceRegion(app, db);
   app.listen(api.port, api.host, () => {
     console.log(`randevu-backend listening on ${api.port}...`);
   });
