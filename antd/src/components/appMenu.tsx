@@ -42,6 +42,9 @@ export default function AppMenu({ user, onClickLogout }: Props) {
         <Menu.Item>
           <Link to='/ran-sharing'>RAN sharing</Link>
         </Menu.Item>
+        <Menu.Item>
+          <Link to='regions'>Regions</Link>
+        </Menu.Item>
       </Menu.SubMenu>
       <Menu.Item></Menu.Item>
       {
