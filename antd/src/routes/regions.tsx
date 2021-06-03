@@ -120,7 +120,7 @@ export default function Regions({ user, setUser, setWaiting: setWaitingApp }: Pr
                   <Input onChange={onChangeName} />
                 </Form.Item>
                 <Form.Item>
-                  <Button disabled={!name}>Add a region</Button>
+                  <Button disabled={!name}>Add a top level region</Button>
                 </Form.Item>
               </>
             ) : isAdmin(user) ? (
