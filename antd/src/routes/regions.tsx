@@ -32,33 +32,9 @@ export default function Regions({ user, setUser, setWaiting: setWaitingApp }: Pr
       const { data: user } = response;
       setUser?.(user);
       setWaiting(true);
-      axios.get('/regions').then((response) => {
-        const regionList: (DataNode & { belongsTo: string | undefined })[] = (
-          response.data as DocRegion[]
-        ).map((region) => {
-          const { _id, name, belongsTo } = region;
-          return { key: _id, title: name, children: [], belongsTo };
-        });
-        // Put a region into an upper region
-        regionList.map((region) => {
-          const { belongsTo } = region;
-          const regionUpper = regionList.find((region) => region.key === belongsTo);
-          if (regionUpper) {
-            regionUpper.children?.push(region);
-          }
-        });
-        // Find the top level region
-        const topLevelRegion = regionList.find((region) => !region.belongsTo);
-        if (topLevelRegion) {
-          setRegionList([topLevelRegion]);
-        } else {
-          setRegionList([]);
-        }
-      }).catch((reason) => {
-        console.error(reason);
-      }).finally(() => {
+      getRegionList().then(() => {
         setWaiting(false);
-      });
+      })
     }).catch((reason) => {
       setUser?.(undefined);
       history.push(`/login?redirect=${url}`);
@@ -66,6 +42,34 @@ export default function Regions({ user, setUser, setWaiting: setWaitingApp }: Pr
       setWaitingApp?.(false);
     })
   }, [history, url, setUser, setWaitingApp]);
+
+  async function getRegionList() {
+    return axios.get('/regions').then((response) => {
+      const regionList: (DataNode & { belongsTo: string | undefined })[] = (
+        response.data as DocRegion[]
+      ).map((region) => {
+        const { _id, name, belongsTo } = region;
+        return { key: _id, title: name, children: [], belongsTo };
+      });
+      // Put a region into an upper region
+      regionList.forEach((region) => {
+        const { belongsTo } = region;
+        const regionUpper = regionList.find((region) => region.key === belongsTo);
+        if (regionUpper) {
+          regionUpper.children?.push(region);
+        }
+      });
+      // Find the top level region
+      const topLevelRegion = regionList.find((region) => !region.belongsTo);
+      if (topLevelRegion) {
+        setRegionList([topLevelRegion]);
+      } else {
+        setRegionList([]);
+      }
+    }).catch((reason) => {
+      console.error(reason);
+    });
+  }
 
   function onChangeName(e: any) {
     setName(e.target.value);
@@ -88,17 +92,30 @@ export default function Regions({ user, setUser, setWaiting: setWaitingApp }: Pr
     }
   }
 
+  function onSubmit() {
+    setWaiting(true);
+    const belongsTo = selectedNode?.key ?? undefined;
+    axios.post('/regions', { name, belongsTo }).then((response) => {
+      getRegionList().then(() => {
+        setWaiting(false);
+      });
+    }).catch((reason) => {
+      console.error(reason);
+      setWaiting(false);
+    });
+  }
+
   return (
     <>
       <Title level={3}>Regions</Title>
       <Spin spinning={waiting}>
-        <Form form={form} layout='inline'>
+        <Form form={form} layout='inline' onFinish={onSubmit}>
           {
             !regionList ? (
               <Skeleton />
             ) : !regionList.length ? (
               <>
-                <Form.Item name='name'>
+                <Form.Item name='name' rules={[ { required: true }]} help={false}>
                   <Input onChange={onChangeName} />
                 </Form.Item>
                 <Form.Item>
@@ -107,7 +124,7 @@ export default function Regions({ user, setUser, setWaiting: setWaitingApp }: Pr
               </>
             ) : (
               <>
-                <Form.Item name='name'>
+                <Form.Item name='name' rules={[ { required: true }]} help={false}>
                   <Input onChange={onChangeName} />
                 </Form.Item>
                 <Form.Item>
@@ -115,11 +132,11 @@ export default function Regions({ user, setUser, setWaiting: setWaitingApp }: Pr
                     Add a region under {selectedNode?.title ?? '...'}
                   </Button>
                 </Form.Item>
-                <Tree treeData={regionList} onSelect={onSelect} />
               </>
             )
           }
         </Form>
+        <Tree treeData={regionList} onSelect={onSelect} />
       </Spin>
     </>
   )
