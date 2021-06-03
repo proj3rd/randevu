@@ -1,4 +1,7 @@
-import { Tree } from "antd";
+import { Button, Form, Input, Skeleton, Spin, Tree } from "antd";
+import { useForm } from "antd/lib/form/Form";
+import { Key } from "antd/lib/table/interface";
+import { EventDataNode } from "antd/lib/tree";
 import Title from "antd/lib/typography/Title";
 import axios from "axios";
 import { DocRegion, DocUser } from "randevu-shared/dist/types";
@@ -16,13 +19,19 @@ export default function Regions({ user, setUser, setWaiting: setWaitingApp }: Pr
   const history = useHistory();
   const { url } = useRouteMatch();
 
-  const [regionList, setRegionList] = useState<DataNode[]>([]);
+  const [form] = useForm();
+
+  const [waiting, setWaiting] = useState(false);
+  const [name, setName] = useState('');
+  const [regionList, setRegionList] = useState<DataNode[] | undefined>(undefined);
+  const [selectedNode, setSelectedNode] = useState<DataNode | undefined>(undefined);
 
   useEffect(() => {
     setWaitingApp?.(true);
     axios.get('/authenticate').then((response) => {
       const { data: user } = response;
       setUser?.(user);
+      setWaiting(true);
       axios.get('/regions').then((response) => {
         const regionList: (DataNode & { belongsTo: string | undefined })[] = (
           response.data as DocRegion[]
@@ -45,6 +54,10 @@ export default function Regions({ user, setUser, setWaiting: setWaitingApp }: Pr
         } else {
           setRegionList([]);
         }
+      }).catch((reason) => {
+        console.error(reason);
+      }).finally(() => {
+        setWaiting(false);
       });
     }).catch((reason) => {
       setUser?.(undefined);
@@ -54,10 +67,60 @@ export default function Regions({ user, setUser, setWaiting: setWaitingApp }: Pr
     })
   }, [history, url, setUser, setWaitingApp]);
 
+  function onChangeName(e: any) {
+    setName(e.target.value);
+  }
+
+  function onSelect(
+    selectedKeys: Key[],
+    info: {
+      event: "select";
+      selected: boolean;
+      node: EventDataNode;
+      selectedNodes: DataNode[];
+      nativeEvent: MouseEvent;
+    }
+  ) {
+    if (info.selected) {
+      setSelectedNode(info.node);
+    } else {
+      setSelectedNode(undefined);
+    }
+  }
+
   return (
     <>
       <Title level={3}>Regions</Title>
-      <Tree treeData={regionList} />
+      <Spin spinning={waiting}>
+        <Form form={form} layout='inline'>
+          {
+            !regionList ? (
+              <Skeleton />
+            ) : !regionList.length ? (
+              <>
+                <Form.Item name='name'>
+                  <Input onChange={onChangeName} />
+                </Form.Item>
+                <Form.Item>
+                  <Button disabled={!name}>Add a region</Button>
+                </Form.Item>
+              </>
+            ) : (
+              <>
+                <Form.Item name='name'>
+                  <Input onChange={onChangeName} />
+                </Form.Item>
+                <Form.Item>
+                  <Button disabled={!selectedNode || !name}>
+                    Add a region under {selectedNode?.title ?? '...'}
+                  </Button>
+                </Form.Item>
+                <Tree treeData={regionList} onSelect={onSelect} />
+              </>
+            )
+          }
+        </Form>
+      </Spin>
     </>
   )
 }
