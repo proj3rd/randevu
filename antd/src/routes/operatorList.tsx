@@ -132,6 +132,7 @@ export default function OperatorList({ user }: Props) {
 }
 
 function EditableCell({ record, dataIndex, owner, children, onChangeOwner, ...props }: any) {
+  const { _id, name } = record ?? {};
   return (
     <td {...props}>
       {
@@ -158,6 +159,10 @@ function EditableCell({ record, dataIndex, owner, children, onChangeOwner, ...pr
           </Form.Item>
         ) : dataIndex === 'owner' ? (
           owner ?? <Skeleton.Input style={{ width: 200 }} />
+        ) : dataIndex === 'name' ? (
+          <Typography.Link href={`/operators/${seqValOf(_id)}`}>
+            {name}
+          </Typography.Link>
         ) : (
           children
         )
