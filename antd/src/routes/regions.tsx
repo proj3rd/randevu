@@ -5,6 +5,7 @@ import { EventDataNode } from "antd/lib/tree";
 import Title from "antd/lib/typography/Title";
 import axios from "axios";
 import { DocRegion, DocUser } from "randevu-shared/dist/types";
+import { isAdmin } from "randevu-shared/dist/utils";
 import { DataNode } from "rc-tree/lib/interface";
 import { useEffect, useState } from "react";
 import { useHistory, useRouteMatch } from "react-router";
@@ -113,7 +114,7 @@ export default function Regions({ user, setUser, setWaiting: setWaitingApp }: Pr
           {
             !regionList ? (
               <Skeleton />
-            ) : !regionList.length ? (
+            ) : !regionList.length && isAdmin(user) ? (
               <>
                 <Form.Item name='name' rules={[ { required: true }]} help={false}>
                   <Input onChange={onChangeName} />
@@ -122,7 +123,7 @@ export default function Regions({ user, setUser, setWaiting: setWaitingApp }: Pr
                   <Button disabled={!name}>Add a region</Button>
                 </Form.Item>
               </>
-            ) : (
+            ) : isAdmin(user) ? (
               <>
                 <Form.Item name='name' rules={[ { required: true }]} help={false}>
                   <Input onChange={onChangeName} />
@@ -133,7 +134,7 @@ export default function Regions({ user, setUser, setWaiting: setWaitingApp }: Pr
                   </Button>
                 </Form.Item>
               </>
-            )
+            ) : (null)
           }
         </Form>
         <Tree treeData={regionList} onSelect={onSelect} />
