@@ -45,6 +45,12 @@ export type DocPackage = {
   ranSharing?: string[]
 }
 
+export type DocRegion = {
+  _id: string;
+  name: string;
+  belongsTo?: string;
+};
+
 export type DocUser = {
   _id: string;
   username: string;
