@@ -7,6 +7,45 @@ import { COLLECTION_REGION, EDGE_COLLECTION_BELONGS_TO } from "../constants";
 import { validateString } from "../utils";
 
 export function serviceRegion(app: Express, db: Database) {
+  app.get('/regions', async (req, res) => {
+    const user = req.user as DocUser;
+    if (!user) {
+      return res.status(403).end();
+    }
+    let trx: Transaction | undefined;
+    try {
+      const collectionBelongsTo = db.collection(EDGE_COLLECTION_BELONGS_TO);
+      const collectionRegion = db.collection(COLLECTION_REGION);
+      trx = await db.beginTransaction({
+        read: [collectionBelongsTo, collectionRegion],
+      });
+      const cursorRegionList = await trx.step(() => db.query({
+        query: `
+          FOR region IN @@collectionRegion
+            let belongsTo = (
+              FOR regionUpper IN OUTBOUND region._id @@collectionBelongsTo
+                LIMIT 1
+                RETURN regionUpper._id
+            )[0]
+            RETURN MERGE (region, { belongsTo })
+        `,
+        bindVars: {
+          '@collectionRegion': collectionRegion.name,
+          '@collectionBelongsTo': collectionBelongsTo.name,
+        },
+      }));
+      const regionList = await cursorRegionList.all();
+      await trx.commit();
+      return res.json(regionList);
+    } catch (e) {
+      console.error(e);
+      if (trx) {
+        await trx.abort();
+      }
+      return res.status(500).end();
+    }
+  });
+
   app.post('/regions', async (req, res) => {
     const user = req.user as DocUser;
     if (!isAdmin(user)) {
