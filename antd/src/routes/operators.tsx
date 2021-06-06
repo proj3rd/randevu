@@ -2,6 +2,7 @@ import axios from "axios";
 import { DocUser } from "randevu-shared/dist/types";
 import { useEffect } from "react";
 import { Route, useHistory, useRouteMatch } from "react-router";
+import OperatorInfo from "./operatorInfo";
 import OperatorList from "./operatorList";
 
 type Props = {
@@ -31,7 +32,7 @@ export default function Operators({ user, setUser, setWaiting: setWaitingApp }: 
   return (
     <>
       <Route exact path={path} render={() => <OperatorList user={user} />} />
-      <Route path={`${path}/:seqVal`} />
+      <Route path={`${path}/:seqVal`} render={() => <OperatorInfo user={user} />} />
     </>
   )
 }
