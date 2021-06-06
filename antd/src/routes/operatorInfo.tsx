@@ -58,13 +58,6 @@ export default function OperatorInfo({ user }: Props) {
           name || <Skeleton.Input style={{ width: 200 }} active />
         }
       </Title>
-      <Title level={4}>Frequency allocations</Title>
-      <>
-        <Row>
-          <Col span={6}>Tree</Col>
-          <Col span={18}>Frequency allocations</Col>
-        </Row>
-      </>
       <Title level={4}>Packages</Title>
       <Button>Package map</Button>
       <Table
@@ -77,6 +70,13 @@ export default function OperatorInfo({ user }: Props) {
         }}
         pagination={false}
       />
+      <Title level={4}>Frequency allocations</Title>
+      <>
+        <Row>
+          <Col span={6}>Tree</Col>
+          <Col span={18}>Frequency allocations</Col>
+        </Row>
+      </>
     </>
   );
 }
