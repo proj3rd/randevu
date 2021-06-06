@@ -1,7 +1,8 @@
-import { Breadcrumb, Col, Row, Skeleton } from "antd";
+import { Breadcrumb, Col, Row, Skeleton, Table, Typography } from "antd";
 import Title from "antd/lib/typography/Title";
 import axios from "axios";
 import { DocOperator, DocUser } from "randevu-shared/dist/types";
+import { seqValOf } from "randevu-shared/dist/utils";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router"
 
@@ -14,6 +15,23 @@ export default function OperatorInfo({ user }: Props) {
 
   const [name, setName] = useState('');
   const [packageList, setPackageList] = useState<DocOperator[]>([]);
+
+  const columns: any[] = [
+    { key: 'name', dataIndex: 'name', title: 'Name' },
+  ].map((column) => {
+    const { dataIndex } = column;
+    return {
+      ...column,
+      onCell: (record: any) => {
+        return { record, dataIndex };
+      },
+    };
+  });
+
+  const dataSource = packageList.map((pkg) => {
+    const { _id } = pkg;
+    return { key: _id, ...pkg };
+  });
 
   useEffect(() => {
     axios.get(`/operators/${seqVal}`).then((response) => {
@@ -48,6 +66,31 @@ export default function OperatorInfo({ user }: Props) {
         </Row>
       </>
       <Title level={4}>Packages</Title>
+      <Table
+        columns={columns}
+        dataSource={dataSource}
+        components={{
+          body: {
+            cell: Cell,
+          },
+        }}
+        pagination={false}
+      />
     </>
   );
+}
+
+function Cell({ record, dataIndex, children, ...props }: any) {
+  const { _id } = record ?? {};
+  return  (
+    <td {...props}>
+      {
+        dataIndex === 'name' ? (
+          <Typography.Link href={`/packages/sub/${seqValOf(_id)}`}>
+            {children}
+          </Typography.Link>
+        ) : (null)
+      }
+    </td>
+  )
 }
