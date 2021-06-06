@@ -1,4 +1,4 @@
-import { Breadcrumb, Col, Row, Skeleton, Table, Typography } from "antd";
+import { Breadcrumb, Button, Col, Row, Skeleton, Table, Typography } from "antd";
 import Title from "antd/lib/typography/Title";
 import axios from "axios";
 import { DocOperator, DocUser } from "randevu-shared/dist/types";
@@ -35,7 +35,7 @@ export default function OperatorInfo({ user }: Props) {
 
   useEffect(() => {
     axios.get(`/operators/${seqVal}`).then((response) => {
-      const { _id, name } = response.data as DocOperator;
+      const { name } = response.data as DocOperator;
       setName(name);
     }).catch((reason) => {
       console.error(reason);
@@ -46,7 +46,7 @@ export default function OperatorInfo({ user }: Props) {
     }).catch((reason) => {
       console.error(reason);
     });
-  }, []);
+  }, [seqVal]);
 
   return (
     <>
@@ -66,6 +66,7 @@ export default function OperatorInfo({ user }: Props) {
         </Row>
       </>
       <Title level={4}>Packages</Title>
+      <Button>Package map</Button>
       <Table
         columns={columns}
         dataSource={dataSource}
