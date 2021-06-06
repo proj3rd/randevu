@@ -122,6 +122,39 @@ export function serviceOperator(app: Express, db: Database) {
     }
   });
 
+  app.get('/operators/:seqVal', async (req, res) => {
+    const user = req.user as DocUser;
+    if (!user) {
+      return res.status(403).end();
+    }
+    const { seqVal } = req.params;
+    if (!seqVal || !validateString(seqVal)) {
+      return res.status(400).end();
+    }
+    let trx: Transaction | undefined;
+    const collectionOperator = db.collection(COLLECTION_OPERATOR);
+    const operatorId = `${collectionOperator.name}/${seqVal}`;
+    try {
+      trx = await db.beginTransaction({
+        read: [collectionOperator],
+      });
+      const existsOperator = await trx.step(() => collectionOperator.documentExists(operatorId));
+      if (!existsOperator) {
+        await trx.abort();
+        return res.status(404).end();
+      }
+      const operator = await trx.step(() => collectionOperator.document(operatorId));
+      await trx.commit();
+      return res.json(operator);
+    } catch (e) {
+      console.error(e);
+      if (trx) {
+        await trx.abort();
+      }
+      return res.status(500).end();
+    }
+  });
+
   app.get('/operators/:seqVal/packages', async (req, res) => {
     const user = req.user as DocUser;
     if (!user) {
