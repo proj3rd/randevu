@@ -1,11 +1,11 @@
-import { Breadcrumb, Button, Col, Row, Skeleton, Table, Tree, Typography } from "antd";
+import { Breadcrumb, Button, Skeleton, Table, Typography } from "antd";
 import Title from "antd/lib/typography/Title";
 import axios from "axios";
 import { DocOperator, DocUser } from "randevu-shared/dist/types";
 import { seqValOf } from "randevu-shared/dist/utils";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router"
-import FrequencyAllocationTable from "../components/frequencyAllocationTable";
+import FrequencyAllocationManager from "../components/frequencyAllocationManager";
 
 type Props = {
   user?: DocUser | undefined;
@@ -72,18 +72,7 @@ export default function OperatorInfo({ user }: Props) {
         pagination={false}
       />
       <Title level={4}>Frequency allocations</Title>
-      <>
-        <Row>
-          <Col span={6}>
-            <Title level={5}>Regions</Title>
-            <Tree />
-          </Col>
-          <Col span={18}>
-            <Title level={5}>Frequency allocations</Title>
-            <FrequencyAllocationTable />
-          </Col>
-        </Row>
-      </>
+      <FrequencyAllocationManager />
     </>
   );
 }
