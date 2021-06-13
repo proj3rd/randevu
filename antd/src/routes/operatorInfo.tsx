@@ -72,7 +72,7 @@ export default function OperatorInfo({ user }: Props) {
         pagination={false}
       />
       <Title level={4}>Frequency allocations</Title>
-      <FrequencyAllocationManager />
+      <FrequencyAllocationManager operator={seqVal} />
     </>
   );
 }

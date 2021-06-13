@@ -1,15 +1,37 @@
-import { Button, Col, Row, Table, Tree } from "antd";
+import { Button, Col, Row, Spin, Table, Tree } from "antd";
 import Column from "antd/lib/table/Column";
+import axios from "axios";
+import { DataNode } from "rc-tree/lib/interface";
+import { useEffect, useState } from "react";
+import { regionListToDataNodeList } from "../utils";
 
-export default function FrequencyAllocationManager() {
+type Props = {
+  operator: string;
+};
+
+export default function FrequencyAllocationManager({ operator }: Props) {
+  const [waiting, setWaiting] = useState(false);
+  const [regionList, setRegionList] = useState<DataNode[]>([]);
+
+  useEffect(() => {
+    setWaiting(true);
+    axios.get(`/regions`).then((response) => {
+      const { data: regionList } = response;
+      const dataNodeList = regionListToDataNodeList(regionList);
+      setRegionList(dataNodeList);
+    }).catch((reason) => {
+      console.error(reason);
+    });
+  }, [operator]);
+
   return (
-    <>
+    <Spin spinning={waiting}>
       <Button>Add a frequency allocation</Button>
       <>
         <Row>
           <Col span={6}>
             Regions
-            <Tree />
+            <Tree treeData={regionList} />
           </Col>
           <Col span={18}>
             Frequency allocations
@@ -24,6 +46,6 @@ export default function FrequencyAllocationManager() {
           </Col>
         </Row>
       </>
-    </>
+    </Spin>
   );
 }
