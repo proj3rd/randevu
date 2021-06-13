@@ -9,6 +9,7 @@ import { isAdmin } from "randevu-shared/dist/utils";
 import { DataNode } from "rc-tree/lib/interface";
 import { useEffect, useState } from "react";
 import { useHistory, useRouteMatch } from "react-router";
+import { regionListToDataNodeList } from "../utils";
 
 type Props = {
   user?: DocUser | undefined;
@@ -46,27 +47,9 @@ export default function Regions({ user, setUser, setWaiting: setWaitingApp }: Pr
 
   async function getRegionList() {
     return axios.get('/regions').then((response) => {
-      const regionList: (DataNode & { belongsTo: string | undefined })[] = (
-        response.data as DocRegion[]
-      ).map((region) => {
-        const { _id, name, belongsTo } = region;
-        return { key: _id, title: name, children: [], belongsTo };
-      });
-      // Put a region into an upper region
-      regionList.forEach((region) => {
-        const { belongsTo } = region;
-        const regionUpper = regionList.find((region) => region.key === belongsTo);
-        if (regionUpper) {
-          regionUpper.children?.push(region);
-        }
-      });
-      // Find the top level region
-      const topLevelRegion = regionList.find((region) => !region.belongsTo);
-      if (topLevelRegion) {
-        setRegionList([topLevelRegion]);
-      } else {
-        setRegionList([]);
-      }
+      const { data: regionList } = response;
+      const dataNodeList = regionListToDataNodeList(regionList);
+      setRegionList(dataNodeList);
     }).catch((reason) => {
       console.error(reason);
     });
