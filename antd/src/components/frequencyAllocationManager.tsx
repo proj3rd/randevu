@@ -1,4 +1,4 @@
-import { Button, Col, Row, Spin, Table, Tree } from "antd";
+import { Button, Col, Row, Spin, Table, Tabs, Tree } from "antd";
 import Column from "antd/lib/table/Column";
 import axios from "axios";
 import { DataNode } from "rc-tree/lib/interface";
@@ -15,10 +15,15 @@ export default function FrequencyAllocationManager({ operator }: Props) {
 
   useEffect(() => {
     setWaiting(true);
-    axios.get(`/regions`).then((response) => {
-      const { data: regionList } = response;
+    const promiseRegion = axios.get(`/regions`);
+    const promiseFrequencyAllocations = axios.get(`/operators/${operator}/frequency-allocations`);
+    Promise.all([promiseRegion, promiseFrequencyAllocations]).then(([responseRegion, responseFrequencyAllocations]) => {
+      const { data: regionList } = responseRegion;
       const dataNodeList = regionListToDataNodeList(regionList);
       setRegionList(dataNodeList);
+      const { data: frequencyAllocationList } = responseFrequencyAllocations;
+      // TODO
+      setWaiting(false);
     }).catch((reason) => {
       console.error(reason);
     });
@@ -27,25 +32,39 @@ export default function FrequencyAllocationManager({ operator }: Props) {
   return (
     <Spin spinning={waiting}>
       <Button>Add a frequency allocation</Button>
-      <>
-        <Row>
-          <Col span={6}>
-            Regions
-            <Tree treeData={regionList} />
-          </Col>
-          <Col span={18}>
-            Frequency allocations
-            <Table>
-              <Column key='alias' dataIndex='alias' title='Alias' />
-              <Column key='rat' dataIndex='rat' title='RAT' />
-              <Column key='band' dataIndex='band' title='Band' />
-              <Column key='uplink' dataIndex='uplink' title='Uplink' />
-              <Column key='downlink' dataIndex='downlink' title='Downlink' />
-              <Column key='duplex' dataIndex='duplex' title='Duplex mode' />
-            </Table>
-          </Col>
-        </Row>
-      </>
+      <Tabs defaultActiveKey="all">
+        <Tabs.TabPane tab="All" key="all">
+          Frequency allocations
+          <FrequencyAllocationTable />
+        </Tabs.TabPane>
+        <Tabs.TabPane tab="Regional" key="regional">
+          <>
+            <Row>
+              <Col span={6}>
+                Regions
+                <Tree treeData={regionList} />
+              </Col>
+              <Col span={18}>
+                Frequency allocations
+                <FrequencyAllocationTable />
+              </Col>
+            </Row>
+          </>
+        </Tabs.TabPane>
+      </Tabs>
     </Spin>
+  );
+}
+
+function FrequencyAllocationTable() {
+  return (
+    <Table>
+      <Column key='alias' dataIndex='alias' title='Alias' />
+      <Column key='rat' dataIndex='rat' title='RAT' />
+      <Column key='band' dataIndex='band' title='Band' />
+      <Column key='uplink' dataIndex='uplink' title='Uplink' />
+      <Column key='downlink' dataIndex='downlink' title='Downlink' />
+      <Column key='duplex' dataIndex='duplex' title='Duplex mode' />
+    </Table>
   );
 }
