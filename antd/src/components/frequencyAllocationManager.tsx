@@ -16,7 +16,7 @@ export default function FrequencyAllocationManager({ operator }: Props) {
   useEffect(() => {
     setWaiting(true);
     const promiseRegion = axios.get(`/regions`);
-    const promiseFrequencyAllocations = axios.get(`/operators/${operator}/frequency-allocations`);
+    const promiseFrequencyAllocations = axios.get(`/operators/${operator}/frequency-allocations?include[]=region`);
     Promise.all([promiseRegion, promiseFrequencyAllocations]).then(([responseRegion, responseFrequencyAllocations]) => {
       const { data: regionList } = responseRegion;
       const dataNodeList = regionListToDataNodeList(regionList);
