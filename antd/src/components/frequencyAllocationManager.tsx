@@ -31,21 +31,19 @@ export default function FrequencyAllocationManager({ operator }: Props) {
 
   return (
     <Spin spinning={waiting}>
-      <Button>Add a frequency allocation</Button>
       <Tabs defaultActiveKey="all">
         <Tabs.TabPane tab="All" key="all">
-          Frequency allocations
+          <Button>Add a frequency allocation</Button>
           <FrequencyAllocationTable />
         </Tabs.TabPane>
         <Tabs.TabPane tab="Regional" key="regional">
           <>
             <Row>
               <Col span={6}>
-                Regions
                 <Tree treeData={regionList} />
               </Col>
               <Col span={18}>
-                Frequency allocations
+                <Button>Map frequency allocations to this region</Button>
                 <FrequencyAllocationTable />
               </Col>
             </Row>
