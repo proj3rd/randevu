@@ -1,0 +1,56 @@
+get:
+  tags:
+    - Operator
+    - Frequency allocation
+  summary: Get a list of frequency allocations of an operator
+  parameters:
+    - name: seqVal
+      in: query
+      description: Sequence value of an operator
+      required: true
+      schema:
+        type: string
+    - name: include
+      in: query
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+            - region
+  responses:
+    "200":
+      description: Ok
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                _id:
+                  type: string
+                name:
+                  type: string
+                rat:
+                  type: string
+                  description: Document ID of a radio access technology
+                duplexMode:
+                  type: string
+                  description: Document ID of a duplex mode
+                regions:
+                  type: array
+                  description: A list of region document IDs
+                  items:
+                    type: string
+              required:
+                - _id
+                - name
+                - rat
+                - duplexMode
+    "400":
+      description: Invalid input
+    "403":
+      description: Unauthorized
+    "500":
+      description: Internal failure

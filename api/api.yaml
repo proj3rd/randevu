@@ -42,6 +42,8 @@ paths:
     $ref: './paths/operators.yaml'
   /operators/{seqVal}/packages:
     $ref: './paths/operators_seqVal_packages.yaml'
+  /operators/{seqVal}/frequency-allocations:
+    $ref: './paths/operators_seqVal_frequencyAllocations.yaml'
 
   # Package
   /packages:
